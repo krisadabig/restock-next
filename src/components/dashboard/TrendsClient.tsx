@@ -17,6 +17,24 @@ export default function TrendsClient({ entries }: { entries: Entry[] }) {
     // Calculate total spending
     const totalSpending = entries.reduce((acc, entry) => acc + entry.price, 0);
 
+    // Month-over-Month Calculation
+    const now = new Date();
+    const currentMonthStr = now.toISOString().substring(0, 7); // YYYY-MM
+    const prevMonthDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+    const prevMonthStr = prevMonthDate.toISOString().substring(0, 7);
+
+    const currentMonthSpending = entries
+        .filter(e => e.date.startsWith(currentMonthStr))
+        .reduce((acc, e) => acc + e.price, 0);
+    
+    const prevMonthSpending = entries
+        .filter(e => e.date.startsWith(prevMonthStr))
+        .reduce((acc, e) => acc + e.price, 0);
+
+    const momChange = prevMonthSpending === 0 
+        ? 0 
+        : ((currentMonthSpending - prevMonthSpending) / prevMonthSpending) * 100;
+
     // Group by item and sum the price
     const itemSpendingMap = entries.reduce((acc, entry) => {
         acc[entry.item] = (acc[entry.item] || 0) + entry.price;
@@ -46,8 +64,8 @@ export default function TrendsClient({ entries }: { entries: Entry[] }) {
             </header>
 
             {/* Stats Cards */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-4">
-                <div className="bg-linear-to-br from-indigo-600 to-violet-700 p-6 rounded-3xl shadow-xl shadow-indigo-200 dark:shadow-indigo-900/40 text-white overflow-hidden relative group h-full">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="bg-linear-to-br from-indigo-600 to-violet-700 p-6 rounded-3xl shadow-xl shadow-indigo-200 dark:shadow-indigo-900/40 text-white overflow-hidden relative group">
                     <div className="absolute -right-8 -top-8 w-32 h-32 bg-white/10 rounded-full blur-2xl group-hover:bg-white/20 transition-all duration-700"></div>
                     <div className="relative z-10 flex flex-col gap-1">
                         <div className="flex justify-between items-center mb-2">
@@ -61,14 +79,28 @@ export default function TrendsClient({ entries }: { entries: Entry[] }) {
                         </div>
                         <div className="text-4xl font-black tracking-tight flex items-baseline gap-1">
                             <span className="text-2xl font-medium opacity-80">฿</span>
-                            {totalSpending.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                            {totalSpending.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
                         </div>
-                        <div className="mt-4 flex items-center gap-2 text-sm text-indigo-100/60">
-                            <div className="h-1.5 w-full bg-white/10 rounded-full overflow-hidden">
-                                <div className="h-full bg-white/60 rounded-full w-[70%]" />
-                            </div>
-                            <span>70%</span>
+                    </div>
+                </div>
+
+                <div className="glass p-6 rounded-3xl relative overflow-hidden group">
+                    <div className="relative z-10 flex flex-col gap-1">
+                        <div className="flex justify-between items-center mb-2">
+                            <span className="text-slate-500 dark:text-slate-400 font-medium text-sm flex items-center gap-1.5">
+                                <TrendingUp size={14} />
+                                Month-over-Month
+                            </span>
                         </div>
+                        <div className="text-3xl font-black tracking-tight text-slate-900 dark:text-white flex items-baseline gap-2">
+                            {momChange > 0 ? '+' : ''}{momChange.toFixed(1)}%
+                            <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">
+                                vs Last Month
+                            </span>
+                        </div>
+                        <p className="text-[10px] font-bold text-slate-400 mt-2 uppercase tracking-widest">
+                            ฿{currentMonthSpending.toLocaleString()} this month
+                        </p>
                     </div>
                 </div>
             </div>

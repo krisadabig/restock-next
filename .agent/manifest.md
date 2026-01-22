@@ -63,16 +63,19 @@ Never mark something completed "assuming it works" or "it should pass".
 | Trends Page & RLS | PASS | 2026-01-22T23:25:00 | Implemented Trends page with spending visualizations. Verified RLS isolation and updated E2E tests for Supabase. 19/19 tests pass. |
 | Reachability & Premium UI | PASS | 2026-01-23T00:15:00 | Phase 12: Fixed mobile ergonomics by removing redundant headers. Moved toggles into thumb-friendly Settings. Integrated 3D Hero and Shimmer CTA. 16/16 smoke tests pass locally. |
 | PWA & Deployment | PASS | 2026-01-23T01:05:00 | Phase 9: Optimized manifest, added service worker, and integrated security headers. Verified tablet responsiveness. Build passes. |
+| Core Functionalities (Phase 13, 14, 15) | PASS | 2026-01-23T01:15:00 | Completed CRUD (Edit/Delete), Search, Filtering, Autocomplete, and MO-M Trends. 16/16 smoke tests pass. |
 
 ## Session Handoff / Next Steps
 **Current State**:
-- Trends page implemented and verified.
-- Reachability Audit (Phase 12) complete.
-- Premium UI assets (3D Hero) and micro-animations integrated.
-- PWA optimization (Phase 9) complete: Manifest enhanced, SW registered, and security headers added.
-- 16/16 smoke tests passing across all locators (EN/TH).
+- Core CRUD completed: **Edit** and **Delete** actions fully functional with Zod validation.
+- Search & Discovery: Added **Real-time Search** and **Monthly Filtering** to Dashboard.
+- Data Consistency: Added **Smart Autocomplete** for item names in Add/Edit modals.
+- Trends Enhanced: Added **Month-over-Month (MO-M)** spending comparison.
+- Bug Fix: Resolved regression with missing `'use client';` directives in Dashboard components.
+- 16/16 smoke tests passing (EN/TH support verified).
 
 **Immediate Next Actions**:
 1. Implement more granular offline data persistence (IndexedDB) for CRUD operations.
-2. Add "Share" functionality for spending trends.
-3. Final production smoke test on staging environment.
+2. Add "Share" functionality for spending trends (Web Share API).
+3. Implement "Export to CSV/JSON" feature for personal record keeping.
+4. Refactor `TrendsClient` to support custom date ranges for more detailed analytics.

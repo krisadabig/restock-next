@@ -2,7 +2,7 @@
 
 import { db } from '@/lib/db';
 import { entries } from '@/lib/db/schema';
-import { desc, eq } from 'drizzle-orm';
+import { desc, eq, and } from 'drizzle-orm';
 import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
 
@@ -54,9 +54,20 @@ export async function getEntries(): Promise<Entry[]> {
 	}));
 }
 
-export async function addEntry(data: { item: string; price: number; date: string; note?: string }) {
+import { z } from 'zod';
+
+const entrySchema = z.object({
+	item: z.string().min(1, 'Item name is required'),
+	price: z.number().min(0, 'Price must be 0 or more'),
+	date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Invalid date format'),
+	note: z.string().optional().nullable(),
+});
+
+export async function addEntry(rawData: { item: string; price: number; date: string; note?: string }) {
 	const user = await getUser();
 	if (!user) throw new Error('Unauthorized');
+
+	const data = entrySchema.parse(rawData);
 
 	await db.insert(entries).values({
 		item: data.item,
@@ -67,4 +78,51 @@ export async function addEntry(data: { item: string; price: number; date: string
 	});
 
 	revalidatePath('/app');
+	revalidatePath('/app/trends');
+}
+
+export async function deleteEntry(id: number) {
+	const user = await getUser();
+	if (!user) throw new Error('Unauthorized');
+
+	await db.delete(entries).where(and(eq(entries.id, id), eq(entries.userId, user.id)));
+
+	revalidatePath('/app');
+	revalidatePath('/app/trends');
+}
+
+export async function updateEntry(
+	id: number,
+	rawData: { item: string; price: number; date: string; note?: string | null },
+) {
+	const user = await getUser();
+	if (!user) throw new Error('Unauthorized');
+
+	const data = entrySchema.parse(rawData);
+
+	await db
+		.update(entries)
+		.set({
+			item: data.item,
+			price: data.price,
+			date: data.date,
+			note: data.note,
+		})
+		.where(and(eq(entries.id, id), eq(entries.userId, user.id)));
+
+	revalidatePath('/app');
+	revalidatePath('/app/trends');
+}
+
+export async function getUniqueItems(): Promise<string[]> {
+	const user = await getUser();
+	if (!user) return [];
+
+	const result = await db
+		.selectDistinct({ item: entries.item })
+		.from(entries)
+		.where(eq(entries.userId, user.id))
+		.orderBy(entries.item);
+
+	return result.map((r) => r.item);
 }

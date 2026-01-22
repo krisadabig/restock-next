@@ -3,10 +3,24 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslation } from '@/lib/i18n';
-import { addEntry, getUniqueItems } from '@/app/app/actions';
+import { updateEntry, getUniqueItems } from '@/app/app/actions';
 import { X, Calendar, DollarSign, Tag, FileText } from 'lucide-react';
 
-export default function AddEntryModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
+interface Entry {
+    id: number;
+    item: string;
+    price: number;
+    date: string;
+    note: string | null;
+}
+
+export default function EditEntryModal({ 
+    entry, 
+    onClose 
+}: { 
+    entry: Entry; 
+    onClose: () => void 
+}) {
     const { t } = useTranslation();
     const router = useRouter();
     const [loading, setLoading] = useState(false);
@@ -14,12 +28,8 @@ export default function AddEntryModal({ isOpen, onClose }: { isOpen: boolean; on
     const [suggestions, setSuggestions] = useState<string[]>([]);
 
     useEffect(() => {
-        if (isOpen) {
-            getUniqueItems().then(setSuggestions);
-        }
-    }, [isOpen]);
-
-    if (!isOpen) return null;
+        getUniqueItems().then(setSuggestions);
+    }, []);
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -33,7 +43,7 @@ export default function AddEntryModal({ isOpen, onClose }: { isOpen: boolean; on
         const note = formData.get('note') as string;
 
         try {
-            await addEntry({ item, price, date, note });
+            await updateEntry(entry.id, { item, price, date, note });
             setLoading(false);
             onClose();
             router.refresh();
@@ -54,7 +64,7 @@ export default function AddEntryModal({ isOpen, onClose }: { isOpen: boolean; on
             {/* Modal */}
             <div className="relative w-full max-w-md bg-white dark:bg-gray-900 rounded-t-2xl sm:rounded-2xl shadow-xl transform transition-transform animate-in slide-in-from-bottom-full sm:slide-in-from-bottom-10">
                 <div className="flex items-center justify-between p-4 border-b border-gray-100 dark:border-gray-800">
-                    <h2 className="text-lg font-bold text-gray-900 dark:text-white">{t('app.addEntry')}</h2>
+                    <h2 className="text-lg font-bold text-gray-900 dark:text-white">Edit Entry</h2>
                     <button 
                         onClick={onClose}
                         className="p-2 text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors"
@@ -70,12 +80,13 @@ export default function AddEntryModal({ isOpen, onClose }: { isOpen: boolean; on
                         </label>
                         <input 
                             name="item"
-                            list="item-suggestions"
+                            list="item-suggestions-edit"
                             required
+                            defaultValue={entry.item}
                             placeholder="e.g. Coffee Beans"
                             className="w-full p-3 bg-gray-50 dark:bg-gray-800 border-0 rounded-xl focus:ring-2 focus:ring-indigo-500 transition-all dark:text-white"
                         />
-                        <datalist id="item-suggestions">
+                        <datalist id="item-suggestions-edit">
                             {suggestions.map(s => <option key={s} value={s} />)}
                         </datalist>
                     </div>
@@ -91,6 +102,7 @@ export default function AddEntryModal({ isOpen, onClose }: { isOpen: boolean; on
                                 required
                                 min="0"
                                 step="0.01"
+                                defaultValue={entry.price}
                                 placeholder="0.00"
                                 className="w-full p-3 bg-gray-50 dark:bg-gray-800 border-0 rounded-xl focus:ring-2 focus:ring-indigo-500 transition-all dark:text-white"
                             />
@@ -104,7 +116,7 @@ export default function AddEntryModal({ isOpen, onClose }: { isOpen: boolean; on
                                 name="date"
                                 type="date"
                                 required
-                                defaultValue={new Date().toISOString().split('T')[0]} // YYYY-MM-DD
+                                defaultValue={entry.date}
                                 className="w-full p-3 bg-gray-50 dark:bg-gray-800 border-0 rounded-xl focus:ring-2 focus:ring-indigo-500 transition-all dark:text-white"
                             />
                         </div>
@@ -117,6 +129,7 @@ export default function AddEntryModal({ isOpen, onClose }: { isOpen: boolean; on
                         <textarea 
                             name="note"
                             rows={3}
+                            defaultValue={entry.note || ''}
                             placeholder="e.g. Bought from wholesale market"
                             className="w-full p-3 bg-gray-50 dark:bg-gray-800 border-0 rounded-xl focus:ring-2 focus:ring-indigo-500 transition-all dark:text-white resize-none"
                         />
@@ -133,7 +146,7 @@ export default function AddEntryModal({ isOpen, onClose }: { isOpen: boolean; on
                         disabled={loading}
                         className="w-full py-3.5 bg-black dark:bg-white text-white dark:text-black font-bold rounded-xl hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-70 disabled:scale-100"
                     >
-                        {loading ? t('app.processing') : 'Add Entry'}
+                        {loading ? t('app.processing') : 'Save Changes'}
                     </button>
                     <div className="pb-4 sm:hidden"></div> {/* Safe area spacer for mobile */}
                 </form>

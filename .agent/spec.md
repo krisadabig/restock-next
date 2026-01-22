@@ -22,7 +22,10 @@ Restock is a web application designed to help users track their grocery stock, p
 
 ### 2. Entries Tracking
 - **Schema**: Defined in `src/lib/db/schema.ts`. Each entry contains `item`, `price`, `date`, `note`, and `userId`.
-- **CRUD Operations**: Handled via Server Actions in `src/app/app/actions.ts`.
+- **CRUD Operations**: Handled via Server Actions in `src/app/app/actions.ts`. Includes `addEntry`, `updateEntry`, and `deleteEntry`.
+- **Validation**: All server actions utilize **Zod** for input validation and schema enforcement.
+- **Search & Filtering**: `DashboardClient.tsx` implements client-side search (by item name) and date filtering (by month).
+- **Data Consistency**: The application uses a `getUniqueItems` server action to provide **autocomplete suggestions** (via `<datalist>`) when adding or editing items.
 - **Data Isolation**: All entries are scoped to the `userId` of the authenticated user.
 
 ### 3. Settings & Personalization
@@ -32,7 +35,7 @@ Restock is a web application designed to help users track their grocery stock, p
 
 ### 4. Trends & Analytics
 - **Spending Dashboard**: Visualizes spending habits at `src/app/app/trends/page.tsx`.
-- **Metrics**: Calculates total spending and groups costs by item category/name.
+- **Metrics**: Calculates total spending, groups costs by item, and provides **Month-over-Month (MO-M)** comparison.
 - **Visualization**: Uses modern CSS and Tailwind animations for progress bars and metric cards instead of external charting libraries for lightness.
 
 ## Directory Structure
