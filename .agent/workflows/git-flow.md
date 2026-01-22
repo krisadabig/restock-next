@@ -48,11 +48,10 @@ Organize commits by logical phases or features, not arbitrary checkpoints:
 # Good: One commit per completed phase
 git commit -m "feat(settings): implement settings page UI"
 git commit -m "test(settings): add E2E tests for settings"
-git commit -m "feat(settings): add persistence to localStorage"
-
-# Bad: Committing incomplete or broken work
-git commit -m "WIP: started settings"  # ❌ Never commit WIP
 ```
+
+**⚠️ Synchronize Spec BEFORE Commit**:
+For every `feat` or `refactor` commit, you MUST first verify that `.agent/spec.md` accurately describes the new/changed logic (routes, data flow, deps).
 
 ### Conventional Commits Format
 Use [Conventional Commits](https://www.conventionalcommits.org/) format:
@@ -116,7 +115,8 @@ git push origin main
 
 ## ⚠️ Rules
 
-1. **Never commit directly to `main`** — Always use feature branches
-2. **Never merge failing tests** — All tests must pass first
-3. **Never skip smoke tests** — Run `bun run smoke` before merge
-4. **Always update manifest** — Mark tasks [COMPLETED] and **update Handoff session**
+1. **Never commit directly to `main`** — Always use feature branches.
+2. **Never merge failing tests** — All tests must pass first (`bun run smoke`).
+3. **Spec Syncing is Mandatory** — Update `.agent/spec.md` concurrently with feature implementation.
+4. **Always update manifest** — Mark tasks [COMPLETED] and **update Handoff session**.
+5. **Continuous Verification** — Run `bun test && bun run lint` before every commit to ensure quality.

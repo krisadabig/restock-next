@@ -32,6 +32,13 @@ Define the next 3-4 logical steps.
 ### 4. Cross-Reference `task.md`
 Ensure that any new "Next Steps" identified are also reflected as `[ ] Todo` items in the `task.md` file.
 
+### 5. Conduct Retrospective (Closing the Loop)
+- **Action**: Create a `retrospective.md` artifact (or add to an existing one in the brain directory) covering:
+    - What went well?
+    - What were the friction points?
+    - How can we update the rules or workflows to prevent those friction points?
+- **Goal**: Turn active mistakes into passive guardrails.
+
 ## ⚠️ Checklist for Commit
 Include the following in your final merge commit message or as a separate commit:
 - "docs(handoff): update session handoff in manifest.md"

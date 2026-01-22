@@ -59,6 +59,14 @@
     - [x] Add E2E tests (`tests/e2e/settings.spec.ts`) <!-- id: 29 -->
     - [x] Verify via Playwright MCP <!-- id: 30 -->
     - [x] Run smoke tests <!-- id: 31 -->
+# Phase 10: Workflow Improvements
+
+- [x] Enhance Agent Workflows <!-- id: 60 -->
+    - [x] Propose enhancements in `workflow_enhancements.md` <!-- id: 61 -->
+    - [x] Update `resume.md` with Branch Locking <!-- id: 62 -->
+    - [x] Update `git-flow.md` with Spec Sync & Guardrails <!-- id: 63 -->
+    - [x] Update `handoff.md` with Retrospective step <!-- id: 64 -->
+    - [x] Final verification of all workflow scripts <!-- id: 65 -->
 
 # Phase 8: Trends Page & Verification
 
