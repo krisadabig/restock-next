@@ -32,7 +32,29 @@ git checkout -b feature/<task-name>
 
 ## 2️⃣ During Development
 
-### Commit Frequently
+### Run Tests BEFORE Every Commit
+
+```bash
+# // turbo
+bun run smoke
+```
+
+**⚠️ NEVER commit if tests fail.** This ensures no bad code enters git history.
+
+### Commit Per Phase/Feature
+Organize commits by logical phases or features, not arbitrary checkpoints:
+
+```bash
+# Good: One commit per completed phase
+git commit -m "feat(settings): implement settings page UI"
+git commit -m "test(settings): add E2E tests for settings"
+git commit -m "feat(settings): add persistence to localStorage"
+
+# Bad: Committing incomplete or broken work
+git commit -m "WIP: started settings"  # ❌ Never commit WIP
+```
+
+### Conventional Commits Format
 Use [Conventional Commits](https://www.conventionalcommits.org/) format:
 
 ```
@@ -42,21 +64,6 @@ Use [Conventional Commits](https://www.conventionalcommits.org/) format:
 ```
 
 **Types:** `feat`, `fix`, `docs`, `test`, `refactor`, `style`, `chore`
-
-**Examples:**
-```bash
-git commit -m "feat(settings): add theme preference section"
-git commit -m "test(settings): add E2E tests for settings page"
-git commit -m "fix(i18n): correct Thai translation for settings"
-```
-
-### Before Each Commit
-```bash
-# // turbo
-bun run smoke
-```
-
-Only commit if smoke tests pass.
 
 ## 3️⃣ Pre-Merge Checklist
 
