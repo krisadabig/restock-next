@@ -13,6 +13,8 @@ A task **MUST NOT** be marked [COMPLETED] unless **ALL** of the following are tr
 7. You have **verified the feature works in the browser** (if it's a UI task) — describe briefly what you saw.
 8. You have **run the smoke test suite** (`npm run smoke` or `bun run smoke`) and confirmed all critical paths pass.
 9. **Git Discipline**: All changes are committed to a feature branch following the `/git-flow` workflow, merged to `main` only after verification, and the feature branch is deleted.
+10. **Hydration & Assets**: Verified no React hydration lints were introduced and all assets are correctly mapped to `public/`.
+11. **i18n-Safe Tests**: Verified all new/updated tests use regex-based locators to support both EN and TH.
 
 Only after **ALL 9 points** are satisfied may you change the status to [COMPLETED] and add the timestamp in ISO format.
 
