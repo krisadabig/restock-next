@@ -12,18 +12,18 @@ export default function ThemeToggle() {
     const isDark = storedTheme === 'dark' || (!storedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches);
     
     if (isDark) {
-      setTheme('dark');
       document.documentElement.classList.add('dark');
     } else {
-      setTheme('light');
       document.documentElement.classList.remove('dark');
     }
     
-    // Using setTimeout to avoid synchronous setState warning during hydration
-    const timer = setTimeout(() => {
+    // Use requestAnimationFrame to defer setState and avoid cascading render lint error
+    const raf = requestAnimationFrame(() => {
+        setTheme(isDark ? 'dark' : 'light');
         setMounted(true);
-    }, 0);
-    return () => clearTimeout(timer);
+    });
+    
+    return () => cancelAnimationFrame(raf);
   }, []);
 
   const toggleTheme = () => {

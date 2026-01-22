@@ -32,14 +32,15 @@ git checkout -b feature/<task-name>
 
 ## 2️⃣ During Development
 
-### Run Tests BEFORE Every Commit
+### Proactive Linting
+Run linting frequently during development to catch errors early:
 
 ```bash
 # // turbo
-bun run smoke
+bun run lint
 ```
 
-**⚠️ NEVER commit if tests fail.** This ensures no bad code enters git history.
+**⚠️ NEVER commit if tests or linting fail.** This ensures no bad code enters git history.
 
 ### Commit Per Phase/Feature
 Organize commits by logical phases or features, not arbitrary checkpoints:
@@ -69,9 +70,10 @@ Use [Conventional Commits](https://www.conventionalcommits.org/) format:
 Before merging to `main`, verify ALL Definition of Done criteria (see `manifest.md`):
 
 - [ ] Feature implemented per spec
-- [ ] All tests pass (`bun test`)
+- [ ] **Component Directive Check**: Verified `'use client';` presence in all modified Client Components.
+- [ ] No lint/type errors (`bun run lint`).
+- [ ] All tests pass (`bun test`).
 - [ ] New tests added for new behaviors
-- [ ] No lint/type errors (`bun run lint` if available)
 - [ ] Smoke tests pass (`bun run smoke`)
 - [ ] UI verified via Playwright MCP (if applicable)
 - [ ] Manifest updated with [COMPLETED] status

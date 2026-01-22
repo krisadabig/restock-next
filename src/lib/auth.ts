@@ -51,7 +51,7 @@ export async function loginPasskey(username?: string, options: { conditional?: b
 	// 2. Pass options to browser
 	if (options.conditional) {
 		// Force mediation: conditional for autofill
-		(authOptions as any).mediation = 'conditional';
+		(authOptions as { mediation?: string }).mediation = 'conditional';
 	}
 	const asseResp = await startAuthentication(authOptions);
 

@@ -224,7 +224,7 @@ type Locale = 'en' | 'th';
 interface I18nContextType {
 	locale: Locale;
 	setLocale: (l: Locale) => void;
-	t: (key: string) => any;
+	t: (key: string) => string;
 }
 
 const I18nContext = createContext<I18nContextType | undefined>(undefined);
@@ -234,11 +234,13 @@ export function I18nProvider({ children }: { children: ReactNode }) {
 
 	const t = (key: string) => {
 		const keys = key.split('.');
-		let result: any = translations[locale];
+		let result: unknown = translations[locale];
 		for (const k of keys) {
-			if (result) result = result[k as keyof typeof result];
+			if (result && typeof result === 'object') {
+                result = (result as Record<string, unknown>)[k];
+            }
 		}
-		return result || key;
+		return (result as string) || key;
 	};
 
 	return (

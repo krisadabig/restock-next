@@ -20,6 +20,12 @@ Update the `Current State` bullet points in the `Session Handoff / Next Steps` s
 - Mention specific files or APIs changed if critical.
 - Ensure it reflects the absolute truth of the codebase *right now*.
 
+### 3. Conduct Retrospective & Update Rules
+- **Action**: Create or update `retrospective.md` covering:
+    - What went well?
+    - What were the friction points?
+- **CRITICAL**: If a mistake was made (e.g., missing `'use client'`, lint errors), you MUST update the relevant project workflow (e.g., `git-flow.md`) or rule file to prevent it from happening again.
+
 ### 3. Update Application Spec
 Check if the changes merit an update to `.agent/spec.md`. If you added a new route, a new table, or a new dependency, it MUST be documented there.
 
