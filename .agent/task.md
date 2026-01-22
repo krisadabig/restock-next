@@ -6,8 +6,8 @@
     - [x] Create `InstallAppSection` component <!-- id: 3 -->
     - [x] Create `Footer` component <!-- id: 4 -->
     - [x] Assemble `src/app/page.tsx` <!-- id: 5 -->
-    - [ ] Add animations (Framer Motion or CSS) to match Svelte transitions <!-- id: 6 -->
-    - [ ] Verify responsive design <!-- id: 7 -->
+    - [x] Add animations (Framer Motion or CSS) to match Svelte transitions <!-- id: 6 -->
+    - [x] Verify responsive design <!-- id: 7 -->
 - [x] Login Page Migrated <!-- id: 8 -->
     - [x] Create Login UI (`src/app/login/page.tsx`) <!-- id: 9 -->
     - [x] Integrate WebAuthn client (mocked/stubbed first if backend not ready) <!-- id: 10 -->
@@ -24,18 +24,17 @@
     - [x] Entries CRUD Implementation <!-- id: 21 -->
     - [x] Connect Dashboard to Real Data <!-- id: 22 -->
 
-# Phase 7: UX/UI Polish & Backlog
+# Phase 5: Settings Page
 
-- [ ] UX/UI Consistency & Decoration <!-- id: 40 -->
-    - [ ] Audit color palette usage across all pages <!-- id: 41 -->
-    - [ ] Standardize button and input styles <!-- id: 42 -->
-    - [ ] Add smooth transitions and micro-animations <!-- id: 43 -->
-    - [ ] Improve empty states and loading skeletons <!-- id: 44 -->
-    - [ ] Ensure consistent spacing and typography <!-- id: 45 -->
-
-- [x] Application Specification & Spec Workflow <!-- id: 46 -->
-    - [x] Create `.agent/spec.md` with tech stack and core logic <!-- id: 47 -->
-    - [x] Update `/resume` workflow to include spec check <!-- id: 48 -->
+- [x] Settings Page Implementation <!-- id: 23 -->
+    - [x] Create `src/app/app/settings/page.tsx` <!-- id: 24 -->
+    - [x] Appearance Section (Theme + Language toggles) <!-- id: 25 -->
+    - [x] Account Section (Logout button) <!-- id: 26 -->
+    - [x] Delete Account flow (modal + confirmation) <!-- id: 27 -->
+    - [x] Update BottomNav with Settings link <!-- id: 28 -->
+    - [x] Add E2E tests (`tests/e2e/settings.spec.ts`) <!-- id: 29 -->
+    - [x] Verify via Playwright MCP <!-- id: 30 -->
+    - [x] Run smoke tests <!-- id: 31 -->
 
 # Phase 6: Supabase Auth Integration
 
@@ -48,25 +47,17 @@
     - [x] Verify via Playwright MCP <!-- id: 38 -->
     - [x] Run smoke tests <!-- id: 39 -->
 
-# Phase 5: Settings Page
+# Phase 7: UX/UI Polish & Backlog
 
-- [x] Settings Page Implementation <!-- id: 23 -->
-    - [x] Create `src/app/app/settings/page.tsx` <!-- id: 24 -->
-    - [x] Appearance Section (Theme + Language toggles) <!-- id: 25 -->
-    - [x] Account Section (Logout button) <!-- id: 26 -->
-    - [x] Delete Account flow (modal + confirmation) <!-- id: 27 -->
-    - [x] Update BottomNav with Settings link <!-- id: 28 -->
-    - [x] Add E2E tests (`tests/e2e/settings.spec.ts`) <!-- id: 29 -->
-    - [x] Verify via Playwright MCP <!-- id: 30 -->
-    - [x] Run smoke tests <!-- id: 31 -->
-# Phase 10: Workflow Improvements
-
-- [x] Enhance Agent Workflows <!-- id: 60 -->
-    - [x] Propose enhancements in `workflow_enhancements.md` <!-- id: 61 -->
-    - [x] Update `resume.md` with Branch Locking <!-- id: 62 -->
-    - [x] Update `git-flow.md` with Spec Sync & Guardrails <!-- id: 63 -->
-    - [x] Update `handoff.md` with Retrospective step <!-- id: 64 -->
-    - [x] Final verification of all workflow scripts <!-- id: 65 -->
+- [/] UX/UI Consistency & Decoration <!-- id: 40 -->
+    - [x] Audit color palette usage across all pages <!-- id: 41 -->
+    - [x] Standardize button and input styles <!-- id: 42 -->
+    - [x] Add smooth transitions and micro-animations <!-- id: 43 -->
+    - [x] Improve empty states and loading skeletons <!-- id: 44 -->
+    - [x] Ensure consistent spacing and typography <!-- id: 45 -->
+- [x] Application Specification & Spec Workflow <!-- id: 46 -->
+    - [x] Create `.agent/spec.md` with tech stack and core logic <!-- id: 47 -->
+    - [x] Update `/resume` workflow to include spec check <!-- id: 48 -->
 
 # Phase 8: Trends Page & Verification
 
@@ -78,3 +69,31 @@
 - [x] RLS Verification <!-- id: 54 -->
     - [x] Verify RLS is enabled on all tables in Supabase <!-- id: 55 -->
     - [x] Verify data isolation in server actions <!-- id: 56 -->
+
+# Phase 9: PWA & Deployment Readiness
+
+- [x] PWA Optimization <!-- id: 70 -->
+    - [x] Audit `manifest.json` for all required fields <!-- id: 71 -->
+    - [x] Verify service worker registration and offline support <!-- id: 72 -->
+    - [x] Test PWA installation on mobile viewports <!-- id: 73 -->
+- [x] Deployment Readiness <!-- id: 74 -->
+    - [x] Audit environment variables for production <!-- id: 75 -->
+    - [x] Verify production build (`bun run build`) <!-- id: 76 -->
+    - [x] Check security headers and CSP <!-- id: 77 -->
+
+# Phase 10: Workflow Improvements
+
+- [x] Enhance Agent Workflows <!-- id: 60 -->
+    - [x] Propose enhancements in `workflow_enhancements.md` <!-- id: 61 -->
+    - [x] Update `resume.md` with Branch Locking <!-- id: 62 -->
+    - [x] Update `git-flow.md` with Spec Sync & Guardrails <!-- id: 63 -->
+    - [x] Update `handoff.md` with Retrospective step <!-- id: 64 -->
+    - [x] Final verification of all workflow scripts <!-- id: 65 -->
+
+# Phase 12: Reachability & Premium UI
+
+- [x] Reachability Audit <!-- id: 80 -->
+    - [x] Simplify headers and move toggles to Settings <!-- id: 81 -->
+- [x] Premium UI Integration <!-- id: 82 -->
+    - [x] Integrate 3D Hero illustration <!-- id: 83 -->
+    - [x] Add Shimmer CTA and micro-animations <!-- id: 84 -->

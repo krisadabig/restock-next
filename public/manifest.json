@@ -1,21 +1,39 @@
 {
-	"name": "Restock",
+	"name": "Restock | Premium Home Tracking",
 	"short_name": "Restock",
 	"description": "Premium restock tracking for your home.",
+	"id": "com.restock.app",
 	"start_url": "/app",
 	"display": "standalone",
 	"background_color": "#0a0a0a",
 	"theme_color": "#6366f1",
+	"orientation": "portrait",
+	"categories": ["lifestyle", "utilities"],
 	"icons": [
 		{
 			"src": "/icon-192x192.png",
 			"sizes": "192x192",
-			"type": "image/png"
+			"type": "image/png",
+			"purpose": "any"
+		},
+		{
+			"src": "/icon-192x192.png",
+			"sizes": "192x192",
+			"type": "image/png",
+			"purpose": "maskable"
 		},
 		{
 			"src": "/icon-512x512.png",
 			"sizes": "512x512",
-			"type": "image/png"
+			"type": "image/png",
+			"purpose": "any"
+		}
+	],
+	"shortcuts": [
+		{
+			"name": "Add Entry",
+			"url": "/app",
+			"icons": [{ "src": "/icon-192x192.png", "sizes": "192x192" }]
 		}
 	]
 }

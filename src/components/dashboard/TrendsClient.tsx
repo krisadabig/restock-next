@@ -46,8 +46,8 @@ export default function TrendsClient({ entries }: { entries: Entry[] }) {
             </header>
 
             {/* Stats Cards */}
-            <div className="grid grid-cols-1 gap-4">
-                <div className="bg-linear-to-br from-indigo-600 to-violet-700 p-6 rounded-3xl shadow-xl shadow-indigo-200 dark:shadow-indigo-900/40 text-white overflow-hidden relative group">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-4">
+                <div className="bg-linear-to-br from-indigo-600 to-violet-700 p-6 rounded-3xl shadow-xl shadow-indigo-200 dark:shadow-indigo-900/40 text-white overflow-hidden relative group h-full">
                     <div className="absolute -right-8 -top-8 w-32 h-32 bg-white/10 rounded-full blur-2xl group-hover:bg-white/20 transition-all duration-700"></div>
                     <div className="relative z-10 flex flex-col gap-1">
                         <div className="flex justify-between items-center mb-2">

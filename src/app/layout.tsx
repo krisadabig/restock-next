@@ -27,6 +27,7 @@ export const viewport = {
 };
 
 import { Providers } from "@/components/Providers";
+import { PWARegistry } from "@/components/PWARegistry";
 
 export default function RootLayout({
   children,
@@ -39,6 +40,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <Providers>
+          <PWARegistry />
           <main className="min-h-screen">
               {children}
           </main>
