@@ -22,8 +22,13 @@ export default function SettingsPage() {
   useEffect(() => {
     setMounted(true);
     const storedTheme = localStorage.getItem('theme');
-    if (storedTheme === 'dark' || (!storedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+    const isDark = storedTheme === 'dark' || (!storedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    if (isDark) {
       setTheme('dark');
+      document.documentElement.classList.add('dark');
+    } else {
+      setTheme('light');
+      document.documentElement.classList.remove('dark');
     }
   }, []);
 
@@ -119,20 +124,32 @@ export default function SettingsPage() {
                 {t('settings.theme')}
               </span>
             </div>
-            <button
-              onClick={toggleTheme}
-              className="relative inline-flex h-7 w-14 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900"
-              style={{ backgroundColor: theme === 'dark' ? '#6366f1' : '#d1d5db' }}
-              role="switch"
-              aria-checked={theme === 'dark'}
-              aria-label="Toggle dark mode"
-            >
-              <span
-                className={`inline-block h-5 w-5 transform rounded-full bg-white shadow-lg transition-transform ${
-                  theme === 'dark' ? 'translate-x-8' : 'translate-x-1'
+            <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-2xl border border-slate-200 dark:border-slate-700 relative">
+              <button
+                onClick={() => theme !== 'light' && toggleTheme()}
+                className={`relative z-10 flex-1 px-6 py-2 rounded-xl text-sm font-black transition-all duration-300 flex items-center justify-center gap-2 ${
+                  theme === 'light' ? 'text-indigo-600' : 'text-slate-400 opacity-50'
+                }`}
+              >
+                <Sun size={18} />
+                {t('settings.lightMode')}
+              </button>
+              <button
+                onClick={() => theme !== 'dark' && toggleTheme()}
+                className={`relative z-10 flex-1 px-6 py-2 rounded-xl text-sm font-black transition-all duration-300 flex items-center justify-center gap-2 ${
+                  theme === 'dark' ? 'text-indigo-400' : 'text-slate-500 opacity-50'
+                }`}
+              >
+                <Moon size={18} />
+                {t('settings.darkMode')}
+              </button>
+              {/* Slider overlay */}
+              <div 
+                className={`absolute inset-y-1 w-[calc(50%-4px)] bg-white dark:bg-slate-700 shadow-xl rounded-xl transition-all duration-500 ease-spring ${
+                  theme === 'dark' ? 'left-[calc(50%+2px)]' : 'left-1'
                 }`}
               />
-            </button>
+            </div>
           </div>
 
           {/* Language Toggle */}

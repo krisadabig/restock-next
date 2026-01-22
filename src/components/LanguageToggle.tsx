@@ -13,11 +13,13 @@ export default function LanguageToggle() {
   return (
     <button
       onClick={toggleLanguage}
-      className="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors flex items-center gap-2"
+      className="glass px-3 py-1.5 rounded-xl flex items-center gap-2 hover:bg-white/10 transition-all active:scale-95 font-medium text-sm"
       aria-label={t('settings.language')}
     >
-      <Languages className="h-5 w-5" />
-      <span className="font-medium text-sm">{locale.toUpperCase()}</span>
+      <Languages size={18} className="text-indigo-500" />
+      <span className="text-slate-600 dark:text-slate-300">
+        {locale.toUpperCase()}
+      </span>
     </button>
   );
 }

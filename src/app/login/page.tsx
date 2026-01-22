@@ -5,6 +5,8 @@ import { useTranslation } from '@/lib/i18n';
 import { useRouter } from 'next/navigation';
 import { loginPasskey } from '@/lib/auth';
 import { createClient } from '@/lib/supabase/client';
+import ThemeToggle from '@/components/ThemeToggle';
+import LanguageToggle from '@/components/LanguageToggle';
 
 export default function LoginPage() {
   const { t } = useTranslation();
@@ -83,6 +85,14 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen bg-white dark:bg-black transition-colors duration-500 overflow-hidden relative flex items-center justify-center p-4">
+        {/* Floating Guest Controls */}
+        <div className="fixed top-6 right-6 z-50 flex gap-2">
+            <div className="glass p-1 rounded-2xl flex gap-1 shadow-2xl scale-90 sm:scale-100 origin-right transition-all">
+                <ThemeToggle />
+                <div className="w-px bg-white/10 mx-1" />
+                <LanguageToggle />
+            </div>
+        </div>
         {/* Background Elements */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
             <div className="absolute -top-24 -left-24 w-96 h-96 bg-indigo-500/10 dark:bg-indigo-500/5 rounded-full blur-3xl"></div>

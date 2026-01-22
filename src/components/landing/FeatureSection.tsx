@@ -20,36 +20,42 @@ export default function FeatureSection() {
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
                 {/* Feature 1 */}
-                <div className="bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-sm hover:shadow-md transition-shadow">
-                    <div className="h-12 w-12 rounded-xl bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center text-orange-600 dark:text-orange-400 mb-6">
-                        <CheckCircle className="h-6 w-6" />
+                <div className="glass p-8 rounded-3xl transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl group">
+                    <div className="h-14 w-14 rounded-2xl bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center text-orange-600 dark:text-orange-400 mb-6 transition-transform group-hover:scale-110 group-hover:rotate-3">
+                        <CheckCircle className="h-7 w-7" />
                     </div>
-                    <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
+                    <h3 className="text-2xl font-black text-slate-900 dark:text-white mb-3">
                         {t('app.feature1')}
                     </h3>
-                    <p className="text-gray-500 dark:text-gray-300">{t('app.feature1Desc')}</p>
+                    <p className="text-slate-500 dark:text-slate-400 leading-relaxed font-medium">
+                        {t('app.feature1Desc')}
+                    </p>
                 </div>
 
                 {/* Feature 2 */}
-                <div className="bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-sm hover:shadow-md transition-shadow">
-                    <div className="h-12 w-12 rounded-xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400 mb-6">
-                        <BarChart3 className="h-6 w-6" />
+                <div className="glass p-8 rounded-3xl transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl group">
+                    <div className="h-14 w-14 rounded-2xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400 mb-6 transition-transform group-hover:scale-110 group-hover:rotate-3">
+                        <BarChart3 className="h-7 w-7" />
                     </div>
-                    <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
+                    <h3 className="text-2xl font-black text-slate-900 dark:text-white mb-3">
                         {t('app.feature2')}
                     </h3>
-                    <p className="text-gray-500 dark:text-gray-300">{t('app.feature2Desc')}</p>
+                    <p className="text-slate-500 dark:text-slate-400 leading-relaxed font-medium">
+                        {t('app.feature2Desc')}
+                    </p>
                 </div>
 
                 {/* Feature 3 */}
-                <div className="bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-sm hover:shadow-md transition-shadow">
-                    <div className="h-12 w-12 rounded-xl bg-green-100 dark:bg-green-900/30 flex items-center justify-center text-green-600 dark:text-green-400 mb-6">
-                        <Bell className="h-6 w-6" />
+                <div className="glass p-8 rounded-3xl transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl group">
+                    <div className="h-14 w-14 rounded-2xl bg-green-100 dark:bg-green-900/30 flex items-center justify-center text-green-600 dark:text-green-400 mb-6 transition-transform group-hover:scale-110 group-hover:rotate-3">
+                        <Bell className="h-7 w-7" />
                     </div>
-                    <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
+                    <h3 className="text-2xl font-black text-slate-900 dark:text-white mb-3">
                         {t('app.feature3')}
                     </h3>
-                    <p className="text-gray-500 dark:text-gray-300">{t('app.feature3Desc')}</p>
+                    <p className="text-slate-500 dark:text-slate-400 leading-relaxed font-medium">
+                        {t('app.feature3Desc')}
+                    </p>
                 </div>
             </div>
         </div>

@@ -21,44 +21,50 @@ export default function InstallAppSection() {
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                 {/* iOS */}
-                <div className="bg-gray-50 dark:bg-gray-800 p-6 rounded-2xl flex flex-col items-center text-center">
-                    <div className="h-12 w-12 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded-full flex items-center justify-center mb-4">
-                        <Smartphone className="h-6 w-6" />
+                <div className="glass p-8 rounded-3xl flex flex-col items-center text-center transition-all duration-300 hover:scale-[1.02]">
+                    <div className="h-14 w-14 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded-2xl flex items-center justify-center mb-6 shadow-indigo-100 dark:shadow-none shadow-lg">
+                        <Smartphone className="h-7 w-7" />
                     </div>
-                    <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">
+                    <h3 className="text-xl font-black text-slate-900 dark:text-white mb-4">
                         {t('app.installIOS')}
                     </h3>
-                    <div className="text-sm text-gray-500 dark:text-gray-300 flex flex-col items-center gap-2">
+                    <div className="text-sm text-slate-500 dark:text-slate-400 flex flex-col items-center gap-3 font-medium">
                         <p>{t('app.installIOSStep')}</p>
-                        <Share size={20} className="text-blue-500" />
+                        <div className="p-2 rounded-xl bg-blue-50 dark:bg-blue-900/20">
+                            <Share size={24} className="text-blue-500" />
+                        </div>
                     </div>
                 </div>
 
                 {/* Android */}
-                <div className="bg-gray-50 dark:bg-gray-800 p-6 rounded-2xl flex flex-col items-center text-center">
-                    <div className="h-12 w-12 bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 rounded-full flex items-center justify-center mb-4">
-                        <Smartphone className="h-6 w-6" />
+                <div className="glass p-8 rounded-3xl flex flex-col items-center text-center transition-all duration-300 hover:scale-[1.02]">
+                    <div className="h-14 w-14 bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 rounded-2xl flex items-center justify-center mb-6 shadow-green-100 dark:shadow-none shadow-lg">
+                        <Smartphone className="h-7 w-7" />
                     </div>
-                    <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">
+                    <h3 className="text-xl font-black text-slate-900 dark:text-white mb-4">
                         {t('app.installAndroid')}
                     </h3>
-                    <div className="text-sm text-gray-500 dark:text-gray-300 flex flex-col items-center gap-2">
+                    <div className="text-sm text-slate-500 dark:text-slate-400 flex flex-col items-center gap-3 font-medium">
                         <p>{t('app.installAndroidStep')}</p>
-                        <MoreVertical size={20} className="text-gray-500" />
+                        <div className="p-2 rounded-xl bg-slate-100 dark:bg-slate-800">
+                            <MoreVertical size={24} className="text-slate-500" />
+                        </div>
                     </div>
                 </div>
 
                 {/* Desktop */}
-                <div className="bg-gray-50 dark:bg-gray-800 p-6 rounded-2xl flex flex-col items-center text-center">
-                    <div className="h-12 w-12 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-full flex items-center justify-center mb-4">
-                        <Monitor className="h-6 w-6" />
+                <div className="glass p-8 rounded-3xl flex flex-col items-center text-center transition-all duration-300 hover:scale-[1.02]">
+                    <div className="h-14 w-14 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-2xl flex items-center justify-center mb-6 shadow-blue-100 dark:shadow-none shadow-lg">
+                        <Monitor className="h-7 w-7" />
                     </div>
-                    <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">
+                    <h3 className="text-xl font-black text-slate-900 dark:text-white mb-4">
                         {t('app.installDesktop')}
                     </h3>
-                    <div className="text-sm text-gray-500 dark:text-gray-300 flex flex-col items-center gap-2">
+                    <div className="text-sm text-slate-500 dark:text-slate-400 flex flex-col items-center gap-3 font-medium">
                         <p>{t('app.installDesktopStep')}</p>
-                        <Download size={20} className="text-gray-500" />
+                        <div className="p-2 rounded-xl bg-slate-100 dark:bg-slate-800">
+                            <Download size={24} className="text-slate-500" />
+                        </div>
                     </div>
                 </div>
             </div>

@@ -33,14 +33,14 @@ export default function TrendsClient({ entries }: { entries: Entry[] }) {
 
     return (
         <div className="p-6 pb-24 space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
-            <header className="flex flex-col gap-1">
-                <div className="flex items-center gap-2 text-indigo-600 dark:text-indigo-400">
-                    <TrendingUp size={24} />
-                    <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+            <header className="flex flex-col gap-0.5">
+                <div className="flex items-center gap-2 text-indigo-500">
+                    <TrendingUp size={28} strokeWidth={3} />
+                    <h1 className="text-2xl font-black text-gray-900 dark:text-white uppercase tracking-tight">
                         {t('trends.title')}
                     </h1>
                 </div>
-                <p className="text-sm text-gray-500 dark:text-gray-400">
+                <p className="text-xs font-bold text-slate-400 uppercase tracking-widest ml-9">
                     {t('app.subtitle')}
                 </p>
             </header>
@@ -74,40 +74,40 @@ export default function TrendsClient({ entries }: { entries: Entry[] }) {
             </div>
 
             {/* Top Items Section */}
-            <section className="bg-white dark:bg-gray-900 rounded-3xl border border-gray-100 dark:border-gray-800 p-6 shadow-sm">
-                <div className="flex items-center justify-between mb-6">
-                    <h2 className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
-                        <PieChart size={20} className="text-indigo-500" />
+            <section className="glass rounded-3xl p-6 transition-all duration-300">
+                <div className="flex items-center justify-between mb-8">
+                    <h2 className="text-xl font-black text-slate-900 dark:text-white flex items-center gap-2">
+                        <PieChart size={24} className="text-indigo-500" />
                         {t('trends.topItems')}
                     </h2>
-                    <span className="text-xs font-semibold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/30 px-2 py-1 rounded-full">
+                    <span className="text-xs font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-100 dark:bg-indigo-900/30 px-3 py-1.5 rounded-full">
                         {entries.length} {t('app.itemsCount')}
                     </span>
                 </div>
 
                 {topItems.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center py-10 text-gray-400">
-                        <ShoppingBag size={48} className="mb-3 opacity-20" />
-                        <p>{t('app.addFirst')}</p>
+                    <div className="flex flex-col items-center justify-center py-12 text-slate-400">
+                        <ShoppingBag size={56} className="mb-4 opacity-10" />
+                        <p className="font-medium">{t('app.addFirst')}</p>
                     </div>
                 ) : (
-                    <div className="space-y-6">
+                    <div className="space-y-8">
                         {topItems.map((item, index) => (
-                            <div key={item.name} className="space-y-2">
+                            <div key={item.name} className="space-y-3">
                                 <div className="flex justify-between items-center px-1">
-                                    <span className="font-bold text-gray-800 dark:text-gray-200 text-sm">
+                                    <span className="font-bold text-slate-800 dark:text-slate-200">
                                         {item.name}
                                     </span>
-                                    <span className="text-gray-500 dark:text-gray-400 text-sm font-medium">
+                                    <span className="text-slate-500 dark:text-slate-400 font-black">
                                         ฿{item.cost.toLocaleString()}
                                     </span>
                                 </div>
-                                <div className="h-3 w-full bg-gray-50 dark:bg-gray-800 rounded-full overflow-hidden">
+                                <div className="h-4 w-full bg-slate-100 dark:bg-slate-800/50 rounded-full overflow-hidden p-0.5">
                                     <div 
-                                        className="h-full bg-linear-to-r from-indigo-500 to-violet-500 rounded-full transition-all duration-1000 ease-out"
+                                        className="h-full bg-linear-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-full transition-all duration-1000 ease-out shadow-lg shadow-indigo-500/20"
                                         style={{ 
                                             width: `${(item.cost / maxCost) * 100}%`,
-                                            transitionDelay: `${index * 100}ms`
+                                            transitionDelay: `${index * 150}ms`
                                         }}
                                     />
                                 </div>
@@ -118,14 +118,14 @@ export default function TrendsClient({ entries }: { entries: Entry[] }) {
             </section>
 
             {/* Extra Info/Call to Action */}
-            <div className="bg-gray-50 dark:bg-gray-800/50 p-5 rounded-2xl border border-dashed border-gray-200 dark:border-gray-700 flex items-start gap-4">
-                <div className="bg-indigo-100 dark:bg-indigo-900 p-2 rounded-xl text-indigo-600 dark:text-indigo-400">
-                    <TrendingUp size={20} />
+            <div className="glass-premium p-6 rounded-3xl flex items-start gap-4 mt-4">
+                <div className="bg-indigo-500/20 p-3 rounded-2xl text-indigo-500">
+                    <TrendingUp size={24} />
                 </div>
                 <div>
-                    <h3 className="font-bold text-gray-900 dark:text-white text-sm">Optimization Tips</h3>
-                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 leading-relaxed">
-                        Looks like you&apos;re spending most on <span className="text-indigo-600 dark:text-indigo-400 font-semibold">{topItems[0]?.name || '...'}</span>. Consider buying larger packs to save on unit cost.
+                    <h3 className="font-black text-slate-900 dark:text-white mb-1">Smart Savings</h3>
+                    <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed font-medium">
+                        Looks like you&apos;re spending most on <span className="text-indigo-500 font-black">{topItems[0]?.name || '...'}</span>. Consider buying larger packs to save on unit cost.
                     </p>
                 </div>
             </div>

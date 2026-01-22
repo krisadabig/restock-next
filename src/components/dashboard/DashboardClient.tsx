@@ -1,7 +1,5 @@
 'use client';
 
-import { Settings } from 'lucide-react';
-import Link from 'next/link';
 import { useTranslation } from '@/lib/i18n';
 import AddEntryModal from './AddEntryModal';
 import { useRouter } from 'next/navigation';
@@ -26,21 +24,15 @@ export default function DashboardClient({
 
   return (
     <div className="p-6">
-        <header className="flex justify-between items-center mb-6">
+        <header className="flex justify-between items-center mb-8 animate-in slide-in-from-top-4 duration-1000">
             <div>
-                <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">
+                <h1 className="text-3xl font-black tracking-tight text-slate-900 dark:text-white uppercase">
                     {t('app.title')}
                 </h1>
-                <p className="text-sm text-gray-500 dark:text-gray-300">{t('app.subtitle')}</p>
+                <p className="text-xs font-bold text-indigo-500 uppercase tracking-widest">{t('app.subtitle')}</p>
             </div>
-            <div className="flex items-center gap-4">
-                <Link
-                    href="/app/settings"
-                    className="h-10 w-10 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
-                >
-                    <Settings size={20} />
-                </Link>
-                <div className="h-10 w-10 bg-indigo-100 dark:bg-indigo-900 rounded-full flex items-center justify-center text-indigo-600 dark:text-indigo-300 font-bold">
+            <div className="flex items-center gap-3">
+                <div className="btn-premium h-11 w-11 rounded-2xl flex items-center justify-center font-black shadow-lg text-lg">
                     {entries.length}
                 </div>
             </div>
@@ -51,19 +43,21 @@ export default function DashboardClient({
                 <p>{t('app.addFirst')}</p>
             </div>
         ) : (
-             <div className="space-y-4">
-                {entries.map(entry => (
-                    <div key={entry.id} className="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 flex justify-between items-center">
-                        <div>
-                            <h3 className="font-bold text-gray-900 dark:text-white">{entry.item}</h3>
-                            <p className="text-xs text-gray-500">{new Date(entry.date).toLocaleDateString()}</p>
-                        </div>
-                        <div className="text-indigo-600 dark:text-indigo-400 font-bold">
-                            ฿{entry.price}
-                        </div>
-                    </div>
-                ))}
-             </div>
+              <div className="space-y-4">
+                 {entries.map(entry => (
+                     <div key={entry.id} className="glass p-5 rounded-3xl flex justify-between items-center transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] group">
+                         <div className="flex flex-col gap-1">
+                             <h3 className="font-black text-slate-800 dark:text-slate-100 group-hover:text-indigo-500 transition-colors">{entry.item}</h3>
+                             <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">
+                                {new Date(entry.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
+                             </p>
+                         </div>
+                         <div className="text-lg font-black text-indigo-600 dark:text-indigo-400 bg-indigo-500/10 px-4 py-2 rounded-2xl">
+                             ฿{entry.price.toLocaleString()}
+                         </div>
+                     </div>
+                 ))}
+              </div>
         )}
 
         <AddEntryModal isOpen={showAddModal} onClose={() => router.push('/app')} />

@@ -38,10 +38,11 @@ test.describe('Dashboard Shell', { tag: '@smoke' }, () => {
 		await expect(page.getByRole('link', { name: /Trends|แนวโน้ม/ })).toBeVisible();
 
 		// Check for Add button
-		// It's a link with no text but logic says it leads to /app?add=true
-		// We can check by href
 		const addBtn = page.locator('a[href="/app?add=true"]');
 		await expect(addBtn).toBeVisible();
+
+		// Check for item count badge
+		await expect(page.locator('.btn-premium').first()).toBeVisible();
 	});
 
 	test('should navigate to trends', async ({ page }) => {

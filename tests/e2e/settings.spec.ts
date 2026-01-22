@@ -24,9 +24,11 @@ test.describe('Settings Page @smoke', () => {
 		const html = page.locator('html');
 		const initialDark = await html.evaluate((el) => el.classList.contains('dark'));
 
-		// Click theme toggle
-		const themeToggle = page.getByRole('switch', { name: /dark mode/i });
-		await themeToggle.click();
+		// Check toggles (segmented control)
+		const toggleBtn = page.getByRole('button', {
+			name: initialDark ? /Light Mode|โหมดสว่าง/i : /Dark Mode|โหมดมืด/i,
+		});
+		await toggleBtn.click();
 
 		// Verify theme changed
 		const afterToggleDark = await html.evaluate((el) => el.classList.contains('dark'));
