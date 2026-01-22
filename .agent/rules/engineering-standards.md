@@ -31,3 +31,8 @@ To prevent locale-dependent test failures:
 ## 🏗 UX & Reachability
 - **Rule**: Major navigation and primary action buttons MUST be located in the "Mobile Thumb Zone" (bottom 60% of the screen).
 - **Rule**: Redundant top headers in the App shell are prohibited; use the Bottom Nav for primary routing.
+
+## 🛡 Workflow Enforcement
+- **Rule**: BEFORE any code edit (Phase 3+), you MUST verify you are on a `feature/` branch via `git branch`.
+- **Rule**: EVERY code commit MUST be preceded by a `spec.md` sync check. 
+- **Rule**: Completion of any task REQUIRE running the `/handoff` workflow to ensure context is preserved for the next session.

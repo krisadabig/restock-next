@@ -15,8 +15,9 @@ A task **MUST NOT** be marked [COMPLETED] unless **ALL** of the following are tr
 9. **Git Discipline**: All changes are committed to a feature branch following the `/git-flow` workflow, merged to `main` only after verification, and the feature branch is deleted.
 10. **Hydration & Assets**: Verified no React hydration lints were introduced and all assets are correctly mapped to `public/`.
 11. **i18n-Safe Tests**: Verified all new/updated tests use regex-based locators to support both EN and TH.
+12. **Workflow Compliance**: Verified that the work followed the `/git-flow` (feature branch + conventional commits) and `/handoff` (spec sync + retrospective) workflows.
 
-Only after **ALL 9 points** are satisfied may you change the status to [COMPLETED] and add the timestamp in ISO format.
+Only after **ALL 12 points** are satisfied may you change the status to [COMPLETED] and add the timestamp in ISO format.
 
 If tests fail → keep [IN_PROGRESS] or change to [BLOCKED] and explain exactly which tests are failing and why.
 Never mark something completed "assuming it works" or "it should pass".
