@@ -2,9 +2,10 @@
 
 import { startRegistration, startAuthentication } from '@simplewebauthn/browser';
 
-export async function registerPasskey(username: string) {
+export async function registerPasskey(username?: string) {
 	// 1. Get options from server
-	const resp = await fetch(`/api/auth?type=register&username=${username}`);
+	const url = username ? `/api/auth?type=register&username=${username}` : `/api/auth?type=register`;
+	const resp = await fetch(url);
 	const options = await resp.json();
 
 	if (options.error) throw new Error(options.error);

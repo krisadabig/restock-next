@@ -3,8 +3,7 @@
 import { db } from '@/lib/db';
 import { entries } from '@/lib/db/schema';
 import { desc, eq } from 'drizzle-orm';
-import { cookies } from 'next/headers';
-import { verifySession } from '@/lib/server/session';
+import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
 
 export interface Entry {
@@ -16,10 +15,12 @@ export interface Entry {
 }
 
 async function getUser() {
-	const cookieStore = await cookies();
-	const token = cookieStore.get('session')?.value;
-	if (!token) return null;
-	return verifySession(token);
+	const supabase = await createClient();
+	const {
+		data: { user },
+	} = await supabase.auth.getUser();
+	if (!user) return null;
+	return { id: user.id, username: user.user_metadata.username || user.email };
 }
 
 export async function getEntries(): Promise<Entry[]> {

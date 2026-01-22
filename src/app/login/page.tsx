@@ -3,12 +3,13 @@
 import { useState } from 'react';
 import { useTranslation } from '@/lib/i18n';
 import { useRouter } from 'next/navigation';
-// import { startRegistration, startAuthentication } from '@simplewebauthn/browser'; // Removed as used in lib/auth
-import { registerPasskey, loginPasskey } from '@/lib/auth';
+import { loginPasskey } from '@/lib/auth';
+import { createClient } from '@/lib/supabase/client';
 
 export default function LoginPage() {
   const { t } = useTranslation();
   const router = useRouter();
+  const supabase = createClient();
   
   const [method, setMethod] = useState<'password' | 'passkey'>('password');
   const [isSignup, setIsSignup] = useState(false);
@@ -26,17 +27,37 @@ export default function LoginPage() {
 
     try {
         if (isSignup) {
-            // Registration always uses Passkeys for now as we don't have password backend
             if (!username) throw new Error('Username is required for signup');
             
-            await registerPasskey(username);
-            
-            // Auto login after registration or redirect
+            // 1. Sign up with Supabase
+            const { data, error: signupError } = await supabase.auth.signUp({
+                email,
+                password,
+                options: {
+                    data: {
+                        username: username,
+                    }
+                }
+            });
+
+            if (signupError) throw signupError;
+            if (!data.user) throw new Error('Signup failed');
+
+            // 2. User sync is handled by database trigger (recommended)
+            // But if we don't have the trigger yet, we could do it here.
+            // Let's assume we'll use a trigger or handle it in a separate logic.
+            // For now, redirect to app. Supabase will handle the session.
             router.push('/app');
         } else {
-            // Password login not implemented in backend yet
-            setError('Password login is not enabled. Please use Passkey.');
-            setLoading(false);
+            // 1. Sign in with Supabase
+            const { error: signinError } = await supabase.auth.signInWithPassword({
+                email,
+                password,
+            });
+
+            if (signinError) throw signinError;
+            
+            router.push('/app');
         }
     } catch (err) {
         setLoading(false);

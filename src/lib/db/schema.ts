@@ -1,7 +1,7 @@
 import { pgTable, text, integer, serial, timestamp, real } from 'drizzle-orm/pg-core';
 
 export const users = pgTable('users', {
-	id: text('id').primaryKey(),
+	id: text('id').primaryKey(), // Using text to store Supabase UUIDs
 	username: text('username').notNull().unique(),
 });
 

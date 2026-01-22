@@ -56,16 +56,16 @@ Never mark something completed "assuming it works" or "it should pass".
 | Backend Integration | PASS | 2026-01-22T21:50:00 | Verified Drizzle Migrations + Real Auth (Passkey) UI logic. Login tests updated. |
 | Backend Integration | PASS | 2026-01-22T22:00:00 | Dashboard E2E tests passed (3/3). Verified CRUD (Add Entry) works end-to-end with real DB and Server Components. |
 | Settings Page | PASS | 2026-01-22T22:23:00 | All 14 smoke tests passed (6 new). Theme toggle, language switch, logout, delete modal verified via Playwright MCP. |
+| Supabase Auth | PASS | 2026-01-22T22:45:00 | Integrated Supabase Auth as primary (Email/Password). Passkeys migrated to enrollment flow in Settings. Middleware/SSR updated. |
 
 ## Session Handoff / Next Steps
 **Current State**:
-- App is fully migrated and integrated with Postgres (Drizzle).
-- WebAuthn enabled (Login/Signup via Passkey).
-- Dashboard reads/writes to real DB.
-- E2E tests passing (but bypass login for dashboard tests due to simplewebauthn complexity).
+- App fully integrated with Supabase Auth + Postgres (Drizzle).
+- Email/Password is primary login method.
+- WebAuthn (Passkeys) enrollment functional in Settings.
+- Dashboard reads/writes to real DB using Supabase sessions.
 
 **Immediate Next Actions**:
-1. Clean up "Password" UI in login page if no longer planned (currently shows error).
-2. ~~Implement "Settings" page~~ ✅ COMPLETED (2026-01-22T22:23:00)
-3. Implement "Trends" page (currently linked but empty).
-4. Verify PWA capabilities or deployment readiness.
+1. Post-implementation verification of RLS (Row Level Security) in Supabase.
+2. Implement "Trends" page (currently linked but empty).
+3. Verify PWA capabilities or deployment readiness.

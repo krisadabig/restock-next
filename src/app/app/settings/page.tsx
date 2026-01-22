@@ -3,16 +3,21 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslation } from '@/lib/i18n';
-import { Moon, Sun, Globe, LogOut, Trash2, X, ArrowLeft, Settings } from 'lucide-react';
+import { Moon, Sun, Globe, LogOut, Trash2, X, ArrowLeft, Settings, Fingerprint, ShieldCheck } from 'lucide-react';
+import { createClient } from '@/lib/supabase/client';
+import { registerPasskey } from '@/lib/auth';
 
 export default function SettingsPage() {
   const router = useRouter();
   const { t, locale, setLocale } = useTranslation();
+  const supabase = createClient();
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
   const [mounted, setMounted] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleteConfirmText, setDeleteConfirmText] = useState('');
   const [isDeleting, setIsDeleting] = useState(false);
+  const [passkeyLoading, setPasskeyLoading] = useState(false);
+  const [passkeyMsg, setPasskeyMsg] = useState<{ type: 'success' | 'error', text: string } | null>(null);
 
   useEffect(() => {
     setMounted(true);
@@ -34,20 +39,31 @@ export default function SettingsPage() {
   };
 
   const handleLogout = async () => {
-    // Clear any auth tokens/cookies
-    document.cookie = 'auth=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-    localStorage.removeItem('auth');
+    await supabase.auth.signOut();
     router.push('/');
   };
+
+  const handleAddPasskey = async () => {
+    setPasskeyLoading(true);
+    setPasskeyMsg(null);
+    try {
+        await registerPasskey(""); // Username ignored by new API as it uses session
+        setPasskeyMsg({ type: 'success', text: 'Passkey added successfully!' });
+    } catch (err) {
+        setPasskeyMsg({ type: 'error', text: (err as Error).message });
+    } finally {
+        setPasskeyLoading(false);
+    }
+  }
 
   const handleDeleteAccount = async () => {
     if (deleteConfirmText !== 'DELETE') return;
     setIsDeleting(true);
     try {
-      // TODO: Call delete account API
-      // await fetch('/api/auth/delete', { method: 'DELETE' });
-      document.cookie = 'auth=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-      localStorage.clear();
+      // In a real app, you'd call a function to delete the user data and then sign out.
+      // Supabase Auth doesn't allow users to delete themselves directly easily for security.
+      // We'll just sign them out and redirect for this demo/MVP.
+      await supabase.auth.signOut();
       router.push('/');
     } catch (error) {
       console.error('Failed to delete account:', error);
@@ -67,7 +83,7 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-6 space-y-6 pb-24">
       {/* Header */}
       <div className="flex items-center gap-3">
         <button
@@ -150,6 +166,43 @@ export default function SettingsPage() {
               </button>
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* Security Section (Passkeys) */}
+      <section className="space-y-3">
+        <h2 className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+          Security
+        </h2>
+        <div className="bg-gray-50 dark:bg-gray-800/50 rounded-xl p-4 space-y-4">
+            <div className="flex items-start gap-3">
+                <div className="p-2 bg-indigo-100 dark:bg-indigo-900/30 rounded-lg">
+                    <Fingerprint className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
+                </div>
+                <div className="flex-1 space-y-1">
+                    <p className="text-gray-900 dark:text-white font-medium">Passkeys</p>
+                    <p className="text-gray-500 dark:text-gray-400 text-sm">
+                        Use your fingerprint, face, or screen lock to sign in faster.
+                    </p>
+                </div>
+            </div>
+            
+            {passkeyMsg && (
+                <div className={`p-3 rounded-lg text-sm font-medium flex items-center gap-2 ${
+                    passkeyMsg.type === 'success' ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-700'
+                }`}>
+                    <ShieldCheck className="h-4 w-4" />
+                    {passkeyMsg.text}
+                </div>
+            )}
+
+            <button
+                onClick={handleAddPasskey}
+                disabled={passkeyLoading}
+                className="w-full py-2.5 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white font-bold text-sm shadow-sm hover:bg-gray-50 dark:hover:bg-gray-600 transition-all active:scale-[0.98] disabled:opacity-50"
+            >
+                {passkeyLoading ? 'Processing...' : 'Add Passkey'}
+            </button>
         </div>
       </section>
 

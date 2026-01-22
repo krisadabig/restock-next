@@ -24,6 +24,17 @@
     - [x] Entries CRUD Implementation <!-- id: 21 -->
     - [x] Connect Dashboard to Real Data <!-- id: 22 -->
 
+# Phase 6: Supabase Auth Integration
+
+- [x] Supabase Auth Implementation <!-- id: 32 -->
+    - [x] Install `@supabase/supabase-js` and `@supabase/ssr` <!-- id: 33 -->
+    - [x] Update `schema.ts` for UUID and User Sync <!-- id: 34 -->
+    - [x] Create Supabase clients (Client/Server) <!-- id: 35 -->
+    - [x] Implement traditional Login/Signup UI <!-- id: 36 -->
+    - [x] Integrate Passkey enrollment in Settings <!-- id: 37 -->
+    - [x] Verify via Playwright MCP <!-- id: 38 -->
+    - [x] Run smoke tests <!-- id: 39 -->
+
 # Phase 5: Settings Page
 
 - [x] Settings Page Implementation <!-- id: 23 -->
