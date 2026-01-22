@@ -77,8 +77,8 @@ test.describe('Dashboard Shell', { tag: '@smoke' }, () => {
 		await expect(page).toHaveURL(/\/app/);
 		await expect(page.getByText('Add Entry')).toBeHidden();
 
-		// Check if item appears in list
-		await expect(page.getByText('Test Coffee')).toBeVisible();
-		await expect(page.getByText('฿500')).toBeVisible();
+		// Check if item appears in list (use first() to handle duplicates from prior runs)
+		await expect(page.getByText('Test Coffee').first()).toBeVisible();
+		await expect(page.getByText('฿500').first()).toBeVisible();
 	});
 });
