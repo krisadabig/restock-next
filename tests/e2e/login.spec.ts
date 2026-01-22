@@ -63,8 +63,8 @@ test.describe('Login Page', { tag: '@smoke' }, () => {
 		// Submit
 		await page.getByRole('button', { name: 'Log In' }).click();
 
-		// Should show error message
-		await expect(page.getByText('Password login is not enabled')).toBeVisible();
+		// Should show error message (Invalid login credentials since it hits Supabase)
+		await expect(page.getByText(/Invalid login credentials|Invalid credentials|User not found/i)).toBeVisible();
 	});
 
 	test('should attempt passkey login', async ({ page }) => {

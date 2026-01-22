@@ -76,6 +76,8 @@ Before merging to `main`, verify ALL Definition of Done criteria (see `manifest.
 - [ ] Smoke tests pass (`bun run smoke`)
 - [ ] UI verified via Playwright MCP (if applicable)
 - [ ] Manifest updated with [COMPLETED] status
+- [ ] **Application Spec (`.agent/spec.md`) updated to reflect changes**
+- [ ] **Session Handoff updated in `manifest.md` (see `/handoff` workflow)**
 
 ## 4️⃣ Merge to Main
 
@@ -117,4 +119,4 @@ git push origin main
 1. **Never commit directly to `main`** — Always use feature branches
 2. **Never merge failing tests** — All tests must pass first
 3. **Never skip smoke tests** — Run `bun run smoke` before merge
-4. **Always update manifest** — Mark tasks [COMPLETED] with timestamp
+4. **Always update manifest** — Mark tasks [COMPLETED] and **update Handoff session**

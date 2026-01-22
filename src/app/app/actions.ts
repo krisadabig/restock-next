@@ -14,7 +14,26 @@ export interface Entry {
 	note: string | null;
 }
 
+import jwt from 'jsonwebtoken';
+
 async function getUser() {
+	// Allow JWT bypass for E2E tests
+	if (process.env.NODE_ENV === 'test' || process.env.NODE_ENV === 'development') {
+		const { cookies } = await import('next/headers');
+		const cookieStore = await cookies();
+		const sessionToken = cookieStore.get('session')?.value;
+		if (sessionToken) {
+			try {
+				const decoded = jwt.verify(sessionToken, process.env.JWT_SECRET!) as { id: string; username: string };
+				if (decoded) {
+					return { id: decoded.id, username: decoded.username };
+				}
+			} catch {
+				// Continue to Supabase auth if JWT fails
+			}
+		}
+	}
+
 	const supabase = await createClient();
 	const {
 		data: { user },

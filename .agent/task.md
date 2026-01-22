@@ -24,6 +24,19 @@
     - [x] Entries CRUD Implementation <!-- id: 21 -->
     - [x] Connect Dashboard to Real Data <!-- id: 22 -->
 
+# Phase 7: UX/UI Polish & Backlog
+
+- [ ] UX/UI Consistency & Decoration <!-- id: 40 -->
+    - [ ] Audit color palette usage across all pages <!-- id: 41 -->
+    - [ ] Standardize button and input styles <!-- id: 42 -->
+    - [ ] Add smooth transitions and micro-animations <!-- id: 43 -->
+    - [ ] Improve empty states and loading skeletons <!-- id: 44 -->
+    - [ ] Ensure consistent spacing and typography <!-- id: 45 -->
+
+- [x] Application Specification & Spec Workflow <!-- id: 46 -->
+    - [x] Create `.agent/spec.md` with tech stack and core logic <!-- id: 47 -->
+    - [x] Update `/resume` workflow to include spec check <!-- id: 48 -->
+
 # Phase 6: Supabase Auth Integration
 
 - [x] Supabase Auth Implementation <!-- id: 32 -->
@@ -47,3 +60,13 @@
     - [x] Verify via Playwright MCP <!-- id: 30 -->
     - [x] Run smoke tests <!-- id: 31 -->
 
+# Phase 8: Trends Page & Verification
+
+- [x] Implement Trends Page <!-- id: 49 -->
+    - [x] Create `src/app/app/trends/page.tsx` <!-- id: 50 -->
+    - [x] Create `src/components/dashboard/TrendsClient.tsx` <!-- id: 51 -->
+    - [x] Calculate total spending and top items cost <!-- id: 52 -->
+    - [x] Add E2E tests (`tests/e2e/trends.spec.ts`) <!-- id: 53 -->
+- [x] RLS Verification <!-- id: 54 -->
+    - [x] Verify RLS is enabled on all tables in Supabase <!-- id: 55 -->
+    - [x] Verify data isolation in server actions <!-- id: 56 -->
