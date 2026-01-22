@@ -1,36 +1,85 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Restock (Restock Next)
 
-## Getting Started
+A premium, privacy-focused home inventory and expense tracking application built with the modern web stack.
 
-First, run the development server:
+![Restock Dashboard](./.agent/screenshots/dashboard.png)
+
+## 🚀 Features
+
+- **Inventory Tracking**: Easily add, edit, and delete restock entries with smart autocomplete.
+- **Spending Trends**: Visual analytics including Month-over-Month comparisons and top spending categories.
+- **PWA Ready**: Installable on iOS, Android, and Desktop with offline capability.
+- **Privacy First**: Authenticated via Supabase (Email/Password & Passkeys) with Row Level Security (RLS).
+- **Internationalization**: Full support for English (EN) and Thai (TH).
+- **Responsive Design**: Mobile-first architecture with premium animations and dark mode support.
+
+## 🛠 Tech Stack
+
+- **Framework**: [Next.js 15+](https://nextjs.org) (App Router)
+- **Language**: TypeScript
+- **Database**: PostgreSQL via [Supabase](https://supabase.com)
+- **ORM**: [Drizzle ORM](https://orm.drizzle.team)
+- **Styling**: Tailwind CSS 4 with custom design tokens
+- **Auth**: Supabase Auth (incl. Passkeys support)
+- **Testing**: Playwright (E2E & Smoke Testing)
+
+## 🚦 Getting Started
+
+### Prerequisites
+- Node.js 20+
+- Bun (mandatory package manager)
+
+### Installation
+
+1. **Clone the repository**
+   ```bash
+   git clone git@github.com:krisadabig/restock-next.git
+   cd restock-next
+   ```
+
+2. **Install dependencies**
+   ```bash
+   bun install
+   ```
+
+3. **Environment Setup**
+    Copy `.env.example` to `.env` and fill in your Supabase credentials:
+   ```bash
+   cp .env.example .env
+   ```
+
+4. **Database Migration**
+   ```bash
+   bun run db:push
+   ```
+
+5. **Run Development Server**
+   ```bash
+   bun dev
+   ```
+
+## 🧪 Testing
+
+We use **Vitest** for unit tests and **Playwright** for E2E/Smoke tests.
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+# Run Unit Tests
+bun test
+
+# Run Smoke Tests (Fast E2E)
+bun run smoke
+
+# Run Full E2E Suite
+bun run test:e2e
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 🤝 Workflow & Contributing
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Please refer to the `.agent/workflows/git-flow.md` for mandatory development rituals, including:
+- **Proactive Linting**: `bun run lint` before commits.
+- **Directive Checks**: Ensure `'use client';` is correct.
+- **Spec Sychronization**: Update `.agent/spec.md` with features.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 📄 License
 
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+MIT
