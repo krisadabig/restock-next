@@ -66,6 +66,8 @@ Never mark something completed "assuming it works" or "it should pass".
 - All core features (Dashboard, Settings, Trends, Auth) are functional.
 
 **Immediate Next Actions**:
-1. Final audit of PWA manifest and service worker.
-2. Deployment readiness check (environment variables, production build).
-3. Consider adding data export feature.
+1. ~~Post-implementation verification of RLS (Row Level Security) in Supabase.~~ ✅
+2. ~~Implement "Trends" page (currently linked but empty).~~ ✅
+3. Final audit of PWA manifest and service worker.
+4. Deployment readiness check (environment variables, production build).
+5. Consider adding data export feature.
