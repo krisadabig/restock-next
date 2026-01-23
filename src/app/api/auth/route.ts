@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { users, authenticators } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
-import { createClient } from '@/lib/supabase/server';
+import { getSession, createSession } from '@/lib/session';
 import {
 	generateRegistrationOptions,
 	verifyRegistrationResponse,
@@ -15,23 +15,24 @@ const rpID = process.env.PASSKEY_RP_ID || 'localhost';
 const origin = process.env.PASSKEY_ORIGIN || `http://${rpID}:3000`;
 
 export async function GET(request: NextRequest) {
-	const supabase = await createClient();
-	const {
-		data: { user },
-	} = await supabase.auth.getUser();
+	const session = await getSession();
 
 	const searchParams = request.nextUrl.searchParams;
 	const type = searchParams.get('type');
 
 	if (type === 'register') {
 		// Registration/Enrollment requires an authenticated user
-		if (!user) return NextResponse.json({ error: 'Unauthorized. login first to enroll passkey' }, { status: 401 });
+		if (!session)
+			return NextResponse.json({ error: 'Unauthorized. login first to enroll passkey' }, { status: 401 });
+
+		// We need the user email if available, or confirm username
+		// For now we just use session info
 
 		const options = await generateRegistrationOptions({
 			rpName,
 			rpID,
-			userID: new TextEncoder().encode(user.id),
-			userName: user.email || user.user_metadata.username,
+			userID: new TextEncoder().encode(session.userId),
+			userName: session.username,
 			attestationType: 'none',
 			authenticatorSelection: {
 				residentKey: 'preferred',
@@ -74,18 +75,16 @@ export async function POST(request: NextRequest) {
 	const body = await request.json();
 	const { type } = body;
 	const cookies = request.cookies;
-	const supabase = await createClient();
 
 	const expectedChallenge = cookies.get('challenge')?.value;
 	if (!expectedChallenge) return NextResponse.json({ error: 'Challenge expired or missing' }, { status: 400 });
 
 	if (type === 'register') {
 		// Finalizing Enrollment
+		const session = await getSession();
+		if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
 		const { registrationResponse } = body;
-		const {
-			data: { user },
-		} = await supabase.auth.getUser();
-		if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
 		let verification;
 		try {
@@ -103,7 +102,7 @@ export async function POST(request: NextRequest) {
 		if (verification.verified && verification.registrationInfo) {
 			const { credential } = verification.registrationInfo;
 			await db.insert(authenticators).values({
-				userId: user.id,
+				userId: session.userId,
 				credentialID: credential.id,
 				credentialPublicKey: Buffer.from(credential.publicKey).toString('base64'),
 				counter: credential.counter,
@@ -157,17 +156,17 @@ export async function POST(request: NextRequest) {
 				.set({ counter: verification.authenticationInfo.newCounter })
 				.where(eq(authenticators.credentialID, authenticator.credentialID));
 
-			// Sign in user manually via Supabase Admin OR redirect to a flow that signs them in.
-			// Actually, if we use traditional passkey, we might need a custom jwt or tell supabase we verified them.
-			// For simplicity since Email/Password is primary, Passkey login will issue a Supabase session if we can.
-			// Supabase doesn't easily allow signing in with a custom verification result without Admin SDK.
-			// Let's use a workaround: we'll issue the custom 'session' cookie for now, OR better,
-			// let's assume Passkey is an "added security" and we'll figure out the Supabase session bridge later.
-			// Actually, let's keep it simple: Passkey login IS NOT enabled yet in the new plan, only enrollment.
-			// Wait, the plan says "Retain Passkey login functionality".
+			// Sign in user using new Session system
+			await createSession(user.id, user.username);
 
-			// For now, I'll return the verified state.
-			return NextResponse.json({ verified: true, userId: user.id });
+			// Return verified
+			const response = NextResponse.json({
+				verified: true,
+				userId: user.id,
+				user: { id: user.id, username: user.username },
+			});
+			response.cookies.delete('challenge');
+			return response;
 		}
 	}
 

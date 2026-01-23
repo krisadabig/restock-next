@@ -3,6 +3,8 @@ import { pgTable, text, integer, serial, timestamp, real } from 'drizzle-orm/pg-
 export const users = pgTable('users', {
 	id: text('id').primaryKey(), // Using text to store Supabase UUIDs
 	username: text('username').notNull().unique(),
+	email: text('email'),
+	passwordHash: text('password_hash'),
 });
 
 export const authenticators = pgTable('authenticators', {

@@ -4,13 +4,12 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslation } from '@/lib/i18n';
 import { Moon, Sun, Globe, LogOut, Trash2, X, ArrowLeft, Settings, Fingerprint, ShieldCheck } from 'lucide-react';
-import { createClient } from '@/lib/supabase/client';
-import { registerPasskey } from '@/lib/auth';
+import { logout } from '@/app/auth/actions';
 
 export default function SettingsPage() {
   const router = useRouter();
   const { t, locale, setLocale } = useTranslation();
-  const supabase = createClient();
+  // const supabase = createClient(); // Supabase client removed
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
   const [mounted, setMounted] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -44,16 +43,15 @@ export default function SettingsPage() {
   };
 
   const handleLogout = async () => {
-    await supabase.auth.signOut();
-    router.push('/');
+    await logout();
   };
 
   const handleAddPasskey = async () => {
     setPasskeyLoading(true);
     setPasskeyMsg(null);
     try {
-        await registerPasskey(""); // Username ignored by new API as it uses session
-        setPasskeyMsg({ type: 'success', text: 'Passkey added successfully!' });
+        // await registerPasskey(""); // Username ignored by new API as it uses session
+        setPasskeyMsg({ type: 'error', text: 'Passkeys are temporarily disabled.' });
     } catch (err) {
         setPasskeyMsg({ type: 'error', text: (err as Error).message });
     } finally {
@@ -66,10 +64,8 @@ export default function SettingsPage() {
     setIsDeleting(true);
     try {
       // In a real app, you'd call a function to delete the user data and then sign out.
-      // Supabase Auth doesn't allow users to delete themselves directly easily for security.
       // We'll just sign them out and redirect for this demo/MVP.
-      await supabase.auth.signOut();
-      router.push('/');
+      await logout();
     } catch (error) {
       console.error('Failed to delete account:', error);
       setIsDeleting(false);

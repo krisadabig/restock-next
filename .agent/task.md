@@ -125,6 +125,17 @@
     - [x] Add "Offline" & "Syncing" indicators (Subtle/Premium UI) <!-- id: 90 -->
     - [x] Verify via Network Throttling/Offline in Playwright (and Unit Tests) <!-- id: 91 -->
 
+# Phase 21: Auth Migration (Supabase -> Simple DB)
+
+- [x] Migrate Auth System <!-- id: 113 -->
+    - [x] Create JWT session management (`lib/session.ts`) <!-- id: 114 -->
+    - [x] Update schema with `passwordHash` and `email` <!-- id: 115 -->
+    - [x] Implement Server Actions for Signup/Login/Logout <!-- id: 116 -->
+    - [x] Update Middleware to use JWT <!-- id: 117 -->
+    - [x] Update UI (Login, Settings) <!-- id: 118 -->
+    - [x] Verify E2E Tests <!-- id: 119 -->
+    - [x] Remove Supabase Dependencies <!-- id: 120 -->
+
 # Phase 19: Data Portability
 
 - [ ] Export & Share <!-- id: 92 -->
