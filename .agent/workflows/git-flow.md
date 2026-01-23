@@ -70,6 +70,7 @@ Use [Conventional Commits](https://www.conventionalcommits.org/) format:
 Before merging to `main`, verify ALL Definition of Done criteria (see `manifest.md`):
 
 - [ ] Feature implemented per spec
+- [ ] **Visual Audit & Ergonomic Check**: Verified UI matches `/design-references` and passes "Thumb Zone" check (see `.agent/skills/visual-audit/SKILL.md`).
 - [ ] **Component Directive Check**: Verified `'use client';` presence in all modified Client Components.
 - [ ] No lint/type errors (`bun run lint`).
 - [ ] All tests pass (`bun test`).

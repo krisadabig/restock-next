@@ -129,18 +129,18 @@ export default function DashboardClient({
                              <div className="flex items-center gap-1 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity">
                                 <button 
                                     onClick={() => setEditingEntry(entry)}
-                                    className="p-2.5 text-slate-400 hover:text-indigo-500 hover:bg-indigo-50/50 dark:hover:bg-indigo-900/20 rounded-xl transition-all"
+                                    className="h-11 w-11 flex items-center justify-center text-slate-400 hover:text-indigo-500 hover:bg-indigo-50/50 dark:hover:bg-indigo-900/20 rounded-xl transition-all"
                                     title="Edit"
                                 >
-                                    <Edit2 size={16} />
+                                    <Edit2 size={18} />
                                 </button>
                                 <button 
                                     onClick={() => handleDelete(entry.id)}
                                     disabled={isDeleting === entry.id}
-                                    className="p-2.5 text-slate-400 hover:text-red-500 hover:bg-red-50/50 dark:hover:bg-red-900/20 rounded-xl transition-all disabled:opacity-50"
+                                    className="h-11 w-11 flex items-center justify-center text-slate-400 hover:text-red-500 hover:bg-red-50/50 dark:hover:bg-red-900/20 rounded-xl transition-all disabled:opacity-50"
                                     title="Delete"
                                 >
-                                    <Trash2 size={16} />
+                                    <Trash2 size={18} />
                                 </button>
                              </div>
                          </div>

@@ -57,9 +57,9 @@ export default function AddEntryModal({ isOpen, onClose }: { isOpen: boolean; on
                     <h2 className="text-lg font-bold text-gray-900 dark:text-white">{t('app.addEntry')}</h2>
                     <button 
                         onClick={onClose}
-                        className="p-2 text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors"
+                        className="h-11 w-11 flex items-center justify-center text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors"
                     >
-                        <X size={20} />
+                        <X size={22} />
                     </button>
                 </div>
 
