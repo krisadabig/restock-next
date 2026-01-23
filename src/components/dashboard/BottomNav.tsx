@@ -14,7 +14,7 @@ export default function BottomNav() {
   const isSettings = pathname === '/app/settings';
 
   return (
-    <div className="fixed bottom-6 left-[50%] -translate-x-[50%] w-[calc(100%-2rem)] max-w-sm glass rounded-4xl px-4 py-3 flex justify-around items-center z-50">
+    <div className="fixed bottom-[calc(1.5rem+env(safe-area-inset-bottom))] left-[50%] -translate-x-[50%] w-[calc(100%-2rem)] max-w-sm glass rounded-4xl px-4 py-3 flex justify-around items-center z-50">
         <Link
             href="/app"
             className={`flex flex-col items-center gap-1 transition-all duration-300 ${isDashboard ? 'text-indigo-600 dark:text-indigo-400 scale-110' : 'text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300'}`}

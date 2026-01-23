@@ -97,3 +97,37 @@
 - [x] Premium UI Integration <!-- id: 82 -->
     - [x] Integrate 3D Hero illustration <!-- id: 83 -->
     - [x] Add Shimmer CTA and micro-animations <!-- id: 84 -->
+
+
+# Phase 20: Visual Maximization (Deep Polish)
+
+- [x] Visual Audit & Proposal <!-- id: 100 -->
+    - [x] Capture current state screenshots <!-- id: 101 -->
+    - [x] Create `visual_proposal.md` <!-- id: 102 -->
+- [x] Deep Dark Mode Enforcement <!-- id: 103 -->
+    - [x] Force default Dark Mode (OLED friendly) <!-- id: 104 -->
+    - [x] Fix "Light Mode Flash" on hydration <!-- id: 105 -->
+- [x] Typography & Micro-Interactions <!-- id: 106 -->
+    - [x] Fix Translation Keys (e.g. `app.addEntry`) <!-- id: 107 -->
+    - [x] Audit Font Weights and Sizes (Human-Readable) <!-- id: 108 -->
+    - [x] Add `active:scale-95` to all interaction points <!-- id: 109 -->
+- [x] Premium Components <!-- id: 110 -->
+    - [x] Glassmorphism refinement on Cards <!-- id: 111 -->
+    - [x] Gradient Data Viz for Trends <!-- id: 112 -->
+
+# Phase 18: Offline Mode (IndexedDB)
+
+- [x] Value-Add Offline Support <!-- id: 85 -->
+    - [x] Install `idb` and create `lib/idb.ts` client wrapper <!-- id: 86 -->
+    - [x] Create `SyncEngine` context/hook <!-- id: 87 -->
+    - [x] Implement `Cache-First` read strategy (Hydrate from IDB if offline/server fail) <!-- id: 88 -->
+    - [x] Implement `Background Sync` for writes (Add/Edit/Delete in IDB -> Flush to Server) <!-- id: 89 -->
+    - [x] Add "Offline" & "Syncing" indicators (Subtle/Premium UI) <!-- id: 90 -->
+    - [x] Verify via Network Throttling/Offline in Playwright (and Unit Tests) <!-- id: 91 -->
+
+# Phase 19: Data Portability
+
+- [ ] Export & Share <!-- id: 92 -->
+    - [ ] Implement CSV Export <!-- id: 93 -->
+    - [ ] Implement Web Share API for Trends <!-- id: 94 -->
+

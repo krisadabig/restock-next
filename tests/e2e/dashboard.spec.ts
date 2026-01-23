@@ -64,7 +64,7 @@ test.describe('Dashboard Shell', { tag: '@smoke' }, () => {
 		await expect(page).toHaveURL(/\/app\?add=true/);
 
 		// Check Modal Title
-		await expect(page.getByText('Add Entry')).toBeVisible();
+		await expect(page.getByRole('heading', { name: /Add Entry|เพิ่มรายการ/ })).toBeVisible();
 
 		// Fill Form
 		await page.locator('input[name="item"]').fill('Test Coffee');
@@ -72,11 +72,11 @@ test.describe('Dashboard Shell', { tag: '@smoke' }, () => {
 		// Date defaults to today
 
 		// Submit
-		await page.getByRole('button', { name: 'Add Entry' }).click();
+		await page.getByRole('button', { name: /Add Entry|เพิ่มรายการ/ }).click();
 
 		// Should return to /app (modal closes)
 		await expect(page).toHaveURL(/\/app/);
-		await expect(page.getByText('Add Entry')).toBeHidden();
+		await expect(page.getByRole('heading', { name: /Add Entry|เพิ่มรายการ/ })).toBeHidden();
 
 		// Check if item appears in list (use first() to handle duplicates from prior runs)
 		await expect(page.getByText('Test Coffee').first()).toBeVisible();

@@ -1,0 +1,92 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - main [ref=e2]:
+    - generic [ref=e3]:
+      - main [ref=e5]:
+        - generic [ref=e6]:
+          - generic [ref=e7]:
+            - generic [ref=e8]:
+              - heading "Restock ของฉัน" [level=1] [ref=e9]
+              - paragraph [ref=e10]: ติดตามการซื้อซ้ำ
+            - generic [ref=e12]: "1"
+          - generic [ref=e13]:
+            - generic [ref=e14]:
+              - img [ref=e15]
+              - textbox "Search items..." [ref=e18]
+            - generic [ref=e19]:
+              - img
+              - combobox [ref=e20] [cursor=pointer]:
+                - option "All Time" [selected]
+                - option "Jan 2026"
+              - img
+          - generic [ref=e22]:
+            - generic [ref=e23]:
+              - heading "Test Coffee" [level=3] [ref=e24]
+              - paragraph [ref=e25]: Jan 23, 2026
+            - generic [ref=e26]:
+              - generic [ref=e27]: ฿500
+              - generic [ref=e28]:
+                - button "Edit" [ref=e29]:
+                  - img [ref=e30]
+                - button "Delete" [ref=e32]:
+                  - img [ref=e33]
+      - generic [ref=e36]:
+        - link "ประวัติ" [ref=e37] [cursor=pointer]:
+          - /url: /app
+          - img [ref=e38]
+          - generic [ref=e42]: ประวัติ
+        - link "เพิ่ม" [ref=e44] [cursor=pointer]:
+          - /url: /app?add=true
+          - img [ref=e46]
+          - generic [ref=e47]: เพิ่ม
+        - link "แนวโน้ม" [ref=e48] [cursor=pointer]:
+          - /url: /app/trends
+          - img [ref=e49]
+          - generic [ref=e52]: แนวโน้ม
+        - link "การตั้งค่า" [ref=e53] [cursor=pointer]:
+          - /url: /app/settings
+          - img [ref=e54]
+          - generic [ref=e57]: การตั้งค่า
+  - generic [ref=e62] [cursor=pointer]:
+    - button "Open Next.js Dev Tools" [ref=e63]:
+      - img [ref=e64]
+    - generic [ref=e67]:
+      - button "Open issues overlay" [ref=e68]:
+        - generic [ref=e69]:
+          - generic [ref=e70]: "0"
+          - generic [ref=e71]: "1"
+        - generic [ref=e72]: Issue
+      - button "Collapse issues badge" [ref=e73]:
+        - img [ref=e74]
+  - alert [ref=e76]
+  - generic [ref=e79]:
+    - generic [ref=e80]:
+      - heading "เพิ่มรายการ" [level=2] [ref=e81]
+      - button [ref=e82]:
+        - img [ref=e83]
+    - generic [ref=e86]:
+      - generic [ref=e87]:
+        - generic [ref=e88]:
+          - img [ref=e89]
+          - text: ชื่อสินค้า
+        - combobox "เช่น แชมพู, กาแฟ, ข้าวสาร" [ref=e92]: Test Coffee
+      - generic [ref=e93]:
+        - generic [ref=e94]:
+          - generic [ref=e95]:
+            - img [ref=e96]
+            - text: ราคา
+          - spinbutton [ref=e98]: "500"
+        - generic [ref=e99]:
+          - generic [ref=e100]:
+            - img [ref=e101]
+            - text: วันที่
+          - textbox [ref=e103]: 2026-01-23
+      - generic [ref=e104]:
+        - generic [ref=e105]:
+          - img [ref=e106]
+          - text: บันทึกเพิ่มเติม
+        - textbox "ยี่ห้อ, ขนาด, ร้านที่ซื้อ..." [ref=e109]
+      - button "เพิ่มรายการ" [ref=e110]
+```

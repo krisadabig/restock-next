@@ -9,10 +9,17 @@ Restock is a web application designed to help users track their grocery stock, p
 - **Database**: PostgreSQL (via Supabase)
 - **ORM**: Drizzle ORM
 - **Styling**: Tailwind CSS 4+
-- **Testing**: Playwright (E2E and Smoke Tests)
+- **Testing**: Playwright (E2E/Smoke) + Vitest (Unit)
 - **I18n**: Custom implementation supporting English (EN) and Thai (TH)
+- **Offline**: IndexedDB + Background Sync Pattern
 
 ## Core Logic & Data Flow
+
+### 0. Offline Capabilities
+- **Philosophy**: "Optimistic UI, Event Consistency".
+- **Storage**: Entries are cached in IndexedDB via `idb` library.
+- **Mutations**: Write operations (`add`, `edit`, `delete`) are optimistically applied to UI and queued in IDB if offline.
+- **Sync**: A `SyncEngine` monitors online status and re-drives queued mutations sequentially when connectivity is restored.
 
 ### 1. Authentication
 - **Registration**: Users sign up via Supabase Auth. A database trigger (`supabase_trigger.sql`) automatically creates a profile in the `public.users` table.
@@ -51,3 +58,4 @@ Restock is a web application designed to help users track their grocery stock, p
 - **PWA**: Progressive Web App features including service worker caching for offline support and manifest metadata.
 - **Security**: Strict Content Security Policy (CSP) and security headers (X-Frame-Options, X-Content-Type-Options) enabled in `next.config.ts`.
 - **Performance**: Heavy use of React Server Components and optimized data fetching.
+- **UI Architecture**: heavily relies on **React Portals** (`createPortal`) for overlays (Modals) to ensure correct z-index stacking on complex mobile viewports.

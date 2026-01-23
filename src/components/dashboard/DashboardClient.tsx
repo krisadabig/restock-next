@@ -1,12 +1,14 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useTranslation } from '@/lib/i18n';
 import AddEntryModal from './AddEntryModal';
 import EditEntryModal from './EditEntryModal';
+import DeleteEntryModal from './DeleteEntryModal';
 import { useRouter } from 'next/navigation';
-import { deleteEntry } from '@/app/app/actions';
-import { Search, Edit2, Trash2, Calendar, ChevronDown } from 'lucide-react';
+import { Search, Edit2, Trash2, Calendar, ChevronDown, CloudOff } from 'lucide-react';
+import { useOffline } from '@/components/providers/OfflineContext';
+import { getEntriesCache, getPendingMutations } from '@/lib/idb';
 
 interface Entry {
 	id: number;
@@ -17,7 +19,7 @@ interface Entry {
 }
 
 export default function DashboardClient({ 
-    entries, 
+    entries: initialEntries, 
     showAddModal 
 }: { 
     entries: Entry[];
@@ -25,10 +27,56 @@ export default function DashboardClient({
 }) {
   const { t } = useTranslation();
   const router = useRouter();
+  const { isOnline, refreshCache, lastAction } = useOffline();
+  
+  // State
+  const [entries, setEntries] = useState<Entry[]>(initialEntries);
   const [searchQuery, setSearchQuery] = useState('');
-  const [filterMonth, setFilterMonth] = useState<string>('all'); // YYYY-MM or 'all'
+  const [filterMonth, setFilterMonth] = useState<string>('all');
   const [editingEntry, setEditingEntry] = useState<Entry | null>(null);
-  const [isDeleting, setIsDeleting] = useState<number | null>(null);
+  const [deletingEntry, setDeletingEntry] = useState<Entry | null>(null);
+
+  // Hydrate & Merge Mutations
+  useEffect(() => {
+    const hydrate = async () => {
+        // 1. Get Base Entries (Server or Cache)
+        let baseEntries = initialEntries;
+        
+        // If server entries empty (offline/error), try cache
+        if (baseEntries.length === 0) {
+             const cached = await getEntriesCache();
+             if (cached.length > 0) baseEntries = cached;
+        } else {
+             // If we have server entries, update cache
+             await refreshCache(initialEntries);
+        }
+
+        // 2. Apply Pending Mutations (Optimistic UI)
+        const mutations = await getPendingMutations();
+        let optimisticEntries = [...baseEntries];
+
+        for (const m of mutations.sort((a, b) => a.timestamp - b.timestamp)) {
+            if (m.type === 'add') {
+                // Generate a temp negative ID if needed, although IDB key is number. 
+                // For UI display, we just need unique. 
+                // We'll use a negative timestamp as ID to avoid collision with real positive IDs.
+                const tempId = -m.timestamp; 
+                optimisticEntries.push({ ...m.payload, id: tempId });
+            } else if (m.type === 'edit') {
+                const index = optimisticEntries.findIndex(e => e.id === m.payload.id);
+                if (index !== -1) {
+                    optimisticEntries[index] = { ...optimisticEntries[index], ...m.payload.data };
+                }
+            } else if (m.type === 'delete') {
+                optimisticEntries = optimisticEntries.filter(e => e.id !== m.payload.id);
+            }
+        }
+
+        // Sort by date desc
+        setEntries(optimisticEntries.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()));
+    };
+    hydrate();
+  }, [initialEntries, refreshCache, lastAction]); // Re-run when lastAction changes (offline mutation) or props change
 
   // Derived data
   const filteredEntries = useMemo(() => {
@@ -44,19 +92,6 @@ export default function DashboardClient({
     return uniqueMonths.sort().reverse();
   }, [entries]);
 
-  const handleDelete = async (id: number) => {
-    if (!confirm('Are you sure you want to delete this entry?')) return;
-    setIsDeleting(id);
-    try {
-        await deleteEntry(id);
-        router.refresh();
-    } catch (err) {
-        alert('Failed to delete: ' + (err as Error).message);
-    } finally {
-        setIsDeleting(null);
-    }
-  };
-
   return (
     <div className="p-6 pb-24 space-y-6">
         <header className="flex justify-between items-center animate-in slide-in-from-top-4 duration-1000">
@@ -67,7 +102,12 @@ export default function DashboardClient({
                 <p className="text-xs font-bold text-indigo-500 uppercase tracking-widest">{t('app.subtitle')}</p>
             </div>
             <div className="flex items-center gap-3">
-                <div className="btn-premium h-11 w-11 rounded-2xl flex items-center justify-center font-black shadow-lg text-lg">
+                {!isOnline && (
+                    <div className="bg-slate-100 dark:bg-slate-800 text-slate-500 p-2 rounded-full animate-pulse">
+                        <CloudOff size={20} />
+                    </div>
+                )}
+                <div className="btn-premium h-11 w-11 rounded-2xl flex items-center justify-center font-black shadow-lg text-lg transform active:scale-90 transition-transform">
                     {filteredEntries.length}
                 </div>
             </div>
@@ -112,38 +152,39 @@ export default function DashboardClient({
                  {filteredEntries.map(entry => (
                      <div key={entry.id} className="glass p-5 rounded-3xl flex justify-between items-center transition-all duration-300 hover:scale-[1.01] group relative">
                          <div className="flex flex-col gap-1 pr-4">
-                             <h3 className="font-black text-slate-800 dark:text-slate-100 group-hover:text-indigo-500 transition-colors">{entry.item}</h3>
-                             <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">
+                             <h3 className="font-exhibit font-bold text-base text-slate-800 dark:text-slate-100 group-hover:text-indigo-500 transition-colors">{entry.item}</h3>
+                             <p className="text-xs font-bold uppercase tracking-widest text-slate-400">
                                 {new Date(entry.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
                              </p>
                              {entry.note && (
-                                 <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-1 line-clamp-1">{entry.note}</p>
+                                 <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 line-clamp-1">{entry.note}</p>
                              )}
                          </div>
-                         <div className="flex items-center gap-4">
-                             <div className="text-lg font-black text-indigo-600 dark:text-indigo-400 bg-indigo-500/10 px-4 py-2 rounded-2xl">
-                                 ฿{entry.price.toLocaleString()}
+                             <div className="flex items-center gap-4">
+                                 <div className="text-lg font-black text-indigo-600 dark:text-indigo-400 bg-indigo-500/10 px-4 py-2 rounded-2xl">
+                                     ฿{entry.price.toLocaleString()}
+                                 </div>
+                                 
+                                 {/* Actions (visible on hover for desktop, or icons for mobile) */}
+                                 <div className="flex items-center gap-1 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <button 
+                                        onClick={() => setEditingEntry(entry)}
+                                        className="h-11 w-11 flex items-center justify-center text-slate-400 hover:text-indigo-500 hover:bg-indigo-50/50 dark:hover:bg-indigo-900/20 rounded-xl transition-all active:scale-90"
+                                        title="Edit"
+                                        aria-label="Edit"
+                                    >
+                                        <Edit2 size={20} />
+                                    </button>
+                                    <button 
+                                        onClick={() => setDeletingEntry(entry)}
+                                        className="h-11 w-11 flex items-center justify-center text-slate-400 hover:text-red-500 hover:bg-red-50/50 dark:hover:bg-red-900/20 rounded-xl transition-all disabled:opacity-50 active:scale-90"
+                                        title="Delete"
+                                        aria-label="Delete"
+                                    >
+                                        <Trash2 size={20} />
+                                    </button>
+                                 </div>
                              </div>
-                             
-                             {/* Actions (visible on hover for desktop, or icons for mobile) */}
-                             <div className="flex items-center gap-1 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity">
-                                <button 
-                                    onClick={() => setEditingEntry(entry)}
-                                    className="h-11 w-11 flex items-center justify-center text-slate-400 hover:text-indigo-500 hover:bg-indigo-50/50 dark:hover:bg-indigo-900/20 rounded-xl transition-all"
-                                    title="Edit"
-                                >
-                                    <Edit2 size={18} />
-                                </button>
-                                <button 
-                                    onClick={() => handleDelete(entry.id)}
-                                    disabled={isDeleting === entry.id}
-                                    className="h-11 w-11 flex items-center justify-center text-slate-400 hover:text-red-500 hover:bg-red-50/50 dark:hover:bg-red-900/20 rounded-xl transition-all disabled:opacity-50"
-                                    title="Delete"
-                                >
-                                    <Trash2 size={18} />
-                                </button>
-                             </div>
-                         </div>
                      </div>
                  ))}
               </div>
@@ -155,6 +196,13 @@ export default function DashboardClient({
             <EditEntryModal 
                 entry={editingEntry} 
                 onClose={() => setEditingEntry(null)} 
+            />
+        )}
+
+        {deletingEntry && (
+            <DeleteEntryModal 
+                entry={deletingEntry} 
+                onClose={() => setDeletingEntry(null)} 
             />
         )}
     </div>

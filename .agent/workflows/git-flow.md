@@ -73,6 +73,7 @@ Before merging to `main`, verify ALL Definition of Done criteria (see `manifest.
 - [ ] **Visual Audit & Ergonomic Check**: Verified UI matches `/design-references` and passes "Thumb Zone" check (see `.agent/skills/visual-audit/SKILL.md`).
 - [ ] **Component Directive Check**: Verified `'use client';` presence in all modified Client Components.
 - [ ] No lint/type errors (`bun run lint`).
+- [ ] **Build Check**: Verified `bun run build` passes locally.
 - [ ] All tests pass (`bun test`).
 - [ ] New tests added for new behaviors
 - [ ] Smoke tests pass (`bun run smoke`)
@@ -123,3 +124,4 @@ git push origin main
 3. **Spec Syncing is Mandatory** — Update `.agent/spec.md` concurrently with feature implementation.
 4. **Always update manifest** — Mark tasks [COMPLETED] and **update Handoff session**.
 5. **Continuous Verification** — Run `bun test && bun run lint` before every commit to ensure quality.
+6. **Production Build Check** — Run `bun run build` before verification to catch type/build errors missed by dev server.

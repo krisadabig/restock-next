@@ -52,7 +52,7 @@ describe('ThemeToggle', () => {
         expect(screen.getByRole('button')).toBeDefined();
     });
 
-    it('should toggle theme classes on html element', () => {
+    it('should toggle theme classes on html element', async () => {
         render(<ThemeToggle />);
         const button = screen.getByRole('button');
 
@@ -60,7 +60,10 @@ describe('ThemeToggle', () => {
         expect(document.documentElement.classList.contains('dark')).toBe(false);
 
         // Click to toggle to dark
+        // Wait for component to mount/interactivity
+        await vi.waitUntil(() => !button.classList.contains('opacity-0'));
         fireEvent.click(button);
+        
         expect(document.documentElement.classList.contains('dark')).toBe(true);
         expect(localStorageMock.setItem).toHaveBeenCalledWith('theme', 'dark');
 

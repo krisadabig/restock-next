@@ -127,7 +127,7 @@ export default function SettingsPage() {
             <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-2xl border border-slate-200 dark:border-slate-700 relative">
               <button
                 onClick={() => theme !== 'light' && toggleTheme()}
-                className={`relative z-10 flex-1 px-6 py-2 rounded-xl text-sm font-black transition-all duration-300 flex items-center justify-center gap-2 ${
+                className={`relative z-10 flex-1 px-4 py-2 rounded-xl text-sm font-black transition-all duration-300 flex items-center justify-center gap-2 ${
                   theme === 'light' ? 'text-indigo-600' : 'text-slate-400 opacity-50'
                 }`}
               >
@@ -136,7 +136,7 @@ export default function SettingsPage() {
               </button>
               <button
                 onClick={() => theme !== 'dark' && toggleTheme()}
-                className={`relative z-10 flex-1 px-6 py-2 rounded-xl text-sm font-black transition-all duration-300 flex items-center justify-center gap-2 ${
+                className={`relative z-10 flex-1 px-4 py-2 rounded-xl text-sm font-black transition-all duration-300 flex items-center justify-center gap-2 ${
                   theme === 'dark' ? 'text-indigo-400' : 'text-slate-500 opacity-50'
                 }`}
               >

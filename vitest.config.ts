@@ -5,7 +5,10 @@ import { resolve } from 'path';
 export default defineConfig({
 	plugins: [react()],
 	test: {
-		environment: 'jsdom',
+		environment: 'happy-dom',
+		include: ['src/**/*.test.{ts,tsx}', 'tests/**/*.test.{ts,tsx}'],
+		exclude: ['**/node_modules/**', '**/dist/**', 'tests/e2e/**'],
+		setupFiles: [],
 		alias: {
 			'@': resolve(__dirname, './src'),
 		},

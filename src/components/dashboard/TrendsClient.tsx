@@ -98,7 +98,7 @@ export default function TrendsClient({ entries }: { entries: Entry[] }) {
                                 vs Last Month
                             </span>
                         </div>
-                        <p className="text-[10px] font-bold text-slate-400 mt-2 uppercase tracking-widest">
+                        <p className="text-xs font-bold text-slate-400 mt-2 uppercase tracking-widest">
                             ฿{currentMonthSpending.toLocaleString()} this month
                         </p>
                     </div>
