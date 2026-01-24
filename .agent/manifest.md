@@ -58,12 +58,12 @@ Failure to run the verification script constitutes a violation of project govern
 
 ## Session Handoff / Next Steps
 **Current State**:
-- **Auth Migration**: Completed. Supabase removed. Simple DB Auth (Bcrypt/JOSE) active. Passkeys re-integrated.
-- **Governance**: Implemented. Rules defined in `definition-of-done.md`. `verify-task` script enforcing quality.
-- **Hotfix**: Fixed E2E Login test flakiness (missing Tab button).
+- **App Polish**: "Native App" feel achieved. Theme flash fixed, Skeleton loader added, Modals use Bottom Sheet (mobile), Logout is optimistic.
+- **Governance**: Hardened `finish-task` script. Now strictly enforces Handoff and Retrospective updates.
+- **Auth Migration**: Completed & Optimistic.
 
 **Immediate Next Actions**:
 1. **Data Portability**: Implement CSV Export in Settings.
-2. **Web Share**: Implement Share API for Trends.
-3. **PWA Audit**: Verify offline service worker consistency.
+2. **PWA Audit**: Verify offline service worker consistency (prevent stale sw).
+3. **Web Share**: Implement Share API for Trends.
 

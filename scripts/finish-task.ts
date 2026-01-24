@@ -22,10 +22,28 @@ async function finishTask() {
 		const branchName = execSync('git rev-parse --abbrev-ref HEAD').toString().trim();
 
 		if (!docsUpdated) {
-			warn('It looks like `.agent/manifest.md` or `.agent/task.md` have NOT been modified in the working tree.');
-			console.log('   Did you remember to update the Status and Handoff?');
+			error('Governance Check Failed: `.agent/manifest.md` or `.agent/task.md` NOT modified.');
+			console.log('You must update the Session Handoff before finishing.');
+			console.log(`\n👉 Run the ${GREEN}/handoff${RESET} workflow to fix this.\n`);
+			return; // Stop execution
 		} else {
 			success('Documentation updates detected.');
+		}
+
+		// Check Retrospective
+		const retroUpdated = changes.includes('.agent/retrospective.md');
+		if (!retroUpdated) {
+			warn('Governance Warning: `.agent/retrospective.md` NOT modified.');
+			console.log('Did you learn nothing this session? (It is highly recommended to log lessons).');
+			// We won't block strictly on retro yet, but strongly warn.
+			// Actually, plan said "Enforce Retrospective". Let's block if we want to be strict.
+			// "Strict Check: git status MUST show changes to... .agent/retrospective.md"
+			// Okay, sticking to the plan.
+			error('Governance Check Failed: `.agent/retrospective.md` NOT modified.');
+			console.log('You must log a retrospective before finishing.');
+			return;
+		} else {
+			success('Retrospective detected.');
 		}
 
 		console.log(`\n${GREEN}✨ PRE-FLIGHT CHECKS PASSED ✨${RESET}\n`);

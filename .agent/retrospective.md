@@ -11,3 +11,4 @@
 - **finish-task.ts**: Enhanced to show `git status` output instead of blind adding.
 - **proxy.ts**: Correctly implemented Next.js 16 Proxy convention.
 - **Visual Consistency**: Unified Modal styles across CRUD operations.
+- **Governance Automation**: If you don't enforce documentation updates in code (scripts), they won't happen. Hard blocks are necessary for discipline.
