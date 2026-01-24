@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { useRouter } from 'next/navigation';
 import { useTranslation } from '@/lib/i18n';
 import { getUniqueItems } from '@/app/app/actions';
 import { X, Calendar, DollarSign, Tag, FileText } from 'lucide-react';
@@ -10,7 +9,6 @@ import { useOffline } from '@/components/providers/OfflineContext';
 
 export default function AddEntryModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
     const { t } = useTranslation();
-    const router = useRouter();
     const { addEntryOffline } = useOffline();
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
@@ -54,7 +52,7 @@ export default function AddEntryModal({ isOpen, onClose }: { isOpen: boolean; on
     if (!isOpen || !mounted || optimisticClosed) return null;
 
     return createPortal(
-        <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-0 sm:p-4">
+        <div className="fixed inset-0 z-100 flex items-end sm:items-center justify-center p-0 sm:p-4">
             {/* Backdrop */}
             <div 
                 className="absolute inset-0 bg-black/50 backdrop-blur-sm transition-opacity"
@@ -62,7 +60,7 @@ export default function AddEntryModal({ isOpen, onClose }: { isOpen: boolean; on
             ></div>
 
             {/* Modal */}
-            <div className="relative w-full max-w-md bg-white dark:bg-gray-900 rounded-t-2xl sm:rounded-2xl shadow-xl transform transition-transform animate-in slide-in-from-bottom-full sm:slide-in-from-bottom-10 z-[101]">
+            <div className="relative w-full max-w-md bg-white dark:bg-gray-900 rounded-t-2xl sm:rounded-2xl shadow-xl transform transition-transform animate-in slide-in-from-bottom-full sm:slide-in-from-bottom-10 z-101">
                 <div className="flex items-center justify-between p-4 border-b border-gray-100 dark:border-gray-800">
                     <h2 className="text-lg font-bold text-gray-900 dark:text-white">{t('app.addEntry')}</h2>
                     <button 
@@ -83,7 +81,7 @@ export default function AddEntryModal({ isOpen, onClose }: { isOpen: boolean; on
                             list="item-suggestions"
                             required
                             placeholder={t('app.placeholderItem')}
-                            className="w-full p-4 bg-gray-100 dark:bg-slate-800 border-2 border-transparent border-gray-100 dark:border-slate-800/50 rounded-2xl focus:border-indigo-500 focus:bg-white dark:focus:bg-slate-900 focus:ring-0 transition-all dark:text-white font-bold"
+                            className="w-full p-4 bg-gray-100 dark:bg-slate-800 border-2 border-transparent rounded-2xl focus:border-indigo-500 focus:bg-white dark:focus:bg-slate-900 focus:ring-0 transition-all dark:text-white font-bold"
                         />
                         <datalist id="item-suggestions">
                             {suggestions.map(s => <option key={s} value={s} />)}
@@ -102,7 +100,7 @@ export default function AddEntryModal({ isOpen, onClose }: { isOpen: boolean; on
                                 min="0"
                                 step="0.01"
                                 placeholder="0.00"
-                                className="w-full p-4 bg-gray-100 dark:bg-slate-800 border-2 border-transparent border-gray-100 dark:border-slate-800/50 rounded-2xl focus:border-indigo-500 focus:bg-white dark:focus:bg-slate-900 focus:ring-0 transition-all dark:text-white font-bold"
+                                className="w-full p-4 bg-gray-100 dark:bg-slate-800 border-2 border-transparent rounded-2xl focus:border-indigo-500 focus:bg-white dark:focus:bg-slate-900 focus:ring-0 transition-all dark:text-white font-bold"
                             />
                         </div>
 
@@ -115,7 +113,7 @@ export default function AddEntryModal({ isOpen, onClose }: { isOpen: boolean; on
                                 type="date"
                                 required
                                 defaultValue={new Date().toISOString().split('T')[0]} // YYYY-MM-DD
-                                className="w-full p-4 bg-gray-100 dark:bg-slate-800 border-2 border-transparent border-gray-100 dark:border-slate-800/50 rounded-2xl focus:border-indigo-500 focus:bg-white dark:focus:bg-slate-900 focus:ring-0 transition-all dark:text-white font-bold"
+                                className="w-full p-4 bg-gray-100 dark:bg-slate-800 border-2 border-transparent rounded-2xl focus:border-indigo-500 focus:bg-white dark:focus:bg-slate-900 focus:ring-0 transition-all dark:text-white font-bold"
                             />
                         </div>
                     </div>
@@ -128,7 +126,7 @@ export default function AddEntryModal({ isOpen, onClose }: { isOpen: boolean; on
                             name="note"
                             rows={3}
                             placeholder={t('app.placeholderNote')}
-                            className="w-full p-4 bg-gray-100 dark:bg-slate-800 border-2 border-transparent border-gray-100 dark:border-slate-800/50 rounded-2xl focus:border-indigo-500 focus:bg-white dark:focus:bg-slate-900 focus:ring-0 transition-all dark:text-white font-medium resize-none"
+                            className="w-full p-4 bg-gray-100 dark:bg-slate-800 border-2 border-transparent rounded-2xl focus:border-indigo-500 focus:bg-white dark:focus:bg-slate-900 focus:ring-0 transition-all dark:text-white font-medium resize-none"
                         />
                     </div>
 
