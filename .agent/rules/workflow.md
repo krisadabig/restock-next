@@ -25,6 +25,9 @@ This document outlines the standard lifecycle of a task, ensuring strict adheren
     *   Update `manifest.md` / `task.md`.
     *   Run `/handoff` workflow.
 3.  **Commit**: Follow instructions from `finish-task`.
+4.  **Push & PR**:
+    *   Push feature branch: `git push origin feature/name`.
+    *   Create Pull Request (or merge if solo).
 
 ## 5. Continuous Improvement 🚀
 **Trigger**: End of Session.
