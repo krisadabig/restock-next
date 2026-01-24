@@ -55,6 +55,7 @@ Failure to run the verification script constitutes a violation of project govern
 | Offline Mode | PASS | 2026-01-23T14:55:00 | Fixed Modal Overlap & User Sync Collision. Unit/Smoke Tests Pass. Manual Data Persistence issue investigated. |
 | **Auth Migration** | PASS | 2026-01-23T15:45:00 | Migrated to Simple DB (bcrypt/jose). Supabase removed. Login/Signup/Logout/Passkey Validated. 15/15 Smoke tests pass. Build passes. |
 | **Governance Upgrade** | PASS | 2026-01-23T16:00:00 | Implemented Definition of Done rules and `verify-task` automation script. |
+| **Modal Positioning Fix** | PASS | 2026-01-25T04:42:00 | Fixed Edit and Delete modal positioning on mobile by adding createPortal. All modals now render to document.body. 7/7 tests pass (4 modal-positioning + 3 dashboard). Verified on iPhone 16 Pro. |
 
 ## Session Handoff / Next Steps
 **Current State**:
@@ -62,6 +63,7 @@ Failure to run the verification script constitutes a violation of project govern
 - **App Polish**: "Native App" feel achieved.
 - **Governance**: Hardened scripts enforce Document updates and Zero Warnings.
 - **Auth Migration**: Completed.
+- **Modal Fix**: Edit and Delete modals now use createPortal for consistent positioning across all viewports. Comprehensive E2E tests added.
 
 **Immediate Next Actions**:
 1. **[SEV2] Data Portability**: Implement CSV Export in Settings.
