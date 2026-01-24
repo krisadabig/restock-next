@@ -135,6 +135,7 @@
     - [x] Update UI (Login, Settings) <!-- id: 118 -->
     - [x] Verify E2E Tests <!-- id: 119 -->
     - [x] Remove Supabase Dependencies <!-- id: 120 -->
+    - [x] Re-enable Passkey UI & Tests <!-- id: 121 -->
 
 # Phase 19: Data Portability
 

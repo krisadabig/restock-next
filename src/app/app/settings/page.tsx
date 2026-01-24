@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useTranslation } from '@/lib/i18n';
 import { Moon, Sun, Globe, LogOut, Trash2, X, ArrowLeft, Settings, Fingerprint, ShieldCheck } from 'lucide-react';
 import { logout } from '@/app/auth/actions';
+import { registerPasskey } from '@/lib/auth';
 
 export default function SettingsPage() {
   const router = useRouter();
@@ -50,8 +51,8 @@ export default function SettingsPage() {
     setPasskeyLoading(true);
     setPasskeyMsg(null);
     try {
-        // await registerPasskey(""); // Username ignored by new API as it uses session
-        setPasskeyMsg({ type: 'error', text: 'Passkeys are temporarily disabled.' });
+        await registerPasskey(); 
+        setPasskeyMsg({ type: 'success', text: 'Passkey added successfully!' });
     } catch (err) {
         setPasskeyMsg({ type: 'error', text: (err as Error).message });
     } finally {

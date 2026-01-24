@@ -30,9 +30,6 @@ test.describe('Login Page', { tag: '@smoke' }, () => {
 	test('should show signup mode', async ({ page }) => {
 		// Click "Don't have an account?"
 		await page.getByText("Don't have an account? Sign up").click();
-
-		// Check subtitle change (if we kept that logic)
-		// Or check for button text
 		await expect(page.getByRole('button', { name: 'Sign Up' })).toBeVisible();
 	});
 
@@ -48,11 +45,12 @@ test.describe('Login Page', { tag: '@smoke' }, () => {
 		await expect(page.getByText(/Invalid credentials/i)).toBeVisible();
 	});
 
-	test('should show passkey disabled message', async ({ page }) => {
+	test('should show passkey login option', async ({ page }) => {
 		const passkeyBtn = page.getByRole('button', { name: 'Passkey' });
 		await passkeyBtn.click();
 
-		await expect(page.getByText('Passkey login is temporarily disabled')).toBeVisible();
+		await expect(page.getByText('Passkey Ready')).toBeVisible();
+		await expect(page.getByRole('button', { name: 'Log in with Passkey' })).toBeVisible();
 
 		const backBtn = page.getByRole('button', { name: 'Use Password' });
 		await backBtn.click();

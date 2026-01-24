@@ -4,18 +4,35 @@ import { useActionState, useState } from 'react';
 import { useTranslation } from '@/lib/i18n';
 import ThemeToggle from '@/components/ThemeToggle';
 import LanguageToggle from '@/components/LanguageToggle';
+import { loginPasskey } from '@/lib/auth';
+import { useRouter } from 'next/navigation';
 import { login, signup } from '../auth/actions';
 
 export default function LoginPage() {
+  const router = useRouter();
   const { t } = useTranslation();
   const [isSignup, setIsSignup] = useState(false);
   const [method, setMethod] = useState<'password' | 'passkey'>('password');
+  const [passkeyError, setPasskeyError] = useState<string | null>(null);
+  const [isPasskeyLoading, setIsPasskeyLoading] = useState(false);
   
   const [loginState, loginAction, isLoginPending] = useActionState(login, null);
   const [signupState, signupAction, isSignupPending] = useActionState(signup, null);
 
   const error = isSignup ? signupState?.error : loginState?.error;
   const loading = isSignup ? isSignupPending : isLoginPending;
+
+  const handlePasskeyLogin = async () => {
+      setPasskeyError(null);
+      setIsPasskeyLoading(true);
+      try {
+          await loginPasskey();
+          router.push('/app');
+      } catch (err) {
+          setPasskeyError((err as Error).message);
+          setIsPasskeyLoading(false);
+      }
+  };
 
   return (
     <div className="min-h-screen bg-white dark:bg-black transition-colors duration-500 overflow-hidden relative flex items-center justify-center p-4">
@@ -118,15 +135,45 @@ export default function LoginPage() {
                     </button>
                 </form>
             ) : (
-                <div className="text-center py-8">
-                   <p className="text-gray-500 dark:text-gray-400 mb-4">Passkey login is temporarily disabled during system upgrade.</p>
-                   <button
+                <div className="space-y-4 text-center py-4">
+                     <div className="p-4 bg-indigo-50 dark:bg-indigo-900/10 rounded-2xl mb-4">
+                         <div className="flex justify-center mb-3">
+                            <div className="p-3 bg-indigo-100 dark:bg-indigo-900/30 rounded-full">
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    className="h-8 w-8 text-indigo-600 dark:text-indigo-400"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                    stroke="currentColor"
+                                    strokeWidth={2}
+                                >
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.131A8 8 0 008 4.07M3 15.364c.64-1.319 1-2.8 1-4.364 0-1.457.2-2.858.59-4.18" />
+                                </svg>
+                            </div>
+                         </div>
+                         <h3 className="font-bold text-gray-900 dark:text-white">Passkey Ready</h3>
+                         <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Use FaceID, TouchID or your security key to login instantly.</p>
+                     </div>
+
+                     {passkeyError && (
+                        <div className="text-center text-sm font-medium text-red-500 animate-pulse mb-4">{passkeyError}</div>
+                     )}
+
+                     <button
                         type="button"
-                        onClick={() => setMethod('password')}
-                        className="text-indigo-600 dark:text-indigo-400 font-bold hover:underline"
+                        onClick={handlePasskeyLogin}
+                        disabled={isPasskeyLoading}
+                        className="w-full rounded-xl bg-indigo-600 py-3.5 text-base font-bold text-white transition-all hover:bg-indigo-700 hover:scale-[1.02] hover:shadow-xl dark:bg-indigo-500 dark:hover:bg-indigo-400 disabled:opacity-70 flex items-center justify-center gap-2"
                     >
-                        Use Password
-                   </button>
+                        {isPasskeyLoading ? (
+                             <>
+                                <span className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></span>
+                                {t('app.processing')}
+                             </>
+                        ) : (
+                            "Log in with Passkey"
+                        )}
+                    </button>
                 </div>
             )}
         </div>
