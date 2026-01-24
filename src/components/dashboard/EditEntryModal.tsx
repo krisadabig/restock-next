@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { useTranslation } from '@/lib/i18n';
 import { getUniqueItems } from '@/app/app/actions';
 import { X, Calendar, DollarSign, Tag, FileText } from 'lucide-react';
@@ -59,7 +60,7 @@ export default function EditEntryModal({
 
     if (!mounted || optimisticClosed) return null;
 
-    return (
+    return createPortal(
         <div className="fixed inset-0 z-100 flex items-end sm:items-center justify-center p-0 sm:p-4">
             {/* Backdrop */}
             <div 
@@ -158,6 +159,7 @@ export default function EditEntryModal({
                     <div className="pb-[calc(1rem+env(safe-area-inset-bottom))] sm:hidden"></div> {/* Safe area spacer for mobile */}
                 </form>
             </div>
-        </div>
+        </div>,
+        document.body
     );
 }
