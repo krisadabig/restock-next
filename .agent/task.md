@@ -137,6 +137,15 @@
     - [x] Remove Supabase Dependencies <!-- id: 120 -->
     - [x] Re-enable Passkey UI & Tests <!-- id: 121 -->
 
+# Phase 22: Governance Upgrade
+
+- [x] Implement Definition of Done Rules <!-- id: 122 -->
+    - [x] Create `.agent/rules/definition-of-done.md` <!-- id: 123 -->
+    - [x] Create `scripts/verify-task.ts` automation <!-- id: 124 -->
+    - [x] Update `manifest.md` enforcement <!-- id: 125 -->
+    - [x] Verify verification script itself <!-- id: 126 -->
+    - [x] **Hotfix**: Fix Login E2E Test Flakiness (Missing Button) <!-- id: 127 -->
+    
 # Phase 19: Data Portability
 
 - [ ] Export & Share <!-- id: 92 -->

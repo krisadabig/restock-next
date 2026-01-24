@@ -52,7 +52,7 @@ test.describe('Login Page', { tag: '@smoke' }, () => {
 		await expect(page.getByText('Passkey Ready')).toBeVisible();
 		await expect(page.getByRole('button', { name: 'Log in with Passkey' })).toBeVisible();
 
-		const backBtn = page.getByRole('button', { name: 'Use Password' });
+		const backBtn = page.getByRole('button', { name: 'Password' });
 		await backBtn.click();
 
 		await expect(page.getByPlaceholder('password')).toBeVisible();

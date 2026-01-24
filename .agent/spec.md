@@ -5,8 +5,8 @@ Restock is a web application designed to help users track their grocery stock, p
 
 ## Tech Stack
 - **Framework**: Next.js 16+ (App Router)
-- **Authentication**: Supabase Auth (Primary: Email/Password, Secondary: WebAuthn Passkeys)
-- **Database**: PostgreSQL (via Supabase)
+- **Authentication**: Custom DB Auth (Bcrypt + JOSE/JWT) + WebAuthn Passkeys
+- **Database**: PostgreSQL (Managed via Drizzle)
 - **ORM**: Drizzle ORM
 - **Styling**: Tailwind CSS 4+
 - **Testing**: Playwright (E2E/Smoke) + Vitest (Unit)
@@ -22,10 +22,10 @@ Restock is a web application designed to help users track their grocery stock, p
 - **Sync**: A `SyncEngine` monitors online status and re-drives queued mutations sequentially when connectivity is restored.
 
 ### 1. Authentication
-- **Registration**: Users sign up via Supabase Auth. A database trigger (`supabase_trigger.sql`) automatically creates a profile in the `public.users` table.
-- **Login**: Primary login is via Email/Password.
-- **Passkeys**: Users can enroll their device as a Passkey in the Settings page for secure, biometric login.
-- **Sessions**: Managed via Supabase middleware (`src/middleware.ts`) which refreshes tokens on every request.
+- **Registration**: Self-hosted. `signup` action hashes password (`bcryptjs`) and creates user in `users` table.
+- **Login**: `login` action verifies hash. On success, signs a JWE (Encrypted JWT) via `jose`.
+- **Session**: JWE token stored in `session` HTTP-only cookie. Middleware verifies this cookie for protected routes.
+- **Passkeys**: Integrated via `simplewebauthn`. Supports "Usernameless" login. Passkey login issues the same JWE session cookie.
 
 ### 2. Entries Tracking
 - **Schema**: Defined in `src/lib/db/schema.ts`. Each entry contains `item`, `price`, `date`, `note`, and `userId`.

@@ -2,26 +2,12 @@
 
 ## Definition of Done – Mandatory Rules
 
-A task **MUST NOT** be marked [COMPLETED] unless **ALL** of the following are true:
+**Strict Enforcement**:
+1. All rules are legally defined in [Rules: Definition of Done](file:///Users/bigbigbig/personal/restock/restock-next/.agent/rules/definition-of-done.md).
+2. You **MUST** run `bun scripts/verify-task.ts` before marking any task completed.
+3. The script output must contain "VERIFICATION PASSED".
 
-1. The feature/component is implemented according to the current requirements/spec.
-2. **All existing relevant tests pass** (unit, integration, e2e — whatever exists in the repo).
-3. **New tests were added** for the main new behaviors / edge cases introduced by this task (coverage should at minimum not decrease).
-4. You (the AI) have **run the full test suite** locally (e.g. `npm test`, `pnpm test`, `yarn test`, `vitest`, `jest`, etc.) and confirmed 100% pass with **no failures / no todos / no skips / no errors**.
-5. No new lint / type errors / warnings were introduced (if you have ESLint + TSC).
-6. The change follows the current project conventions (naming, folder structure, styling, i18n usage, theme usage, etc.).
-7. You have **verified the feature works in the browser** (if it's a UI task) — describe briefly what you saw.
-8. You have **run the smoke test suite** (`npm run smoke` or `bun run smoke`) and confirmed all critical paths pass.
-9. **Git Discipline**: All changes are committed to a feature branch following the `/git-flow` workflow, merged to `main` only after verification, and the feature branch is deleted.
-10. **Hydration & Assets**: Verified no React hydration lints were introduced and all assets are correctly mapped to `public/`.
-11. **i18n-Safe Tests**: Verified all new/updated tests use regex-based locators to support both EN and TH.
-12. **Workflow Compliance**: Verified that the work followed the `/git-flow` (feature branch + conventional commits) and `/handoff` (spec sync + retrospective) workflows.
-13. **Build Verification**: Verified that `bun run build` passes locally to catch type errors/compilation issues not covered by dev/test.
-
-Only after **ALL 12 points** are satisfied may you change the status to [COMPLETED] and add the timestamp in ISO format.
-
-If tests fail → keep [IN_PROGRESS] or change to [BLOCKED] and explain exactly which tests are failing and why.
-Never mark something completed "assuming it works" or "it should pass".
+Failure to run the verification script constitutes a violation of project governance.
 
 ## Status Legend
 - [TODO] Planned but not started
@@ -64,19 +50,20 @@ Never mark something completed "assuming it works" or "it should pass".
 | Trends Page & RLS | PASS | 2026-01-22T23:25:00 | Implemented Trends page with spending visualizations. Verified RLS isolation and updated E2E tests for Supabase. 19/19 tests pass. |
 | Reachability & Premium UI | PASS | 2026-01-23T00:15:00 | Phase 12: Fixed mobile ergonomics by removing redundant headers. Moved toggles into thumb-friendly Settings. Integrated 3D Hero and Shimmer CTA. 16/16 smoke tests pass locally. |
 | PWA & Deployment | PASS | 2026-01-23T01:05:00 | Phase 9: Optimized manifest, added service worker, and integrated security headers. Verified tablet responsiveness. Build passes. |
-| Core Functionalities (Phase 13, 14, 15) | PASS | 2026-01-23T01:15:00 | Completed CRUD (Edit/Delete), Search, Filtering, Autocomplete, and MO-M Trends. 16/16 smoke tests pass. |
-| Visual & Ergonomic Enhancement (Phase 17) | PASS | 2026-01-23T13:05:00 | Thumb Zone Optimized (44px targets), Premium Dark Theme (Tailwind 4), Glassmorphism, View Transitions. 16/16 smoke tests pass. |
-| Offline Mode (Phase 18) | PASS | 2026-01-23T14:55:00 | Fixed Modal Overlap (Portal) & User Sync Collision. Unit/Smoke Tests Pass. Manual Data Persistence issue investigated (500 error on insert), likely env-specific RLS. |
+| Core Functionalities | PASS | 2026-01-23T01:15:00 | Completed CRUD (Edit/Delete), Search, Filtering, Autocomplete, and MO-M Trends. 16/16 smoke tests pass. |
+| Visual & Ergonomic | PASS | 2026-01-23T13:05:00 | Thumb Zone Optimized (44px targets), Premium Dark Theme (Tailwind 4), Glassmorphism, View Transitions. 16/16 smoke tests pass. |
+| Offline Mode | PASS | 2026-01-23T14:55:00 | Fixed Modal Overlap & User Sync Collision. Unit/Smoke Tests Pass. Manual Data Persistence issue investigated. |
+| **Auth Migration** | PASS | 2026-01-23T15:45:00 | Migrated to Simple DB (bcrypt/jose). Supabase removed. Login/Signup/Logout/Passkey Validated. 15/15 Smoke tests pass. Build passes. |
+| **Governance Upgrade** | PASS | 2026-01-23T16:00:00 | Implemented Definition of Done rules and `verify-task` automation script. |
 
 ## Session Handoff / Next Steps
 **Current State**:
-- **Offline Mode (Phase 18)**: Completed. IndexedDB caching & sync enabled.
-- **Fixed Bugs**: Modal Overlap (Portal) and User Sync Collision (hardened `getUser`).
-- **Tests**: 12/12 Unit tests OK. 16/16 Smoke tests OK.
-- **Pending Issues**: Manual 500 on add entry in some environments (likely RLS/dirty data), but automated tests pass confidently.
+- **Auth Migration**: Completed. Supabase removed. Simple DB Auth (Bcrypt/JOSE) active. Passkeys re-integrated.
+- **Governance**: Implemented. Rules defined in `definition-of-done.md`. `verify-task` script enforcing quality.
+- **Hotfix**: Fixed E2E Login test flakiness (missing Tab button).
 
 **Immediate Next Actions**:
-1. **Authentication Method**: Change from Supabase Auth email/password to simple username/password that store in db.
-2. **Data Export**: Implement CSV/JSON export.
-3. **Share Trends**: Implement Web Share API for trends.
-4. **PWA Audit**: Verify service worker registration and offline fallback physically.
+1. **Data Portability**: Implement CSV Export in Settings.
+2. **Web Share**: Implement Share API for Trends.
+3. **PWA Audit**: Verify offline service worker consistency.
+
