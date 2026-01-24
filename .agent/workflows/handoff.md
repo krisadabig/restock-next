@@ -43,6 +43,14 @@ Ensure that any new "Next Steps" identified are also reflected as `[ ] Todo` ite
     - What went well?
     - What were the friction points?
     - How can we update the rules or workflows to prevent those friction points?
+    
+- **Mandatory Backlog Conversion**:
+    - Any friction point that requires a process change or code fix **MUST** be added to `manifest.md`'s "Immediate Next Actions" as a formal task.
+    - **Severity Tagging**: Use these tags for prioritization:
+        - **[SEV1]**: Production Blocker / Governance Violation (Fix Immediately)
+        - **[SEV2]**: Feature Blocker / High Friction (Fix in next session)
+        - **[SEV3]**: Optimization / Nice to have (Backlog)
+
 - **Goal**: Turn active mistakes into passive guardrails.
 
 ## ⚠️ Checklist for Commit

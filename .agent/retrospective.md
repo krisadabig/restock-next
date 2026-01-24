@@ -13,3 +13,4 @@
 - **Visual Consistency**: Unified Modal styles across CRUD operations.
 - **Governance Automation**: If you don't enforce documentation updates in code (scripts), they won't happen. Hard blocks are necessary for discipline.
 - **Zero Warnings**: Warnings are errors waiting to happen. Enforcing `max-warnings=0` keeps the codebase pristine and prevents "broken windows".
+- **Closed Loops**: Governance is only effective if mistakes lead to permanent fixes. The "Retro -> Backlog" loop ensures this.

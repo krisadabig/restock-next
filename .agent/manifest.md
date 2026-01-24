@@ -64,7 +64,7 @@ Failure to run the verification script constitutes a violation of project govern
 - **Auth Migration**: Completed.
 
 **Immediate Next Actions**:
-1. **Data Portability**: Implement CSV Export in Settings.
-2. **PWA Audit**: Verify offline service worker consistency.
-3. **Web Share**: Implement Share API for Trends.
+1. **[SEV2] Data Portability**: Implement CSV Export in Settings.
+2. **[SEV2] PWA Audit**: Verify offline service worker consistency.
+3. **[SEV3] Web Share**: Implement Share API for Trends.
 
