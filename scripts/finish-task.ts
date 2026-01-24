@@ -14,16 +14,14 @@ async function finishTask() {
 		error('Verification failed. You cannot finish the task yet. Fix the errors above.');
 	}
 
-	// 2. Check Documentation
-	log('Checking Documentation Compliance...');
+	// 2. Check Documentation and Git Status
+	log('Checking Documentation & Git Status...');
 	try {
-		const status = execSync('git status --porcelain').toString();
-		const docsUpdated = status.includes('.agent/manifest.md') || status.includes('.agent/task.md');
+		const changes = execSync('git status --porcelain').toString().trim();
+		const docsUpdated = changes.includes('.agent/manifest.md') || changes.includes('.agent/task.md');
 		const branchName = execSync('git rev-parse --abbrev-ref HEAD').toString().trim();
 
 		if (!docsUpdated) {
-			// Check if key docs were modified in recent commits?
-			// Too complex. Just warn.
 			warn('It looks like `.agent/manifest.md` or `.agent/task.md` have NOT been modified in the working tree.');
 			console.log('   Did you remember to update the Status and Handoff?');
 		} else {
@@ -32,12 +30,24 @@ async function finishTask() {
 
 		console.log(`\n${GREEN}✨ PRE-FLIGHT CHECKS PASSED ✨${RESET}\n`);
 
-		console.log('To complete the handoff:');
-		console.log(`1. Run:  git add -A`);
-		console.log(`2. Run:  git commit -m "feat: [Your Task Description]"`);
-		if (branchName !== 'main') {
-			console.log(`3. Run:  git push origin ${branchName}`);
-			console.log(`4. Create PR`);
+		if (changes) {
+			console.log('Modified Files:');
+			console.log(
+				changes
+					.split('\n')
+					.map((line) => `   ${line}`)
+					.join('\n'),
+			);
+			console.log('\nTo complete the handoff:');
+			console.log(`1. Review the changes above.`);
+			console.log(`2. Run:  git add <file>   (or "git add -A" if you are sure)`);
+			console.log(`3. Run:  git commit -m "feat: [Your Task Description]"`);
+			if (branchName !== 'main') {
+				console.log(`4. Run:  git push origin ${branchName}`);
+				console.log(`5. Create PR`);
+			}
+		} else {
+			console.log('No changes detected in working directory (everything committed?)');
 		}
 	} catch {
 		warn('Could not check git status.');

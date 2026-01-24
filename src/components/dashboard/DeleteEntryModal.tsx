@@ -1,7 +1,6 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react';
 import { useTranslation } from '@/lib/i18n';
 import { Trash2 } from 'lucide-react';
 import { useOffline } from '@/components/providers/OfflineContext';
@@ -21,10 +20,15 @@ export default function DeleteEntryModal({
     onClose: () => void 
 }) {
     const { t } = useTranslation();
-    const router = useRouter();
     const { deleteEntryOffline } = useOffline();
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
+    const [mounted, setMounted] = useState(false);
+    const [optimisticClosed, setOptimisticClosed] = useState(false);
+
+    useEffect(() => {
+        setTimeout(() => setMounted(true), 0);
+    }, []);
 
     const handleDelete = async () => {
         setLoading(true);
@@ -32,12 +36,9 @@ export default function DeleteEntryModal({
 
         try {
             await deleteEntryOffline(entry.id);
-            // We don't need to refresh here because deleteEntry calls revalidatePath
-            // and the parent usually handles optimistic updates or refresh, 
-            // but for safety we can refresh or just close.
-            // Actually DashboardClient does router.refresh() in the old logic. 
-            // deleteEntry revalidates, so router.refresh() ensures client cache is updated.
-            router.refresh();
+            // Optimistic closure
+            setLoading(false);
+            setOptimisticClosed(true);
             onClose();
         } catch (err) {
             setLoading(false);
@@ -45,16 +46,18 @@ export default function DeleteEntryModal({
         }
     };
 
+    if (!mounted || optimisticClosed) return null;
+
     return (
         <div className="fixed inset-0 z-100 flex items-end sm:items-center justify-center p-0 sm:p-4">
             {/* Backdrop */}
             <div 
-                className="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity animate-in fade-in duration-300"
+                className="absolute inset-0 bg-black/50 backdrop-blur-sm transition-opacity"
                 onClick={onClose}
             ></div>
 
             {/* Modal */}
-            <div className="relative w-full max-w-sm bg-white dark:bg-slate-900 rounded-t-3xl sm:rounded-3xl shadow-2xl transform transition-transform animate-in slide-in-from-bottom-full sm:slide-in-from-bottom-10 overflow-hidden">
+            <div className="relative w-full max-w-md bg-white dark:bg-gray-900 rounded-t-2xl sm:rounded-2xl shadow-xl transform transition-transform animate-in slide-in-from-bottom-full sm:slide-in-from-bottom-10 z-101">
                 
                 <div className="p-6 flex flex-col items-center text-center space-y-4">
                     <div className="h-16 w-16 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center mb-2">

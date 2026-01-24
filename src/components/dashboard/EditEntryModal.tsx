@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 import { useTranslation } from '@/lib/i18n';
 import { getUniqueItems } from '@/app/app/actions';
 import { X, Calendar, DollarSign, Tag, FileText } from 'lucide-react';
@@ -23,13 +22,16 @@ export default function EditEntryModal({
     onClose: () => void 
 }) {
     const { t } = useTranslation();
-    const router = useRouter();
     const { updateEntryOffline } = useOffline();
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [suggestions, setSuggestions] = useState<string[]>([]);
+    
+    const [mounted, setMounted] = useState(false);
+    const [optimisticClosed, setOptimisticClosed] = useState(false);
 
     useEffect(() => {
+        setTimeout(() => setMounted(true), 0);
         getUniqueItems().then(setSuggestions).catch(() => {});
     }, []);
 
@@ -47,13 +49,15 @@ export default function EditEntryModal({
         try {
             await updateEntryOffline(entry.id, { item, price, date, note });
             setLoading(false);
+            setOptimisticClosed(true); // Close immediately
             onClose();
-            router.refresh();
         } catch (err) {
             setLoading(false);
             setError((err as Error).message);
         }
     };
+
+    if (!mounted || optimisticClosed) return null;
 
     return (
         <div className="fixed inset-0 z-100 flex items-end sm:items-center justify-center p-0 sm:p-4">

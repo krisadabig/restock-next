@@ -1,7 +1,7 @@
 import { type NextRequest, NextResponse } from 'next/server';
 import { decrypt } from '@/lib/session';
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
 	const protectedRoutes = ['/app'];
 	const publicRoutes = ['/login', '/signup', '/api/auth'];
 

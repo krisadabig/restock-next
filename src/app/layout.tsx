@@ -29,6 +29,10 @@ export const viewport = {
 import { Providers } from "@/components/Providers";
 import { PWARegistry } from "@/components/PWARegistry";
 
+import NextTopLoader from 'nextjs-toploader';
+
+// ...
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -39,6 +43,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
+        <NextTopLoader color="#6366f1" showSpinner={false} />
         <Providers>
           <PWARegistry />
           <main className="min-h-screen">
