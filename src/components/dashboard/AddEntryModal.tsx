@@ -19,7 +19,7 @@ export default function AddEntryModal({ isOpen, onClose }: { isOpen: boolean; on
     const [mounted, setMounted] = useState(false);
 
     useEffect(() => {
-        setMounted(true);
+        setTimeout(() => setMounted(true), 0);
         if (isOpen) {
             getUniqueItems().then(setSuggestions).catch(() => {});
         }

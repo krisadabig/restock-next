@@ -4,7 +4,7 @@ import { SignJWT } from 'jose';
 const JWT_SECRET = process.env.JWT_SECRET || '11340e694ef1939c910bbd3f0cc6f9eaa97f8b5ca9519f50ce01581ef36f331c';
 
 test.describe('Settings Page @smoke', () => {
-	test.beforeEach(async ({ page, context }) => {
+	test.beforeEach(async ({ context }) => {
 		// Bypass auth
 		const secretKey = JWT_SECRET;
 		const encodedKey = new TextEncoder().encode(secretKey);

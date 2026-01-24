@@ -3,7 +3,7 @@
 ## Definition of Done – Mandatory Rules
 
 **Strict Enforcement**:
-1. All rules are legally defined in [Rules: Definition of Done](file:///Users/bigbigbig/personal/restock/restock-next/.agent/rules/definition-of-done.md).
+1. All rules are legally defined in [Rules: Definition of Done](file:///Users/bigbigbig/personal/restock/restock-next/.agent/rules/definition-of-done.md) and [Rules: Workflow](file:///Users/bigbigbig/personal/restock/restock-next/.agent/rules/workflow.md).
 2. You **MUST** run `bun scripts/verify-task.ts` before marking any task completed.
 3. The script output must contain "VERIFICATION PASSED".
 

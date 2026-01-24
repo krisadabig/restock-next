@@ -56,7 +56,7 @@ async function getUser() {
 			// But for tests, we usually want to force the specific ID/Username combo.
 			// If username taken, we might append suffix.
 			const existingName = await db.select().from(users).where(eq(users.username, userPayload.username)).limit(1);
-			let usernameToInsert = userPayload.username;
+			const usernameToInsert = userPayload.username;
 
 			if (existingName.length > 0) {
 				// If name taken by DIFFERENT ID (since we checked ID already), then we must rename.
