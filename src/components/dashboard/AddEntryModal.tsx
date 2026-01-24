@@ -60,7 +60,7 @@ export default function AddEntryModal({ isOpen, onClose }: { isOpen: boolean; on
             ></div>
 
             {/* Modal */}
-            <div className="relative w-full max-w-md bg-white dark:bg-gray-900 rounded-t-2xl sm:rounded-2xl shadow-xl transform transition-transform animate-in slide-in-from-bottom-full sm:slide-in-from-bottom-10 z-101">
+            <div className="relative w-full max-w-md bg-white dark:bg-gray-900 rounded-t-2xl rounded-b-none sm:rounded-2xl shadow-xl transform transition-transform animate-in slide-in-from-bottom-full sm:slide-in-from-bottom-10 z-101">
                 <div className="flex items-center justify-between p-4 border-b border-gray-100 dark:border-gray-800">
                     <h2 className="text-lg font-bold text-gray-900 dark:text-white">{t('app.addEntry')}</h2>
                     <button 

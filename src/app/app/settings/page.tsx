@@ -6,44 +6,27 @@ import { useTranslation } from '@/lib/i18n';
 import { Moon, Sun, Globe, LogOut, Trash2, X, ArrowLeft, Settings, Fingerprint, ShieldCheck } from 'lucide-react';
 import { logout } from '@/app/auth/actions';
 import { registerPasskey } from '@/lib/auth';
+import { useTheme } from 'next-themes';
 
 export default function SettingsPage() {
   const router = useRouter();
   const { t, locale, setLocale } = useTranslation();
   // const supabase = createClient(); // Supabase client removed
-  const [theme, setTheme] = useState<'light' | 'dark'>('light');
+  const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleteConfirmText, setDeleteConfirmText] = useState('');
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [passkeyLoading, setPasskeyLoading] = useState(false);
   const [passkeyMsg, setPasskeyMsg] = useState<{ type: 'success' | 'error', text: string } | null>(null);
 
   useEffect(() => {
     setMounted(true);
-    const storedTheme = localStorage.getItem('theme');
-    const isDark = storedTheme === 'dark' || (!storedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches);
-    if (isDark) {
-      setTheme('dark');
-      document.documentElement.classList.add('dark');
-    } else {
-      setTheme('light');
-      document.documentElement.classList.remove('dark');
-    }
   }, []);
 
-  const toggleTheme = () => {
-    const newTheme = theme === 'light' ? 'dark' : 'light';
-    setTheme(newTheme);
-    localStorage.setItem('theme', newTheme);
-    if (newTheme === 'dark') {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-  };
-
   const handleLogout = async () => {
+    setIsLoggingOut(true);
     await logout();
   };
 
@@ -123,7 +106,7 @@ export default function SettingsPage() {
             </div>
             <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-2xl border border-slate-200 dark:border-slate-700 relative">
               <button
-                onClick={() => theme !== 'light' && toggleTheme()}
+                onClick={() => setTheme('light')}
                 className={`relative z-10 flex-1 px-4 py-2 rounded-xl text-sm font-black transition-all duration-300 flex items-center justify-center gap-2 ${
                   theme === 'light' ? 'text-indigo-600' : 'text-slate-400 opacity-50'
                 }`}
@@ -132,7 +115,7 @@ export default function SettingsPage() {
                 {t('settings.lightMode')}
               </button>
               <button
-                onClick={() => theme !== 'dark' && toggleTheme()}
+                onClick={() => setTheme('dark')}
                 className={`relative z-10 flex-1 px-4 py-2 rounded-xl text-sm font-black transition-all duration-300 flex items-center justify-center gap-2 ${
                   theme === 'dark' ? 'text-indigo-400' : 'text-slate-500 opacity-50'
                 }`}
@@ -229,12 +212,14 @@ export default function SettingsPage() {
           {/* Logout */}
           <button
             onClick={handleLogout}
-            className="w-full flex items-center gap-3 p-4 text-left hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-colors"
+            disabled={isLoggingOut}
+            className="w-full flex items-center gap-3 p-4 text-left hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-colors disabled:opacity-50"
           >
             <LogOut className="h-5 w-5 text-gray-500" />
             <span className="text-gray-900 dark:text-white font-medium">
-              {t('app.logout')}
+              {isLoggingOut ? t('app.processing') : t('app.logout')}
             </span>
+            {isLoggingOut && <div className="ml-auto w-4 h-4 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" />}
           </button>
 
           {/* Delete Account */}

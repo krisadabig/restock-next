@@ -57,7 +57,7 @@ export default function DeleteEntryModal({
             ></div>
 
             {/* Modal */}
-            <div className="relative w-full max-w-md bg-white dark:bg-gray-900 rounded-t-2xl sm:rounded-2xl shadow-xl transform transition-transform animate-in slide-in-from-bottom-full sm:slide-in-from-bottom-10 z-101">
+            <div className="relative w-full max-w-md bg-white dark:bg-gray-900 rounded-t-2xl rounded-b-none sm:rounded-2xl shadow-xl transform transition-transform animate-in slide-in-from-bottom-full sm:slide-in-from-bottom-10 z-101">
                 
                 <div className="p-6 flex flex-col items-center text-center space-y-4">
                     <div className="h-16 w-16 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center mb-2">
