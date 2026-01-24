@@ -145,6 +145,16 @@
     - [x] Update `manifest.md` enforcement <!-- id: 125 -->
     - [x] Verify verification script itself <!-- id: 126 -->
     - [x] **Hotfix**: Fix Login E2E Test Flakiness (Missing Button) <!-- id: 127 -->
+
+# Phase 23: Workflow CLI Tools
+
+- [x] Implement `start-task` script <!-- id: 128 -->
+    - [x] Auto-branch creation <!-- id: 129 -->
+    - [x] Implementation Plan template enforcement <!-- id: 130 -->
+- [x] Implement `finish-task` script <!-- id: 131 -->
+    - [x] Integrate `verify-task` <!-- id: 132 -->
+    - [x] Enforce Doc Updates (Manifest, Task) <!-- id: 133 -->
+    - [x] Git Commit/Push automation <!-- id: 134 -->
     
 # Phase 19: Data Portability
 

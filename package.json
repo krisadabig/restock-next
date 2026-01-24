@@ -9,7 +9,10 @@
 		"lint": "eslint",
 		"test": "playwright test",
 		"smoke": "playwright test --grep @smoke",
-		"test:unit": "vitest"
+		"test:unit": "vitest",
+		"verify": "bun scripts/verify-task.ts",
+		"start-task": "bun scripts/start-task.ts",
+		"finish-task": "bun scripts/finish-task.ts"
 	},
 	"dependencies": {
 		"@simplewebauthn/browser": "^13.2.2",
