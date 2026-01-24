@@ -56,7 +56,7 @@ export default function EditEntryModal({
     };
 
     return (
-        <div className="fixed inset-0 z-100 flex items-end sm:items-center justify-center p-0 sm:p-4">
+        <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-0 sm:p-4">
             {/* Backdrop */}
             <div 
                 className="absolute inset-0 bg-black/50 backdrop-blur-sm transition-opacity"
@@ -151,7 +151,7 @@ export default function EditEntryModal({
                     >
                         {loading ? t('app.processing') : t('app.saveChanges')}
                     </button>
-                    <div className="pb-4 sm:hidden"></div> {/* Safe area spacer for mobile */}
+                    <div className="pb-[calc(1rem+env(safe-area-inset-bottom))] sm:hidden"></div> {/* Safe area spacer for mobile */}
                 </form>
             </div>
         </div>

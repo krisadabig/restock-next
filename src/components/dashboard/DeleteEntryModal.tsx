@@ -92,7 +92,7 @@ export default function DeleteEntryModal({
                     </button>
                     
                 </div>
-                <div className="h-safe-bottom bg-slate-50 dark:bg-slate-800/50 sm:hidden"></div>
+                <div className="h-[calc(1rem+env(safe-area-inset-bottom))] bg-slate-50 dark:bg-slate-800/50 sm:hidden"></div>
             </div>
         </div>
     );

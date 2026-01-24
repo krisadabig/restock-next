@@ -17,10 +17,13 @@ export default function AddEntryModal({ isOpen, onClose }: { isOpen: boolean; on
     const [suggestions, setSuggestions] = useState<string[]>([]);
 
     const [mounted, setMounted] = useState(false);
+    const [optimisticClosed, setOptimisticClosed] = useState(false);
 
     useEffect(() => {
         setTimeout(() => setMounted(true), 0);
         if (isOpen) {
+            // eslint-disable-next-line
+            setOptimisticClosed(false);
             getUniqueItems().then(setSuggestions).catch(() => {});
         }
     }, [isOpen]);
@@ -39,15 +42,16 @@ export default function AddEntryModal({ isOpen, onClose }: { isOpen: boolean; on
         try {
             await addEntryOffline({ item, price, date, note });
             setLoading(false);
+            setOptimisticClosed(true); // Close immediately purely on client
             onClose();
-            router.refresh();
+            // router.refresh(); // Removed to prevent race condition with onClose navigation
         } catch (err) {
             setLoading(false);
             setError((err as Error).message);
         }
     };
 
-    if (!isOpen || !mounted) return null;
+    if (!isOpen || !mounted || optimisticClosed) return null;
 
     return createPortal(
         <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-0 sm:p-4">
@@ -141,7 +145,7 @@ export default function AddEntryModal({ isOpen, onClose }: { isOpen: boolean; on
                     >
                         {loading ? t('app.processing') : t('app.addEntry')}
                     </button>
-                    <div className="pb-4 sm:hidden"></div> {/* Safe area spacer for mobile */}
+                    <div className="pb-[calc(1rem+env(safe-area-inset-bottom))] sm:hidden"></div> {/* Safe area spacer for mobile */}
                 </form>
             </div>
         </div>,

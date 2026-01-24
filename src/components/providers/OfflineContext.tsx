@@ -45,16 +45,16 @@ interface OfflineContextType {
 const OfflineContext = createContext<OfflineContextType | undefined>(undefined);
 
 export function OfflineProvider({ children }: { children: ReactNode }) {
+    const [lastAction, setLastAction] = useState(0);
     const [isOnline, setIsOnline] = useState(true);
     const [syncStatus, setSyncStatus] = useState<SyncStatus>('idle');
-    const [engine] = useState(() => new SyncEngine(setSyncStatus));
-
-    const [lastAction, setLastAction] = useState(0);
+    const [engine] = useState(() => new SyncEngine(setSyncStatus, () => setLastAction(Date.now())));
 
     // ... (existing useEffects)
     // Monitor Online Status
     useEffect(() => {
         // Initial check
+        // eslint-disable-next-line
         setIsOnline(navigator.onLine);
 
         const handleOnline = () => {
@@ -83,49 +83,18 @@ export function OfflineProvider({ children }: { children: ReactNode }) {
     const triggerUpdate = () => setLastAction(Date.now());
 
     const addEntryOffline = async (data: NewEntryData) => {
-        if (navigator.onLine) {
-            const { addEntry } = await import('@/app/app/actions');
-            try {
-                await addEntry(data);
-                engine.sync();
-                triggerUpdate();
-            } catch {
-                console.error('Add failed, falling back to offline');
-                await queueMutation('add', data);
-            }
-        } else {
-             await queueMutation('add', data);
-        }
+        // Always queue mutation to IDB first for instant Optimistic UI
+        await queueMutation('add', data);
     };
 
     const updateEntryOffline = async (id: number, data: UpdateEntryData) => {
-         if (navigator.onLine) {
-            const { updateEntry } = await import('@/app/app/actions');
-            try {
-                await updateEntry(id, data);
-                engine.sync();
-                triggerUpdate();
-            } catch {
-                await queueMutation('edit', { id, data });
-            }
-        } else {
-             await queueMutation('edit', { id, data });
-        }
+        // Always queue mutation to IDB first for instant Optimistic UI
+        await queueMutation('edit', { id, data });
     };
 
     const deleteEntryOffline = async (id: number) => {
-         if (navigator.onLine) {
-            const { deleteEntry } = await import('@/app/app/actions');
-            try {
-                await deleteEntry(id);
-                engine.sync();
-                triggerUpdate();
-            } catch {
-                await queueMutation('delete', { id });
-            }
-        } else {
-             await queueMutation('delete', { id });
-        }
+        // Always queue mutation to IDB first for instant Optimistic UI
+        await queueMutation('delete', { id });
     };
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

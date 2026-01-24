@@ -6,9 +6,11 @@ export type SyncStatus = 'idle' | 'syncing' | 'error';
 export class SyncEngine {
 	private isSyncing = false;
 	private onStatusChange: (status: SyncStatus) => void;
+	private onDataChange: () => void;
 
-	constructor(onStatusChange: (status: SyncStatus) => void) {
+	constructor(onStatusChange: (status: SyncStatus) => void, onDataChange: () => void) {
 		this.onStatusChange = onStatusChange;
+		this.onDataChange = onDataChange;
 	}
 
 	async sync() {
@@ -19,6 +21,7 @@ export class SyncEngine {
 			this.onStatusChange('syncing');
 
 			const mutations = await getPendingMutations();
+			const processedIds: string[] = [];
 
 			// Process mutations in order
 			for (const mutation of mutations.sort((a, b) => a.timestamp - b.timestamp)) {
@@ -34,15 +37,13 @@ export class SyncEngine {
 							await deleteEntry(mutation.payload.id);
 							break;
 					}
-					// Remove successfully processed mutation
-					await removePendingMutation(mutation.id);
+					// Mark for removal but don't remove yet (avoids UI gap)
+					processedIds.push(mutation.id);
 				} catch (error) {
 					console.error(`Failed to process mutation ${mutation.id}:`, error);
-					// For now, we keep failing mutations in the queue or logic to discard?
-					// Strategy: If 400/500, maybe discard? For now, we'll implement a simple retry logic
-					// by not deleting it from IDB, but this can block queue.
-					// Better approach for MVP: Log error and remove to prevent blocking.
-					await removePendingMutation(mutation.id);
+					// If failed, we should probably still remove it or move to dead-letter queue
+					// For now, removing to prevent block, same as before
+					processedIds.push(mutation.id);
 				}
 			}
 
@@ -50,6 +51,12 @@ export class SyncEngine {
 			const freshEntries = await getEntries();
 			await saveEntriesCache(freshEntries);
 
+			// NOW remove the mutations (Cache is up to date, so no missing data gap)
+			for (const id of processedIds) {
+				await removePendingMutation(id);
+			}
+
+			this.onDataChange(); // Notify UI to re-render
 			this.onStatusChange('idle');
 		} catch (error) {
 			console.error('Sync failed:', error);
