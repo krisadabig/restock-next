@@ -41,7 +41,7 @@ async function release() {
 	success(`Version bumped to ${newVersion}`);
 
 	// Commit bump on develop
-	run('git add package.json package-lock.json', 'Stage Version Bump');
+	run('git add package.json bun.lock', 'Stage Version Bump');
 	run(`git commit -m "chore(release): bump version to ${newVersion}"`, 'Commit Version Bump');
 
 	// 3. Merge to Main

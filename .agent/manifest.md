@@ -56,6 +56,7 @@ Failure to run the verification script constitutes a violation of project govern
 | Visual & Ergonomic | PASS | 2026-01-23T13:05:00 | Thumb Zone Optimized (44px targets), Premium Dark Theme (Tailwind 4), Glassmorphism, View Transitions. 16/16 smoke tests pass. |
 | Optimization: Modal Navigation | PASS | 2026-01-29T19:35:00 | Switched Modal nav to Client State (UIProvider). 0 network requests on open. Regression tests passed. |
 | Version Display & Git Flow | PASS | 2026-01-29T20:00:00 | Exposed package version to UI. Implemented develop branch and release.ts workflow. Verified UI via E2E. |
+| Bug Fix: Release Script | PASS | 2026-01-29T20:15:00 | Fixed `release.ts` to stage `bun.lock` instead of `package-lock.json`. Verified via manual check. |
 | Offline Mode | PASS | 2026-01-23T14:55:00 | Fixed Modal Overlap & User Sync Collision. Unit/Smoke Tests Pass. Manual Data Persistence issue investigated. |
 | **Auth Migration** | PASS | 2026-01-23T15:45:00 | Migrated to Simple DB (bcrypt/jose). Supabase removed. Login/Signup/Logout/Passkey Validated. 15/15 Smoke tests pass. Build passes. |
 | **Governance Upgrade** | PASS | 2026-01-23T16:00:00 | Implemented Definition of Done rules and `verify-task` automation script. |
