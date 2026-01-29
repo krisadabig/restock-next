@@ -1,5 +1,5 @@
 import { execSync } from 'child_process';
-import { writeFileSync, existsSync } from 'fs';
+import { writeFileSync, existsSync, readdirSync } from 'fs';
 import { join } from 'path';
 import { log, success, error, warn, GREEN, RESET } from './utils';
 
@@ -33,6 +33,21 @@ async function startTask() {
 		success(`On branch ${branchName}`);
 	} catch (e) {
 		error(`Failed to checkout branch: ${e}`);
+	}
+
+	// 1.5 Skill Discovery (MANDATORY)
+	console.log(`\n🔎 SKILL DISCOVERY 🔎`);
+	const skillsDir = '.agent/skills';
+	if (existsSync(skillsDir)) {
+		const skills = readdirSync(skillsDir).filter((f) => !f.startsWith('.'));
+		console.log('Available Skills:');
+		skills.forEach((skill) => console.log(` - ${skill}`));
+
+		console.log(`\n${warn('ACTION REQUIRED')}: Review the list above.`);
+		console.log(`Identify relevant skills and run: ${GREEN}view_file .agent/skills/<skill>/SKILL.md${RESET}`);
+		console.log(`(e.g., if doing UI, check 'frontend-design' and 'tailwind-design-system')\n`);
+	} else {
+		warn('No skills directory found at .agent/skills');
 	}
 
 	// 2. Implementation Plan Artifact

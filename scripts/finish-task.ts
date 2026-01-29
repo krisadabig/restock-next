@@ -1,4 +1,5 @@
 import { execSync } from 'child_process';
+import { existsSync, readFileSync } from 'fs';
 import { log, success, error, warn, GREEN, RESET, run } from './utils';
 
 async function finishTask() {
@@ -44,6 +45,22 @@ async function finishTask() {
 			return;
 		} else {
 			success('Retrospective detected.');
+		}
+
+		// Check Preventive Measures in Retrospective
+		const retroPath = '.agent/retrospective.md';
+		if (existsSync(retroPath)) {
+			const retroContent = readFileSync(retroPath, 'utf-8');
+			const hasPrevention =
+				retroContent.includes('## Preventive Measures') || retroContent.includes('## Prevention');
+
+			if (!hasPrevention) {
+				error('Governance Check Failed: `.agent/retrospective.md` missing "Preventive Measures" section.');
+				console.log('You must document how to prevent similar issues in the future (or "N/A" if truly none).');
+				return;
+			} else {
+				success('Preventive Measures documented.');
+			}
 		}
 
 		console.log(`\n${GREEN}✨ PRE-FLIGHT CHECKS PASSED ✨${RESET}\n`);
