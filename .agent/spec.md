@@ -66,6 +66,9 @@ Restock is a web application designed to help users track their grocery stock, p
 - **Rich Aesthetics**: Vibrant colors, dark mode support, and smooth transitions.
 - **Mobile First**: Fully responsive layout for tracking groceries on the go, with optimized grid layouts for tablet viewports.
 - **PWA**: Progressive Web App features including service worker caching for offline support and manifest metadata.
+    - **Navigation Strategy**: "Network-First" for navigation requests to ensure fresh app shell on load (fixing stale state bugs).
+    - **Asset Strategy**: "Cache-First" for static assets and images.
 - **Security**: Strict Content Security Policy (CSP) and security headers (X-Frame-Options, X-Content-Type-Options) enabled in `next.config.ts`.
 - **Performance**: Heavy use of React Server Components and optimized data fetching.
 - **UI Architecture**: heavily relies on **React Portals** (`createPortal`) for overlays (Modals) to ensure correct z-index stacking on complex mobile viewports.
+    - **State Sync**: Client components (`DashboardClient`) explicitly sync URL params to local state via `useEffect` to handle client-side navigation updates reliably.
