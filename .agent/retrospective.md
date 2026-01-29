@@ -24,6 +24,7 @@
 - **Drizzle Kit Limitations**: Relying solely on `db:push` can block progress if it fails. Manual migration scripts using raw SQL via the Drizzle client are essential backups.
 
 ### Upgrades Implemented 🚀
+- **Dark Theme Fix**: Adjusted Primary (#818cf8) and Destructive (#f87171) colors in dark mode to pass WCAG AA contrast on dark card backgrounds.
 - **Inventory Enhancement**: Added `quantity` and `unit` bubbles to the dashboard and management modal.
 - **PWA Stability**: Fixed the "stale app" bug by updating Service Worker strategy and adding a client-side freshness check.
 - **Test Robustness**: Added global timeouts to Playwright config to better handle slower environments.

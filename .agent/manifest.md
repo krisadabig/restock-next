@@ -64,6 +64,7 @@ Failure to run the verification script constitutes a violation of project govern
 | **Inventory Quantity & PWA Fix** | PASS | 2026-01-29T18:45:00 | Implemented quantity/unit tracking, management UI, and fixed PWA stale state. Verified manually & via Unit tests. E2E tests flaky (timeouts). |
 | **Bug Fix: Add Entry Interaction** | PASS | 2026-01-29T18:55:00 | Fixed `DashboardClient` to sync modal state with URL prop. Verified via single-worker E2E test. |
 | **UI Polishing & Verification** | PASS | 2026-01-30T02:00:00 | Fixed Tailwind 4 build errors (`globals.css`), polished UI (Deep Glass), & verified Theme/Nav via Browser Subagent. |
+| **Dark Theme Palette Fix** | PASS | 2026-01-30T02:15:00 | Lightened Dark Mode Primary (#818cf8) & Destructive (#f87171) to pass WCAG AA. Verified visually. |
 
 ## Session Handoff / Next Steps
 **Current State**:

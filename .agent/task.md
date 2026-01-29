@@ -192,3 +192,13 @@
 - [ ] Export & Share <!-- id: 92 -->
     - [ ] Implement CSV Export <!-- id: 93 -->
     - [ ] Implement Web Share API for Trends <!-- id: 94 -->
+
+# Phase 28: UI Polish & Dark Mode Fixes
+
+- [x] UI Polishing & Verification <!-- id: 144 -->
+    - [x] Fixed Tailwind 4 build errors <!-- id: 145 -->
+    - [x] "Deep Glass" aesthetic implemented <!-- id: 146 -->
+- [x] Dark Theme Palette Fix <!-- id: 147 -->
+    - [x] Lighten Dark Mode Primary (#818cf8) <!-- id: 148 -->
+    - [x] Lighten Dark Mode Destructive (#f87171) <!-- id: 149 -->
+    - [x] Verify Contrast Ratios <!-- id: 150 -->
