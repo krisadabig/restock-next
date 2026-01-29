@@ -18,6 +18,17 @@
 
 ---
 
+## [2026-01-29] Session: Debugging Add Entry Interaction
+
+### Lessons Learned 🧠
+- **React State vs Props**: Initializing state from props (e.g., `useState(prop)`) is a one-time operation. If the prop updates (like from a URL change), the state won't reflect it unless synchronized via `useEffect` or `key`.
+- **Database Connection Limits**: Running too many concurrent E2E tests locally can exhaust Postgres connections (`Max client connections reached`). Limiting workers (`--workers=1`) for focused debugging is crucial.
+
+### Upgrades Implemented 🚀
+- **DashboardClient**: Added `useEffect` to sync `activeModal` with `showAddModal` prop, fixing the "Add Entry" button on mobile/client nav.
+
+---
+
 ## [2026-01-29] Session: Inventory System & SDD Workflow
 
 ### Lessons Learned 🧠

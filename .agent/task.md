@@ -153,6 +153,7 @@
 # Phase 24: Governance Fixes
 
 - [x] Commit pending lint fixes and manifest updates <!-- id: 135 -->
+- [x] **Bug Fix**: Debugged and fixed "Add Entry" modal not opening on mobile/client nav. <!-- id: 140 -->
 
 # Phase 25: SDD Workflow & Inventory System
 

@@ -59,6 +59,13 @@ export default function DashboardClient({
   
   const [isUpdatingStatus, setIsUpdatingStatus] = useState<string | null>(null);
 
+  // Sync prop to state for Add Modal (Client-side navigation)
+  useEffect(() => {
+    if (showAddModal) {
+        setActiveModal('add');
+    }
+  }, [showAddModal]);
+
   // Hydrate & Merge Mutations
   useEffect(() => {
     const hydrate = async () => {
