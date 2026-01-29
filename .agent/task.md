@@ -154,6 +154,8 @@
 
 - [x] Commit pending lint fixes and manifest updates <!-- id: 135 -->
 - [x] **Bug Fix**: Debugged and fixed "Add Entry" modal not opening on mobile/client nav. <!-- id: 140 -->
+- [x] **Bug Fix**: Infinite Network Loop in Dashboard Hydration. <!-- id: 141 -->
+- [x] **Optimization**: Modal Navigation (Client-Side State). <!-- id: 142 -->
 
 # Phase 25: SDD Workflow & Inventory System
 

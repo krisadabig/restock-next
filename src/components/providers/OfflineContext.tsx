@@ -116,7 +116,7 @@ export function OfflineProvider({ children }: { children: ReactNode }) {
 
     const refreshCache = async (entries: Entry[]) => {
         await saveEntriesCache(entries);
-        triggerUpdate();
+        // triggerUpdate(); // Removed to prevent infinite loop in DashboardClient hydration
     };
 
     return (

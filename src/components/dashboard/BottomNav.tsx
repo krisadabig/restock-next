@@ -4,10 +4,12 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useTranslation } from '@/lib/i18n';
 import { History, Plus, TrendingUp, Settings } from 'lucide-react';
+import { useUI } from '@/components/providers/UIContext';
 
 export default function BottomNav() {
   const pathname = usePathname();
   const { t } = useTranslation();
+  const { setAddModalOpen } = useUI();
 
   const isDashboard = pathname === '/app';
   const isTrends = pathname === '/app/trends';
@@ -24,15 +26,15 @@ export default function BottomNav() {
             {isDashboard && <div className="h-1 w-1 bg-current rounded-full mt-0.5" />}
         </Link>
 
-        <Link
-            href="/app?add=true"
-            className="flex flex-col items-center gap-1 group"
+        <button
+            onClick={() => setAddModalOpen(true)}
+            className="flex flex-col items-center gap-1 group cursor-pointer"
         >
             <div className="btn-premium h-14 w-14 rounded-full flex items-center justify-center -mt-12 border-4 border-white dark:border-slate-900 group-hover:-translate-y-1 transition-transform">
                 <Plus size={28} strokeWidth={3} />
             </div>
             <span className="text-[10px] font-black uppercase tracking-wider text-slate-400 mt-1">{t('app.navAdd')}</span>
-        </Link>
+        </button>
 
         <Link
             href="/app/trends"

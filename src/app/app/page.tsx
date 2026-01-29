@@ -3,19 +3,16 @@ import { SkeletonList } from '@/components/SkeletonList';
 import { getEntries, getInventory } from './actions';
 import DashboardClient from '@/components/dashboard/DashboardClient';
 
-async function DashboardContent({ showAddModal }: { showAddModal: boolean }) {
+async function DashboardContent() {
   const entries = await getEntries();
   const inventory = await getInventory();
-  return <DashboardClient entries={entries} inventory={inventory} showAddModal={showAddModal} />;
+  return <DashboardClient entries={entries} inventory={inventory} />;
 }
 
-export default async function DashboardHome(props: { searchParams: Promise<{ [key: string]: string | string[] | undefined }> }) {
-  const searchParams = await props.searchParams;
-  const showAddModal = searchParams?.add === 'true';
-
+export default async function DashboardHome() {
   return (
     <Suspense fallback={<SkeletonList />}>
-         <DashboardContent showAddModal={showAddModal} />
+         <DashboardContent />
     </Suspense>
   );
 }

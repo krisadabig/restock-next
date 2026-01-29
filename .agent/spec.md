@@ -72,3 +72,4 @@ Restock is a web application designed to help users track their grocery stock, p
 - **Performance**: Heavy use of React Server Components and optimized data fetching.
 - **UI Architecture**: heavily relies on **React Portals** (`createPortal`) for overlays (Modals) to ensure correct z-index stacking on complex mobile viewports.
     - **State Sync**: Client components (`DashboardClient`) explicitly sync URL params to local state via `useEffect` to handle client-side navigation updates reliably.
+    - **Modal State**: Uses `UIContext` (Client Context) instead of URL query params to ensure instant opening (0ms latency) and avoid unnecessary Server Component re-renders/fetches.

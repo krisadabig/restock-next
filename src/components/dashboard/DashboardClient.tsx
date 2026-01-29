@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useRef } from 'react';
 import { useTranslation } from '@/lib/i18n';
 import AddEntryModal from './AddEntryModal';
 import EditEntryModal from './EditEntryModal';
@@ -10,6 +10,7 @@ import ManageInventoryModal from './ManageInventoryModal';
 import { useRouter } from 'next/navigation';
 import { Search, Edit2, Trash2, Calendar, ChevronDown, CloudOff, History } from 'lucide-react';
 import { useOffline } from '@/components/providers/OfflineContext';
+import { useUI } from '@/components/providers/UIContext';
 import { getEntriesCache, getPendingMutations } from '@/lib/idb';
 
 interface Entry {
@@ -35,15 +36,14 @@ interface InventoryItem {
 export default function DashboardClient({ 
     entries: initialEntries, 
     inventory: initialInventory,
-    showAddModal 
 }: { 
     entries: Entry[];
     inventory: InventoryItem[];
-    showAddModal: boolean;
 }) {
   const { t } = useTranslation();
   const router = useRouter();
   const { isOnline, refreshCache, lastAction } = useOffline();
+  const { isAddModalOpen, setAddModalOpen } = useUI();
   
   // State
   const [entries, setEntries] = useState<Entry[]>(initialEntries);
@@ -52,19 +52,25 @@ export default function DashboardClient({
   const [filterMonth, setFilterMonth] = useState<string>('all');
   
   // Modal states (using strings/objects for lazy load references)
-  const [activeModal, setActiveModal] = useState<'add' | 'edit' | 'delete' | 'timeline' | 'manage' | null>(showAddModal ? 'add' : null);
+  const [activeModal, setActiveModal] = useState<'add' | 'edit' | 'delete' | 'timeline' | 'manage' | null>(null);
   const [selectedEntry, setSelectedEntry] = useState<Entry | null>(null);
   const [selectedInventory, setSelectedInventory] = useState<InventoryItem | null>(null);
   const [timelineItem, setTimelineItem] = useState<string | null>(null);
   
   const [isUpdatingStatus, setIsUpdatingStatus] = useState<string | null>(null);
 
-  // Sync prop to state for Add Modal (Client-side navigation)
+  // Refs for tracking hydration/refresh state to prevent loops
+  const processedActionRef = useRef(lastAction);
+  const hasAttemptedHydrationRef = useRef(false);
+
+  // Sync Global Context to Local State for Add Modal
   useEffect(() => {
-    if (showAddModal) {
+    if (isAddModalOpen) {
         setActiveModal('add');
+    } else if (activeModal === 'add') {
+        setActiveModal(null);
     }
-  }, [showAddModal]);
+  }, [isAddModalOpen, activeModal]);
 
   // Hydrate & Merge Mutations
   useEffect(() => {
@@ -102,8 +108,16 @@ export default function DashboardClient({
         // Sort by date desc
         setEntries(optimisticEntries.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()));
         
-        // Re-Sync check (PWA fix): If online but data was from cache, refresh
-        if (isOnline && (initialEntries.length === 0 || lastAction > 0)) {
+        // Re-Sync check (PWA fix): If online but data was from cache (or new sync action occurred)
+        // Prevent infinite loop by checking refs
+        const shouldRefresh = isOnline && (
+            (initialEntries.length === 0 && !hasAttemptedHydrationRef.current) || 
+            (lastAction > 0 && lastAction > processedActionRef.current)
+        );
+
+        if (shouldRefresh) {
+           hasAttemptedHydrationRef.current = true;
+           processedActionRef.current = lastAction;
            // Small delay to ensure navigation is complete
            setTimeout(() => router.refresh(), 100);
         }
@@ -288,7 +302,7 @@ export default function DashboardClient({
 
         {/* MODALS - LAZY RENDERED */}
         {activeModal === 'add' && (
-            <AddEntryModal isOpen={true} onClose={() => { setActiveModal(null); router.push('/app'); }} />
+            <AddEntryModal isOpen={true} onClose={() => setAddModalOpen(false)} />
         )}
         
         {activeModal === 'edit' && selectedEntry && (

@@ -3,10 +3,12 @@
 import { ReactNode } from 'react';
 import BottomNav from '@/components/dashboard/BottomNav';
 import { OfflineProvider } from '@/components/providers/OfflineContext';
+import { UIProvider } from '@/components/providers/UIContext';
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
   return (
     <OfflineProvider>
+      <UIProvider>
         <div className="min-h-screen bg-linear-to-br from-slate-50 to-slate-100 dark:from-slate-950 dark:to-black transition-colors duration-200 font-sans text-slate-900 flex justify-center">
             {/* Background Blobs for depth */}
             <div className="bg-blob bg-indigo-500/10 -top-50 -left-50" />
@@ -18,6 +20,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
             </div>
             <BottomNav />
         </div>
+      </UIProvider>
     </OfflineProvider>
   );
 }

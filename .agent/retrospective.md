@@ -29,6 +29,22 @@
 
 ---
 
+---
+
+## [2026-01-29] Session: Network Optimization & Modal Fixes
+
+### Lessons Learned 🧠
+- **Hydration Loops**: Be extremely careful with `useEffect` that updates state affecting its own dependencies (indirectly via `router.refresh()` -> props). Always use `useRef` to track processed timestamps if you must sync props to state.
+- **RSC vs Client State**: Using URL query params (`?modal=true`) for modals in Next.js App Router forces a Server Roundtrip (RSC). For UI-only state like modals, **Client Context** (`UIProvider`) is vastly superior (Instant vs ~200ms).
+- **Infinite Loops**: Tools like `playwright` are essential to catch infinite loops that might be subtle during manual testing but devastating in production.
+
+### Upgrades Implemented 🚀
+- **Performance**: Reduced "Add Entry" modal interaction cost from ~800 requests/5s (bug) or 1 request (standard) to **0 requests**.
+- **Stability**: Fixed infinite hydration loop in `DashboardClient` and `OfflineContext`.
+- **Architecture**: Introduce `UIProvider` for lightweight global UI state.
+
+---
+
 ## [2026-01-29] Session: Inventory System & SDD Workflow
 
 ### Lessons Learned 🧠
