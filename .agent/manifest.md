@@ -71,6 +71,7 @@ Failure to run the verification script constitutes a violation of project govern
 - **Workflow Upgrade**: Git Flow enforced (`develop` branch, `release.ts`).
 - **Optimization**: "Add Entry" modal remains instant (0ms).
 - **Verification**: All E2E tests passed on `develop`.
+- **UI Polish**: "Deep Glass" aesthetic & Tailwind 4 fixes applied.
 
 **Immediate Next Actions**:
 1. **[SEV2] Inventory Alerts**: Implement push notifications for "Out of Stock" items.
