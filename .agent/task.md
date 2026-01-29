@@ -17,7 +17,10 @@
     - [x] Create `src/app/app/layout.tsx` <!-- id: 14 -->
 - [x] Dashboard Home Content <!-- id: 15 -->
     - [x] Create simple `EntryList` structure <!-- id: 16 -->
-- [x] Backend Integration (Phase 4) <!-- id: 17 -->
+
+# Phase 4: Backend Integration
+
+- [x] Backend Integration Infrastructure <!-- id: 17 -->
     - [x] Database Setup (`lib/db.ts`, Schema, Migration) <!-- id: 18 -->
     - [x] Auth API Implementation (Register/Login) <!-- id: 19 -->
     - [x] Connect Login UI to Real Auth <!-- id: 20 -->
@@ -47,18 +50,6 @@
     - [x] Verify via Playwright MCP <!-- id: 38 -->
     - [x] Run smoke tests <!-- id: 39 -->
 
-# Phase 7: UX/UI Polish & Backlog
-
-- [/] UX/UI Consistency & Decoration <!-- id: 40 -->
-    - [x] Audit color palette usage across all pages <!-- id: 41 -->
-    - [x] Standardize button and input styles <!-- id: 42 -->
-    - [x] Add smooth transitions and micro-animations <!-- id: 43 -->
-    - [x] Improve empty states and loading skeletons <!-- id: 44 -->
-    - [x] Ensure consistent spacing and typography <!-- id: 45 -->
-- [x] Application Specification & Spec Workflow <!-- id: 46 -->
-    - [x] Create `.agent/spec.md` with tech stack and core logic <!-- id: 47 -->
-    - [x] Update `/resume` workflow to include spec check <!-- id: 48 -->
-
 # Phase 8: Trends Page & Verification
 
 - [x] Implement Trends Page <!-- id: 49 -->
@@ -80,6 +71,10 @@
     - [x] Audit environment variables for production <!-- id: 75 -->
     - [x] Verify production build (`bun run build`) <!-- id: 76 -->
     - [x] Check security headers and CSP <!-- id: 77 -->
+- [x] **PWA & Hydration Fix**: Switched to Network-First navigation and implemented stale-data re-fetch. <!-- id: pwa-fix -->
+- [x] **Inventory Quantity & Unit**: Added quantity/unit tracking to `entries` and `inventory`. <!-- id: inv-qty-unit -->
+- [x] **Management UI**: Implemented `ManageInventoryModal` and dashboard integration. <!-- id: inv-manage-ui -->
+- [ ] **Inventory Alerts Section**: Group items by alert status. <!-- id: inv-alerts -->
 
 # Phase 10: Workflow Improvements
 
@@ -98,6 +93,15 @@
     - [x] Integrate 3D Hero illustration <!-- id: 83 -->
     - [x] Add Shimmer CTA and micro-animations <!-- id: 84 -->
 
+# Phase 18: Offline Mode (IndexedDB)
+
+- [x] Value-Add Offline Support <!-- id: 85 -->
+    - [x] Install `idb` and create `lib/idb.ts` client wrapper <!-- id: 86 -->
+    - [x] Create `SyncEngine` context/hook <!-- id: 87 -->
+    - [x] Implement `Cache-First` read strategy (Hydrate from IDB if offline/server fail) <!-- id: 88 -->
+    - [x] Implement `Background Sync` for writes (Add/Edit/Delete in IDB -> Flush to Server) <!-- id: 89 -->
+    - [x] Add "Offline" & "Syncing" indicators (Subtle/Premium UI) <!-- id: 90 -->
+    - [x] Verify via Network Throttling/Offline in Playwright (and Unit Tests) <!-- id: 91 -->
 
 # Phase 20: Visual Maximization (Deep Polish)
 
@@ -114,16 +118,6 @@
 - [x] Premium Components <!-- id: 110 -->
     - [x] Glassmorphism refinement on Cards <!-- id: 111 -->
     - [x] Gradient Data Viz for Trends <!-- id: 112 -->
-
-# Phase 18: Offline Mode (IndexedDB)
-
-- [x] Value-Add Offline Support <!-- id: 85 -->
-    - [x] Install `idb` and create `lib/idb.ts` client wrapper <!-- id: 86 -->
-    - [x] Create `SyncEngine` context/hook <!-- id: 87 -->
-    - [x] Implement `Cache-First` read strategy (Hydrate from IDB if offline/server fail) <!-- id: 88 -->
-    - [x] Implement `Background Sync` for writes (Add/Edit/Delete in IDB -> Flush to Server) <!-- id: 89 -->
-    - [x] Add "Offline" & "Syncing" indicators (Subtle/Premium UI) <!-- id: 90 -->
-    - [x] Verify via Network Throttling/Offline in Playwright (and Unit Tests) <!-- id: 91 -->
 
 # Phase 21: Auth Migration (Supabase -> Simple DB)
 
@@ -157,8 +151,9 @@
     - [x] Git Commit/Push automation <!-- id: 134 -->
 
 # Phase 24: Governance Fixes
+
 - [x] Commit pending lint fixes and manifest updates <!-- id: 135 -->
-    
+
 # Phase 25: SDD Workflow & Inventory System
 
 - [x] Workflow Migration (SDD + TDD Integration) <!-- id: 136 -->
@@ -166,9 +161,20 @@
 - [x] Core Inventory System (Phase 1: DB & Logic) <!-- id: 138 -->
 - [x] Inventory UI (Phase 2: Badges & Timeline) <!-- id: 139 -->
 
+# Phase 7: UX/UI Polish & Backlog
+
+- [/] UX/UI Consistency & Decoration <!-- id: 40 -->
+    - [x] Audit color palette usage across all pages <!-- id: 41 -->
+    - [x] Standardize button and input styles <!-- id: 42 -->
+    - [x] Add smooth transitions and micro-animations <!-- id: 43 -->
+    - [x] Improve empty states and loading skeletons <!-- id: 44 -->
+    - [x] Ensure consistent spacing and typography <!-- id: 45 -->
+- [x] Application Specification & Spec Workflow <!-- id: 46 -->
+    - [x] Create `.agent/spec.md` with tech stack and core logic <!-- id: 47 -->
+    - [x] Update `/resume` workflow to include spec check <!-- id: 48 -->
+
 # Phase 19: Data Portability
 
 - [ ] Export & Share <!-- id: 92 -->
     - [ ] Implement CSV Export <!-- id: 93 -->
     - [ ] Implement Web Share API for Trends <!-- id: 94 -->
-

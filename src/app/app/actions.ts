@@ -96,9 +96,18 @@ const entrySchema = z.object({
 	price: z.number().min(0, 'Price must be 0 or more'),
 	date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Invalid date format'),
 	note: z.string().optional().nullable(),
+	quantity: z.number().optional().default(0),
+	unit: z.string().optional().default('pcs'),
 });
 
-export async function addEntry(rawData: { item: string; price: number; date: string; note?: string }) {
+export async function addEntry(rawData: {
+	item: string;
+	price: number;
+	date: string;
+	note?: string;
+	quantity?: number;
+	unit?: string;
+}) {
 	const user = await getUser();
 	if (!user) throw new Error('Unauthorized');
 
@@ -107,12 +116,14 @@ export async function addEntry(rawData: { item: string; price: number; date: str
 	await db.insert(entries).values({
 		item: data.item,
 		price: data.price,
+		quantity: data.quantity,
+		unit: data.unit,
 		date: data.date,
 		note: data.note,
 		userId: user.id,
 	});
 
-	// Sync with Inventory: Ensure record exists
+	// Sync with Inventory: Ensure record exists and update quantity/unit
 	const existingStock = await db
 		.select()
 		.from(inventory)
@@ -124,7 +135,23 @@ export async function addEntry(rawData: { item: string; price: number; date: str
 			item: data.item,
 			userId: user.id,
 			status: 'in-stock',
+			quantity: data.quantity || 0,
+			unit: data.unit || 'pcs',
+			lastStockUpdate: new Date(),
 		});
+	} else {
+		// Update existing inventory with latest unit and increment/set quantity
+		// For now, let's just set the quantity to what was bought,
+		// or increment? Usually adding an entry means adding to stock.
+		await db
+			.update(inventory)
+			.set({
+				quantity: (existingStock[0].quantity || 0) + (data.quantity || 0),
+				unit: data.unit || existingStock[0].unit,
+				status: 'in-stock', // Adding items usually means it's in stock
+				lastStockUpdate: new Date(),
+			})
+			.where(eq(inventory.id, existingStock[0].id));
 	}
 
 	revalidatePath('/app');

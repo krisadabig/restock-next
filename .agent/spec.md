@@ -40,17 +40,15 @@ Restock is a web application designed to help users track their grocery stock, p
 - **Language**: Supports EN and TH, managed via a custom context provider.
 - **Passkey Management**: Enrollment UI in Settings links WebAuthn credentials to the Supabase User ID.
 
-- **Timeline Tracking**: A chronological "reconstruction" of an item's history.
-    - **Data Sources**: Combines `entries` (purchases) and `inventory.lastStockUpdate`.
-    - **Logic**: For any given item, the timeline shows:
-        1. Date of first purchase.
-        2. History of prices paid.
-        3. Most recent "Out of Stock" or "In Stock" status change.
-        4. "Time since last restock" metric.
-- **Dashboard UI**:
-    - **Stock Badges**: Items in the list display a badge: 🟢 (In Stock) or 🔴 (Out of Stock).
-    - **Quick Toggle**: A button on the dashboard to toggle stock status without opening a full edit form.
-    - **Alerts Section**: Sticky top-bar or separate section for items marked as `out-of-stock` if `alertEnabled` is true.
+- **Inventory & Quantity Tracking**: Management of physical stock levels.
+    - **Quantity & Unit**: Each inventory item tracks `quantity` (float) and `unit` (e.g., kg, pcs, bottle).
+    - **Management UI**: A dedicated "Manage Inventory" flow allows updating stock details independently of purchase events.
+    - **Timeline Integration**: Timeline Modal displays quantity shifts alongside price history.
+- **App-like UX Architecture**:
+    - **Navigation First**: Bottom-heavy navigation for ergonomics (Thumb Zone).
+    - **Transition States**: Smooth Page and Modal transitions using native View Transitions.
+    - **Lazy Loading**: Deferred rendering for non-critical components (e.g., Timeline Modal, Edit Forms).
+    - **App Shell**: Persistent navigation bar and optimistic loading states.
 
 ### 4. Trends & Analytics
 - **Spending Dashboard**: Visualizes spending habits at `src/app/app/trends/page.tsx`.

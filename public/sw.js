@@ -36,17 +36,23 @@ self.addEventListener('fetch', (event) => {
     // We only cache GET requests
     if (event.request.method !== 'GET') return;
 
+    // Navigation requests: Network-First
+    if (event.request.mode === 'navigate') {
+        event.respondWith(
+            fetch(event.request).catch(() => {
+                return caches.match(event.request) || caches.match('/app');
+            })
+        );
+        return;
+    }
+
+    // Static assets: Cache-First
     event.respondWith(
         caches.match(event.request).then((cachedResponse) => {
             if (cachedResponse) {
                 return cachedResponse;
             }
-            return fetch(event.request).catch(() => {
-                // Fallback for navigation requests
-                if (event.request.mode === 'navigate') {
-                    return caches.match('/app');
-                }
-            });
+            return fetch(event.request);
         })
     );
 });

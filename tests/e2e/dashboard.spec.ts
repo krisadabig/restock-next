@@ -57,6 +57,16 @@ test.describe('Dashboard Shell', { tag: '@smoke' }, () => {
 		await expect(page.getByRole('heading', { name: /Add Entry|เพิ่มรายการ/ })).toBeVisible();
 		await page.locator('input[name="item"]').fill('Test Coffee');
 		await page.locator('input[name="price"]').fill('500');
+		// Add quantity and unit if available
+		const quantityInput = page.locator('input[name="quantity"]');
+		if (await quantityInput.isVisible()) {
+			await quantityInput.fill('1');
+		}
+		const unitSelect = page.locator('select[name="unit"]');
+		if (await unitSelect.isVisible()) {
+			await unitSelect.selectOption('pcs');
+		}
+
 		await page.getByRole('button', { name: /Add Entry|เพิ่มรายการ/ }).click();
 		await expect(page).toHaveURL(/\/app/);
 		await expect(page.getByRole('heading', { name: /Add Entry|เพิ่มรายการ/ })).toBeHidden();

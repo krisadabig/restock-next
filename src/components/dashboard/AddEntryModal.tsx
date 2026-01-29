@@ -36,9 +36,11 @@ export default function AddEntryModal({ isOpen, onClose }: { isOpen: boolean; on
         const price = parseFloat(formData.get('price') as string);
         const date = formData.get('date') as string;
         const note = formData.get('note') as string;
+        const quantity = parseFloat(formData.get('quantity') as string) || 1;
+        const unit = formData.get('unit') as string;
 
         try {
-            await addEntryOffline({ item, price, date, note });
+            await addEntryOffline({ item, price, date, note, quantity, unit });
             setLoading(false);
             setOptimisticClosed(true); // Close immediately purely on client
             onClose();
@@ -106,16 +108,44 @@ export default function AddEntryModal({ isOpen, onClose }: { isOpen: boolean; on
 
                         <div className="space-y-2">
                             <label className="text-sm font-bold text-gray-500 dark:text-gray-400 flex items-center gap-2 uppercase tracking-wider ml-1">
-                                <Calendar size={14} /> {t('app.date')}
+                                <Tag size={14} /> Quantity / Unit
                             </label>
-                            <input 
-                                name="date"
-                                type="date"
-                                required
-                                defaultValue={new Date().toISOString().split('T')[0]} // YYYY-MM-DD
-                                className="w-full p-4 bg-gray-100 dark:bg-slate-800 border-2 border-transparent rounded-2xl focus:border-indigo-500 focus:bg-white dark:focus:bg-slate-900 focus:ring-0 transition-all dark:text-white font-bold"
-                            />
+                            <div className="flex gap-2">
+                                <input 
+                                    name="quantity"
+                                    type="number"
+                                    defaultValue="1"
+                                    min="0"
+                                    step="0.01"
+                                    className="w-full p-4 bg-gray-100 dark:bg-slate-800 border-2 border-transparent rounded-2xl focus:border-indigo-500 focus:bg-white dark:focus:bg-slate-900 focus:ring-0 transition-all dark:text-white font-bold"
+                                />
+                                <select 
+                                    name="unit"
+                                    defaultValue="pcs"
+                                    className="w-24 p-4 bg-gray-100 dark:bg-slate-800 border-2 border-transparent rounded-2xl focus:border-indigo-500 focus:bg-white dark:focus:bg-slate-900 focus:ring-0 transition-all dark:text-white font-bold appearance-none"
+                                >
+                                    <option value="pcs">pcs</option>
+                                    <option value="kg">kg</option>
+                                    <option value="gram">g</option>
+                                    <option value="liters">L</option>
+                                    <option value="bottle">bottle</option>
+                                    <option value="pack">pack</option>
+                                </select>
+                            </div>
                         </div>
+                    </div>
+
+                    <div className="space-y-2">
+                        <label className="text-sm font-bold text-gray-500 dark:text-gray-400 flex items-center gap-2 uppercase tracking-wider ml-1">
+                            <Calendar size={14} /> {t('app.date')}
+                        </label>
+                        <input 
+                            name="date"
+                            type="date"
+                            required
+                            defaultValue={new Date().toISOString().split('T')[0]} // YYYY-MM-DD
+                            className="w-full p-4 bg-gray-100 dark:bg-slate-800 border-2 border-transparent rounded-2xl focus:border-indigo-500 focus:bg-white dark:focus:bg-slate-900 focus:ring-0 transition-all dark:text-white font-bold"
+                        />
                     </div>
 
                     <div className="space-y-2">

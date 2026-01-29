@@ -22,6 +22,8 @@ interface NewEntryData {
     price: number;
     date: string;
     note?: string;
+    quantity?: number;
+    unit?: string;
 }
 
 interface UpdateEntryData {
@@ -29,6 +31,8 @@ interface UpdateEntryData {
     price: number;
     date: string;
     note?: string | null;
+    quantity?: number;
+    unit?: string;
 }
 
 interface OfflineContextType {

@@ -6,6 +6,7 @@ import AddEntryModal from './AddEntryModal';
 import EditEntryModal from './EditEntryModal';
 import DeleteEntryModal from './DeleteEntryModal';
 import TimelineModal from './TimelineModal';
+import ManageInventoryModal from './ManageInventoryModal';
 import { useRouter } from 'next/navigation';
 import { Search, Edit2, Trash2, Calendar, ChevronDown, CloudOff, History } from 'lucide-react';
 import { useOffline } from '@/components/providers/OfflineContext';
@@ -17,6 +18,8 @@ interface Entry {
 	price: number;
 	date: string;
 	note: string | null;
+	quantity?: number | null;
+	unit?: string | null;
 }
 
 interface InventoryItem {
@@ -47,9 +50,13 @@ export default function DashboardClient({
   const [inventory, setInventory] = useState<InventoryItem[]>(initialInventory);
   const [searchQuery, setSearchQuery] = useState('');
   const [filterMonth, setFilterMonth] = useState<string>('all');
-  const [editingEntry, setEditingEntry] = useState<Entry | null>(null);
-  const [deletingEntry, setDeletingEntry] = useState<Entry | null>(null);
+  
+  // Modal states (using strings/objects for lazy load references)
+  const [activeModal, setActiveModal] = useState<'add' | 'edit' | 'delete' | 'timeline' | 'manage' | null>(showAddModal ? 'add' : null);
+  const [selectedEntry, setSelectedEntry] = useState<Entry | null>(null);
+  const [selectedInventory, setSelectedInventory] = useState<InventoryItem | null>(null);
   const [timelineItem, setTimelineItem] = useState<string | null>(null);
+  
   const [isUpdatingStatus, setIsUpdatingStatus] = useState<string | null>(null);
 
   // Hydrate & Merge Mutations
@@ -73,9 +80,6 @@ export default function DashboardClient({
 
         for (const m of mutations.sort((a, b) => a.timestamp - b.timestamp)) {
             if (m.type === 'add') {
-                // Generate a temp negative ID if needed, although IDB key is number. 
-                // For UI display, we just need unique. 
-                // We'll use a negative timestamp as ID to avoid collision with real positive IDs.
                 const tempId = -m.timestamp; 
                 optimisticEntries.push({ ...m.payload, id: tempId });
             } else if (m.type === 'edit') {
@@ -90,10 +94,16 @@ export default function DashboardClient({
 
         // Sort by date desc
         setEntries(optimisticEntries.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()));
+        
+        // Re-Sync check (PWA fix): If online but data was from cache, refresh
+        if (isOnline && (initialEntries.length === 0 || lastAction > 0)) {
+           // Small delay to ensure navigation is complete
+           setTimeout(() => router.refresh(), 100);
+        }
     };
     hydrate();
     setInventory(initialInventory);
-  }, [initialEntries, initialInventory, refreshCache, lastAction]); // Re-run when lastAction changes (offline mutation) or props change
+  }, [initialEntries, initialInventory, refreshCache, lastAction, isOnline, router]);
 
   const handleToggleStatus = async (item: string, currentStatus: string) => {
     const newStatus = currentStatus === 'in-stock' ? 'out-of-stock' : 'in-stock';
@@ -188,38 +198,52 @@ export default function DashboardClient({
                  {filteredEntries.map(entry => (
                      <div key={entry.id} className="glass p-5 rounded-3xl flex justify-between items-center transition-all duration-300 hover:scale-[1.01] group relative">
                          <div className="flex flex-col gap-1 pr-4">
-                             <div className="flex items-center gap-2">
-                                 <h3 className="font-exhibit font-bold text-base text-slate-800 dark:text-slate-100 group-hover:text-indigo-500 transition-colors uppercase tracking-tight">{entry.item}</h3>
-                                 {inventory.find(inv => inv.item === entry.item) && (
-                                     <button 
-                                        disabled={isUpdatingStatus === entry.item}
-                                        onClick={() => handleToggleStatus(entry.item, inventory.find(inv => inv.item === entry.item)!.status)}
-                                        className={`text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-tighter shadow-sm transition-all active:scale-95 ${
-                                            inventory.find(inv => inv.item === entry.item)?.status === 'in-stock'
-                                            ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20'
-                                            : 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20'
-                                        } ${isUpdatingStatus === entry.item ? 'animate-pulse opacity-50' : ''}`}
-                                     >
-                                         {inventory.find(inv => inv.item === entry.item)?.status === 'in-stock' ? 'In Stock' : 'Out of Stock'}
-                                     </button>
-                                 )}
-                             </div>
-                             <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">
-                                {new Date(entry.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
-                             </p>
-                             {entry.note && (
-                                 <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 line-clamp-1">{entry.note}</p>
-                             )}
-                         </div>
-                             <div className="flex items-center gap-4">
-                                 <div className="text-lg font-black text-indigo-600 dark:text-indigo-400 bg-indigo-500/10 px-4 py-2 rounded-2xl">
-                                     ฿{entry.price.toLocaleString()}
-                                 </div>
-                                 
-                                 {/* Actions (visible on hover for desktop, or icons for mobile) */}
+                              <div className="flex items-center gap-2">
+                                  <h3 className="font-exhibit font-bold text-base text-slate-800 dark:text-slate-100 group-hover:text-indigo-500 transition-colors uppercase tracking-tight">{entry.item}</h3>
+                                  {inventory.find(inv => inv.item === entry.item) && (
+                                     <div className="flex items-center gap-1.5">
+                                         <button 
+                                            disabled={isUpdatingStatus === entry.item}
+                                            onClick={() => handleToggleStatus(entry.item, inventory.find(inv => inv.item === entry.item)!.status)}
+                                            className={`text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-tighter shadow-sm transition-all active:scale-95 ${
+                                                inventory.find(inv => inv.item === entry.item)?.status === 'in-stock'
+                                                ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20'
+                                                : 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20'
+                                            } ${isUpdatingStatus === entry.item ? 'animate-pulse opacity-50' : ''}`}
+                                         >
+                                             {inventory.find(inv => inv.item === entry.item)?.status === 'in-stock' ? 'In Stock' : 'Out of Stock'}
+                                         </button>
+                                         <button 
+                                            onClick={() => {
+                                                setSelectedInventory(inventory.find(inv => inv.item === entry.item)!);
+                                                setActiveModal('manage');
+                                            }}
+                                            className="text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-tighter bg-indigo-500/10 text-indigo-500 border border-indigo-500/20 hover:bg-indigo-500 hover:text-white transition-all shadow-sm active:scale-90"
+                                         >
+                                            {inventory.find(inv => inv.item === entry.item)?.quantity} {inventory.find(inv => inv.item === entry.item)?.unit}
+                                         </button>
+                                     </div>
+                                  )}
+                              </div>
+                              <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">
+                                 {new Date(entry.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
+                              </p>
+                              {entry.note && (
+                                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 line-clamp-1 italic">{entry.note}</p>
+                              )}
+                          </div>
+                              <div className="flex items-center gap-4">
+                                  <div className="text-lg font-black text-indigo-600 dark:text-indigo-400 bg-indigo-500/10 px-4 py-2 rounded-2xl">
+                                      ฿{entry.price.toLocaleString()}
+                                  </div>
+                                  
+                                  {/* Actions (visible on hover for desktop, or icons for mobile) */}
                                   <div className="flex items-center gap-1 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity">
                                     <button 
-                                        onClick={() => setTimelineItem(entry.item)}
+                                        onClick={() => {
+                                            setTimelineItem(entry.item);
+                                            setActiveModal('timeline');
+                                        }}
                                         className="h-11 w-11 flex items-center justify-center text-slate-400 hover:text-indigo-500 hover:bg-indigo-50/50 dark:hover:bg-indigo-900/20 rounded-xl transition-all active:scale-90"
                                         title="View History"
                                         aria-label="View History"
@@ -227,7 +251,10 @@ export default function DashboardClient({
                                         <History size={20} />
                                     </button>
                                     <button 
-                                        onClick={() => setEditingEntry(entry)}
+                                        onClick={() => {
+                                            setSelectedEntry(entry);
+                                            setActiveModal('edit');
+                                        }}
                                         className="h-11 w-11 flex items-center justify-center text-slate-400 hover:text-indigo-500 hover:bg-indigo-50/50 dark:hover:bg-indigo-900/20 rounded-xl transition-all active:scale-90"
                                         title="Edit"
                                         aria-label="Edit"
@@ -235,7 +262,10 @@ export default function DashboardClient({
                                         <Edit2 size={20} />
                                     </button>
                                     <button 
-                                        onClick={() => setDeletingEntry(entry)}
+                                        onClick={() => {
+                                            setSelectedEntry(entry);
+                                            setActiveModal('delete');
+                                        }}
                                         className="h-11 w-11 flex items-center justify-center text-slate-400 hover:text-red-500 hover:bg-red-50/50 dark:hover:bg-red-900/20 rounded-xl transition-all disabled:opacity-50 active:scale-90"
                                         title="Delete"
                                         aria-label="Delete"
@@ -243,34 +273,47 @@ export default function DashboardClient({
                                         <Trash2 size={20} />
                                     </button>
                                   </div>
-                             </div>
-                     </div>
-                 ))}
-              </div>
-        )}
+                              </div>
+                      </div>
+                  ))}
+               </div>
+         )}
 
-        <AddEntryModal isOpen={showAddModal} onClose={() => router.push('/app')} />
+        {/* MODALS - LAZY RENDERED */}
+        {activeModal === 'add' && (
+            <AddEntryModal isOpen={true} onClose={() => { setActiveModal(null); router.push('/app'); }} />
+        )}
         
-        {editingEntry && (
+        {activeModal === 'edit' && selectedEntry && (
             <EditEntryModal 
-                entry={editingEntry} 
-                onClose={() => setEditingEntry(null)} 
+                entry={selectedEntry} 
+                onClose={() => { setActiveModal(null); setSelectedEntry(null); }} 
             />
         )}
 
-        {deletingEntry && (
+        {activeModal === 'delete' && selectedEntry && (
             <DeleteEntryModal 
-                entry={deletingEntry} 
-                onClose={() => setDeletingEntry(null)} 
+                entry={selectedEntry} 
+                onClose={() => { setActiveModal(null); setSelectedEntry(null); }} 
             />
         )}
 
-        <TimelineModal 
-            isOpen={!!timelineItem} 
-            onCloseAction={() => setTimelineItem(null)} 
-            itemName={timelineItem || ''} 
-            entries={entries} 
-        />
+        {activeModal === 'timeline' && timelineItem && (
+            <TimelineModal 
+                isOpen={true} 
+                onCloseAction={() => { setActiveModal(null); setTimelineItem(null); }} 
+                itemName={timelineItem} 
+                entries={entries} 
+            />
+        )}
+
+        {activeModal === 'manage' && selectedInventory && (
+            <ManageInventoryModal
+                isOpen={true}
+                onClose={() => { setActiveModal(null); setSelectedInventory(null); }}
+                inventoryItem={selectedInventory}
+            />
+        )}
     </div>
   );
 }

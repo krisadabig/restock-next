@@ -21,6 +21,8 @@ export const entries = pgTable('entries', {
 	id: serial('id').primaryKey(),
 	item: text('item').notNull(),
 	price: real('price').notNull(),
+	quantity: real('quantity').default(1),
+	unit: text('unit').default('pcs'),
 	date: text('date').notNull(),
 	note: text('note'),
 	userId: text('user_id')

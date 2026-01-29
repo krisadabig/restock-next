@@ -10,6 +10,8 @@ interface Entry {
     price: number;
     date: string;
     note: string | null;
+    quantity?: number | null;
+    unit?: string | null;
 }
 
 export default function TimelineModal({ 
@@ -89,9 +91,11 @@ export default function TimelineModal({
                                             </p>
                                             <div className="flex items-center gap-2 mt-1">
                                                 <p className="font-bold text-slate-800 dark:text-slate-100">฿{entry.price.toLocaleString()}</p>
-                                                {isHigher && <TrendingUp size={14} className="text-rose-500" />}
-                                                {isLower && <TrendingDown size={14} className="text-emerald-500" />}
-                                                {!isHigher && !isLower && idx < itemEntries.length - 1 && <Minus size={14} className="text-slate-400" />}
+                                                <div className="h-1 w-1 rounded-full bg-slate-300"></div>
+                                                <p className="text-xs font-bold text-indigo-500 uppercase tracking-tight">{entry.quantity} {entry.unit}</p>
+                                                {isHigher && <TrendingUp size={14} className="text-rose-500 ml-1" />}
+                                                {isLower && <TrendingDown size={14} className="text-emerald-500 ml-1" />}
+                                                {!isHigher && !isLower && idx < itemEntries.length - 1 && <Minus size={14} className="text-slate-400 ml-1" />}
                                             </div>
                                         </div>
                                         {entry.note && (

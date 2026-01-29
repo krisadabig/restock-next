@@ -1,5 +1,23 @@
 # Retrospective Log
 
+## [2026-01-29] Session: Inventory Quantity & PWA Fixes
+
+### Lessons Learned 🧠
+- **PWA Freshness**: "Cache-First" strategies for navigation requests in Service Workers can accidentally serve stale HTML shells. Switching to "Network-First" for navigation ensures the user always gets the latest app shell while keeping assets cached.
+- **E2E Test Stability**: Local dev servers can be slow, causing timeouts in Playwright. Increasing timeouts helps, but sometimes manual verification via screenshots is a necessary fallback when the environment is flaky.
+- **Drizzle Kit Limitations**: Relying solely on `db:push` can block progress if it fails. Manual migration scripts using raw SQL via the Drizzle client are essential backups.
+
+### Upgrades Implemented 🚀
+- **Inventory Enhancement**: Added `quantity` and `unit` bubbles to the dashboard and management modal.
+- **PWA Stability**: Fixed the "stale app" bug by updating Service Worker strategy and adding a client-side freshness check.
+- **Test Robustness**: Added global timeouts to Playwright config to better handle slower environments.
+
+### Preventive Measures 🛡️
+- **Manual Verification Fallback**: Automate what you can, but always have a mechanism (browser subagent) to verify manually when automation is flaky.
+- **Network-First Default**: Default to Network-First strategies for critical PWA navigation routes to avoid stale data nightmares.
+
+---
+
 ## [2026-01-29] Session: Inventory System & SDD Workflow
 
 ### Lessons Learned 🧠
