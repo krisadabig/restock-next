@@ -234,6 +234,13 @@ export default function SettingsPage() {
           </button>
         </div>
       </section>
+      
+      {/* Version Footer */}
+      <div className="text-center pt-8 pb-4">
+        <p className="text-xs font-mono text-slate-400 dark:text-slate-600 opacity-60">
+            v{process.env.NEXT_PUBLIC_APP_VERSION || '0.0.0-dev'}
+        </p>
+      </div>
 
       {/* Delete Account Modal */}
       {showDeleteModal && (

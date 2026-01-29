@@ -10,6 +10,7 @@ Restock is a web application designed to help users track their grocery stock, p
 - **ORM**: Drizzle ORM
 - **Styling**: Tailwind CSS 4+
 - **Testing**: Playwright (E2E/Smoke) + Vitest (Unit)
+- **Versioning**: `semver` (from package.json) exposed via `NEXT_PUBLIC_APP_VERSION`.
 - **I18n**: Custom implementation supporting English (EN) and Thai (TH)
 - **Offline**: IndexedDB + Background Sync Pattern
 

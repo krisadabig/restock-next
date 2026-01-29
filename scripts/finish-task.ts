@@ -77,9 +77,13 @@ async function finishTask() {
 			console.log(`1. Review the changes above.`);
 			console.log(`2. Run:  git add <file>   (or "git add -A" if you are sure)`);
 			console.log(`3. Run:  git commit -m "feat: [Your Task Description]"`);
-			if (branchName !== 'main') {
-				console.log(`4. Run:  git push origin ${branchName}`);
-				console.log(`5. Create PR`);
+			if (branchName !== 'develop') {
+				if (branchName === 'main') {
+					error('You are on `main`. Requires manual fix. Use `release.ts` to touch `main`.');
+				} else {
+					console.log(`4. Run:  git push origin ${branchName}`);
+					console.log(`5. Create PR into 'develop'`);
+				}
 			}
 		} else {
 			console.log('No changes detected in working directory (everything committed?)');

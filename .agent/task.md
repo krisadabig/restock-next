@@ -164,6 +164,9 @@
 - [x] Core Inventory System (Phase 1: DB & Logic) <!-- id: 138 -->
 - [x] Inventory UI (Phase 2: Badges & Timeline) <!-- id: 139 -->
 
+# Phase 26: Versioning & Release
+- [x] **Version Display**: Expose app version in UI and align with Git tags. <!-- id: 143 -->
+
 # Phase 7: UX/UI Polish & Backlog
 
 - [/] UX/UI Consistency & Decoration <!-- id: 40 -->

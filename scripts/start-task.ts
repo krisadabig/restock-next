@@ -46,7 +46,7 @@ async function startTask() {
 			execSync(`git checkout ${branchName}`, { stdio: 'inherit' });
 		} catch {
 			log(`Creating new branch ${branchName}...`);
-			execSync(`git checkout -b ${branchName} main`, { stdio: 'inherit' });
+			execSync(`git checkout -b ${branchName} develop`, { stdio: 'inherit' });
 		}
 		success(`On branch ${branchName}`);
 	} catch (e) {

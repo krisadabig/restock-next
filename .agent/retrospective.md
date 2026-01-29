@@ -42,6 +42,7 @@
 - **Performance**: Reduced "Add Entry" modal interaction cost from ~800 requests/5s (bug) or 1 request (standard) to **0 requests**.
 - **Stability**: Fixed infinite hydration loop in `DashboardClient` and `OfflineContext`.
 - **Architecture**: Introduce `UIProvider` for lightweight global UI state.
+- **Workflow**: Adopted **Git Flow** (`main` protected, `develop` integration). Added `scripts/release.ts` for automated releases.
 
 ---
 
