@@ -65,13 +65,13 @@ Failure to run the verification script constitutes a violation of project govern
 
 ## Session Handoff / Next Steps
 **Current State**:
-- **Critical Fixes**: Fixed infinite hydration loop (~800 req/5s) and "Add Entry" mobile interaction.
-- **Optimization**: "Add Entry" modal now opens instantly (0ms latency, 0 network requests) via `UIContext`.
-- **Inventory System**: Stable and live.
-- **Verification**: All regression tests verified.
+- **Feature Complete**: "Version Display" (vX.Y.Z in Settings).
+- **Workflow Upgrade**: Git Flow enforced (`develop` branch, `release.ts`).
+- **Optimization**: "Add Entry" modal remains instant (0ms).
+- **Verification**: All E2E tests passed on `develop`.
 
 **Immediate Next Actions**:
 1. **[SEV2] Inventory Alerts**: Implement push notifications for "Out of Stock" items.
 2. **[SEV2] Data Portability**: Implement CSV Export in Settings.
-3. **[SEV3] E2E Test Stabilization**: Address timeouts in smoke tests (DB connection limits).
+3. **[Release]**: When ready, run `bun scripts/release.ts minor` to deploy v0.2.0.
 
