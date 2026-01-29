@@ -11,6 +11,7 @@ export default defineConfig({
 		setupFiles: [],
 		alias: {
 			'@': resolve(__dirname, './src'),
+			'server-only': resolve(__dirname, './tests/mocks/server-only.ts'),
 		},
 	},
 });

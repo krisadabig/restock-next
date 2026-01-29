@@ -1,5 +1,27 @@
 # Retrospective Log
 
+## [2026-01-29] Session: Inventory System & SDD Workflow
+
+### Lessons Learned 🧠
+- **Spec-Driven Development (SDD)**: Mandating a spec check in `start-task.ts` ensures implementation stays aligned with design. It prevents "feature creep" and "logic drift."
+- **DB Mocking in Unit Tests**: Always mock `db` calls in unit tests to prevent flaky dependencies on the local postgres instance. Use `vi.mock('@/lib/db', ...)` with `mockReturnThis()` for fluent ORM builders like Drizzle.
+- **Manual Migrations**: `drizzle-kit push` can sometimes fail due to complex SQL constraints or driver issues. Having a `manual-migrate.ts` script for raw SQL execution is a robust fallback for development.
+- **Serialization in Next.js 16/React 19**: Passing functions like `onClose` to `"use client"` components now triggers warnings if not marked as actions. Renaming to `onCloseAction` and ensuring they are compliant is key for build safety.
+
+### Upgrades Implemented 🚀
+- **SDD Integration**: Added "Skill Discovery" and "Spec Check" to `start-task.ts`.
+- **Governance Enforcement**: `finish-task.ts` now warns if `src/` changes without corresponding `spec.md` updates.
+- **Inventory Engine**: Implemented stateful tracking of grocery items with auto-sync from purchase entries.
+- **Timeline Modal**: Created a high-end visual timeline for item price history and stock trends.
+- **DX Hardening**: Resolved hanging test processes by optimizing Playwright and Vitest CLI flags.
+
+### Preventive Measures 🛡️
+- **Pre-execution Spec Sync**: Always verify `.agent/spec.md` exists and is current before starting new feature work.
+- **Mock-First Testing**: Establish a pattern of mocking infrastructure (DB, external APIs) in all unit tests to ensure high speed and reliability.
+- **Portals for Modals**: Use React Portals by default for all mobile-first modals to avoid z-index and layout stacking issues.
+
+---
+
 ## [2026-01-25] Session: Style Cleanup & Modal Refinement
 
 ### Lessons Learned 🧠

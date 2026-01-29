@@ -1,5 +1,5 @@
 import { execSync } from 'child_process';
-import { writeFileSync, existsSync } from 'fs';
+import { writeFileSync, existsSync, readdirSync } from 'fs';
 import { join } from 'path';
 import { log, success, error, warn, GREEN, RESET } from './utils';
 
@@ -11,6 +11,24 @@ if (!taskName) {
 
 async function startTask() {
 	console.log(`\n🚀 STARTING TASK: "${taskName}" 🚀\n`);
+
+	// 0. Skill Discovery
+	const skillsDir = '.agent/skills';
+	if (existsSync(skillsDir)) {
+		const skills = readdirSync(skillsDir).filter((f: string) => !f.startsWith('.'));
+		console.log(`🔎 SKILL DISCOVERY 🔎`);
+		console.log('Available Skills:');
+		skills.forEach((skill: string) => console.log(` - ${skill}`));
+
+		console.log(`\n${warn('ACTION REQUIRED')}: Review the list above.`);
+		console.log(`Identify relevant skills and run: ${GREEN}view_file .agent/skills/<skill>/SKILL.md${RESET}`);
+		console.log(`(e.g., if doing UI, check 'frontend-design' and 'tailwind-design-system')\n`);
+	}
+
+	// 0.5 Spec Check (SDD)
+	console.log(`📖 SPEC-DRIVEN DEVELOPMENT (SDD) 📖`);
+	console.log(`Before coding, YOU MUST review and update: ${GREEN}.agent/spec.md${RESET}`);
+	console.log(`Ensure the specification reflects the changes you are about to make.\n`);
 
 	// 1. Branch Creation
 	const slug = taskName

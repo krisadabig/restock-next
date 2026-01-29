@@ -1,7 +1,7 @@
 'use server';
 
 import { db } from '@/lib/db';
-import { entries, users } from '@/lib/db/schema';
+import { entries, users, inventory } from '@/lib/db/schema';
 import { desc, eq, and } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
 
@@ -112,6 +112,21 @@ export async function addEntry(rawData: { item: string; price: number; date: str
 		userId: user.id,
 	});
 
+	// Sync with Inventory: Ensure record exists
+	const existingStock = await db
+		.select()
+		.from(inventory)
+		.where(and(eq(inventory.item, data.item), eq(inventory.userId, user.id)))
+		.limit(1);
+
+	if (existingStock.length === 0) {
+		await db.insert(inventory).values({
+			item: data.item,
+			userId: user.id,
+			status: 'in-stock',
+		});
+	}
+
 	revalidatePath('/app');
 	revalidatePath('/app/trends');
 }
@@ -160,4 +175,45 @@ export async function getUniqueItems(): Promise<string[]> {
 		.orderBy(entries.item);
 
 	return result.map((r) => r.item);
+}
+
+// --- Inventory Actions ---
+
+export async function getInventory() {
+	const user = await getUser();
+	if (!user) return [];
+
+	return await db.select().from(inventory).where(eq(inventory.userId, user.id)).orderBy(inventory.item);
+}
+
+export async function toggleItemStatus(item: string, status: 'in-stock' | 'out-of-stock') {
+	const user = await getUser();
+	if (!user) throw new Error('Unauthorized');
+
+	await db
+		.update(inventory)
+		.set({ status, lastStockUpdate: new Date() })
+		.where(and(eq(inventory.item, item), eq(inventory.userId, user.id)));
+
+	revalidatePath('/app');
+}
+
+export async function updateInventory(
+	item: string,
+	data: { quantity?: number; unit?: string; alertEnabled?: boolean },
+) {
+	const user = await getUser();
+	if (!user) throw new Error('Unauthorized');
+
+	await db
+		.update(inventory)
+		.set({
+			...(data.quantity !== undefined && { quantity: data.quantity }),
+			...(data.unit !== undefined && { unit: data.unit }),
+			...(data.alertEnabled !== undefined && { alertEnabled: data.alertEnabled ? 1 : 0 }),
+			lastStockUpdate: new Date(),
+		})
+		.where(and(eq(inventory.item, item), eq(inventory.userId, user.id)));
+
+	revalidatePath('/app');
 }

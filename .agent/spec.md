@@ -40,6 +40,18 @@ Restock is a web application designed to help users track their grocery stock, p
 - **Language**: Supports EN and TH, managed via a custom context provider.
 - **Passkey Management**: Enrollment UI in Settings links WebAuthn credentials to the Supabase User ID.
 
+- **Timeline Tracking**: A chronological "reconstruction" of an item's history.
+    - **Data Sources**: Combines `entries` (purchases) and `inventory.lastStockUpdate`.
+    - **Logic**: For any given item, the timeline shows:
+        1. Date of first purchase.
+        2. History of prices paid.
+        3. Most recent "Out of Stock" or "In Stock" status change.
+        4. "Time since last restock" metric.
+- **Dashboard UI**:
+    - **Stock Badges**: Items in the list display a badge: 🟢 (In Stock) or 🔴 (Out of Stock).
+    - **Quick Toggle**: A button on the dashboard to toggle stock status without opening a full edit form.
+    - **Alerts Section**: Sticky top-bar or separate section for items marked as `out-of-stock` if `alertEnabled` is true.
+
 ### 4. Trends & Analytics
 - **Spending Dashboard**: Visualizes spending habits at `src/app/app/trends/page.tsx`.
 - **Metrics**: Calculates total spending, groups costs by item, and provides **Month-over-Month (MO-M)** comparison.

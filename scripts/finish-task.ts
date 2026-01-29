@@ -1,4 +1,5 @@
 import { execSync } from 'child_process';
+import { readFileSync } from 'fs';
 import { log, success, error, warn, GREEN, RESET, run } from './utils';
 
 async function finishTask() {
@@ -30,20 +31,36 @@ async function finishTask() {
 			success('Documentation updates detected.');
 		}
 
-		// Check Retrospective
+		// Check Retrospective content
 		const retroUpdated = changes.includes('.agent/retrospective.md');
 		if (!retroUpdated) {
-			warn('Governance Warning: `.agent/retrospective.md` NOT modified.');
-			console.log('Did you learn nothing this session? (It is highly recommended to log lessons).');
-			// We won't block strictly on retro yet, but strongly warn.
-			// Actually, plan said "Enforce Retrospective". Let's block if we want to be strict.
-			// "Strict Check: git status MUST show changes to... .agent/retrospective.md"
-			// Okay, sticking to the plan.
 			error('Governance Check Failed: `.agent/retrospective.md` NOT modified.');
 			console.log('You must log a retrospective before finishing.');
 			return;
-		} else {
-			success('Retrospective detected.');
+		}
+
+		// Read retrospective to check for Preventive Measures
+		const retroContent = readFileSync('.agent/retrospective.md', 'utf-8');
+		if (!retroContent.includes('## Preventive Measures') && !retroContent.includes('## Prevention')) {
+			error('Governance Check Failed: `.agent/retrospective.md` missing "Preventive Measures" section.');
+			return;
+		}
+		success('Retrospective and Preventive Measures detected.');
+
+		// 3. Spec Check (SDD)
+		const specUpdated = changes.includes('.agent/spec.md');
+		const logicChanged = changes
+			.split('\n')
+			.some((line) => line.includes('src/') && (line.endsWith('.ts') || line.endsWith('.tsx')));
+
+		if (logicChanged && !specUpdated) {
+			warn('Governance Warning: Logic changes detected in `src/` but `.agent/spec.md` was NOT updated.');
+			console.log(
+				'Spec-Driven Development (SDD) requires keeping the specification in sync with implementation.',
+			);
+			// For now, we warn. We might block later.
+		} else if (specUpdated) {
+			success('Spec update detected.');
 		}
 
 		console.log(`\n${GREEN}✨ PRE-FLIGHT CHECKS PASSED ✨${RESET}\n`);

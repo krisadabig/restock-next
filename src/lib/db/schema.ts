@@ -38,3 +38,17 @@ export const feedback = pgTable('feedback', {
 	type: text('type').default('feature_request'),
 	createdAt: timestamp('created_at').defaultNow(),
 });
+
+export const inventory = pgTable('inventory', {
+	id: serial('id').primaryKey(),
+	item: text('item').notNull(),
+	status: text('status').notNull().default('in-stock'), // in-stock, out-of-stock
+	quantity: real('quantity').notNull().default(0),
+	unit: text('unit').notNull().default('pcs'),
+	alertEnabled: integer('alert_enabled').notNull().default(1), // 1 = enabled, 0 = disabled
+	userId: text('user_id')
+		.notNull()
+		.references(() => users.id, { onDelete: 'cascade' }),
+	lastStockUpdate: timestamp('last_stock_update').defaultNow(),
+	createdAt: timestamp('created_at').defaultNow(),
+});

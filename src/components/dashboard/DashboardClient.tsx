@@ -5,8 +5,9 @@ import { useTranslation } from '@/lib/i18n';
 import AddEntryModal from './AddEntryModal';
 import EditEntryModal from './EditEntryModal';
 import DeleteEntryModal from './DeleteEntryModal';
+import TimelineModal from './TimelineModal';
 import { useRouter } from 'next/navigation';
-import { Search, Edit2, Trash2, Calendar, ChevronDown, CloudOff } from 'lucide-react';
+import { Search, Edit2, Trash2, Calendar, ChevronDown, CloudOff, History } from 'lucide-react';
 import { useOffline } from '@/components/providers/OfflineContext';
 import { getEntriesCache, getPendingMutations } from '@/lib/idb';
 
@@ -18,11 +19,23 @@ interface Entry {
 	note: string | null;
 }
 
+interface InventoryItem {
+	id: number;
+	item: string;
+	status: string;
+	quantity: number;
+	unit: string;
+	alertEnabled: number;
+	lastStockUpdate: Date | null;
+}
+
 export default function DashboardClient({ 
     entries: initialEntries, 
+    inventory: initialInventory,
     showAddModal 
 }: { 
     entries: Entry[];
+    inventory: InventoryItem[];
     showAddModal: boolean;
 }) {
   const { t } = useTranslation();
@@ -31,10 +44,13 @@ export default function DashboardClient({
   
   // State
   const [entries, setEntries] = useState<Entry[]>(initialEntries);
+  const [inventory, setInventory] = useState<InventoryItem[]>(initialInventory);
   const [searchQuery, setSearchQuery] = useState('');
   const [filterMonth, setFilterMonth] = useState<string>('all');
   const [editingEntry, setEditingEntry] = useState<Entry | null>(null);
   const [deletingEntry, setDeletingEntry] = useState<Entry | null>(null);
+  const [timelineItem, setTimelineItem] = useState<string | null>(null);
+  const [isUpdatingStatus, setIsUpdatingStatus] = useState<string | null>(null);
 
   // Hydrate & Merge Mutations
   useEffect(() => {
@@ -76,7 +92,27 @@ export default function DashboardClient({
         setEntries(optimisticEntries.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()));
     };
     hydrate();
-  }, [initialEntries, refreshCache, lastAction]); // Re-run when lastAction changes (offline mutation) or props change
+    setInventory(initialInventory);
+  }, [initialEntries, initialInventory, refreshCache, lastAction]); // Re-run when lastAction changes (offline mutation) or props change
+
+  const handleToggleStatus = async (item: string, currentStatus: string) => {
+    const newStatus = currentStatus === 'in-stock' ? 'out-of-stock' : 'in-stock';
+    setIsUpdatingStatus(item);
+    
+    try {
+        const { toggleItemStatus } = await import('@/app/app/actions');
+        await toggleItemStatus(item, newStatus as 'in-stock' | 'out-of-stock');
+        
+        // Optimistic update
+        setInventory(prev => prev.map(inv => 
+            inv.item === item ? { ...inv, status: newStatus } : inv
+        ));
+    } catch (err) {
+        console.error('Failed to toggle status:', err);
+    } finally {
+        setIsUpdatingStatus(null);
+    }
+  };
 
   // Derived data
   const filteredEntries = useMemo(() => {
@@ -152,8 +188,23 @@ export default function DashboardClient({
                  {filteredEntries.map(entry => (
                      <div key={entry.id} className="glass p-5 rounded-3xl flex justify-between items-center transition-all duration-300 hover:scale-[1.01] group relative">
                          <div className="flex flex-col gap-1 pr-4">
-                             <h3 className="font-exhibit font-bold text-base text-slate-800 dark:text-slate-100 group-hover:text-indigo-500 transition-colors">{entry.item}</h3>
-                             <p className="text-xs font-bold uppercase tracking-widest text-slate-400">
+                             <div className="flex items-center gap-2">
+                                 <h3 className="font-exhibit font-bold text-base text-slate-800 dark:text-slate-100 group-hover:text-indigo-500 transition-colors uppercase tracking-tight">{entry.item}</h3>
+                                 {inventory.find(inv => inv.item === entry.item) && (
+                                     <button 
+                                        disabled={isUpdatingStatus === entry.item}
+                                        onClick={() => handleToggleStatus(entry.item, inventory.find(inv => inv.item === entry.item)!.status)}
+                                        className={`text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-tighter shadow-sm transition-all active:scale-95 ${
+                                            inventory.find(inv => inv.item === entry.item)?.status === 'in-stock'
+                                            ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20'
+                                            : 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20'
+                                        } ${isUpdatingStatus === entry.item ? 'animate-pulse opacity-50' : ''}`}
+                                     >
+                                         {inventory.find(inv => inv.item === entry.item)?.status === 'in-stock' ? 'In Stock' : 'Out of Stock'}
+                                     </button>
+                                 )}
+                             </div>
+                             <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">
                                 {new Date(entry.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
                              </p>
                              {entry.note && (
@@ -166,7 +217,15 @@ export default function DashboardClient({
                                  </div>
                                  
                                  {/* Actions (visible on hover for desktop, or icons for mobile) */}
-                                 <div className="flex items-center gap-1 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity">
+                                  <div className="flex items-center gap-1 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <button 
+                                        onClick={() => setTimelineItem(entry.item)}
+                                        className="h-11 w-11 flex items-center justify-center text-slate-400 hover:text-indigo-500 hover:bg-indigo-50/50 dark:hover:bg-indigo-900/20 rounded-xl transition-all active:scale-90"
+                                        title="View History"
+                                        aria-label="View History"
+                                    >
+                                        <History size={20} />
+                                    </button>
                                     <button 
                                         onClick={() => setEditingEntry(entry)}
                                         className="h-11 w-11 flex items-center justify-center text-slate-400 hover:text-indigo-500 hover:bg-indigo-50/50 dark:hover:bg-indigo-900/20 rounded-xl transition-all active:scale-90"
@@ -183,7 +242,7 @@ export default function DashboardClient({
                                     >
                                         <Trash2 size={20} />
                                     </button>
-                                 </div>
+                                  </div>
                              </div>
                      </div>
                  ))}
@@ -205,6 +264,13 @@ export default function DashboardClient({
                 onClose={() => setDeletingEntry(null)} 
             />
         )}
+
+        <TimelineModal 
+            isOpen={!!timelineItem} 
+            onCloseAction={() => setTimelineItem(null)} 
+            itemName={timelineItem || ''} 
+            entries={entries} 
+        />
     </div>
   );
 }
