@@ -20,6 +20,10 @@ Ensure working directory is clean. If there are uncommitted changes, commit or s
 ## 1️⃣ Branch Creation (BEFORE Starting Work)
 
 ```bash
+# Recommendation: Use the workflow
+# /start-task
+
+# Or manual equivalent:
 # // turbo
 git checkout -b feature/<task-name>
 ```
@@ -36,6 +40,10 @@ git checkout -b feature/<task-name>
 Run linting frequently during development to catch errors early:
 
 ```bash
+# Recommendation: Use the workflow
+# /verify-task
+
+# Or manual equivalent:
 # // turbo
 bun run lint
 ```
@@ -111,10 +119,10 @@ git push origin main
 
 | Phase | Command | When |
 |-------|---------|------|
-| Start | `git checkout -b feature/<name>` | Before ANY code changes |
+| Start | `/start-task` OR `git checkout ...` | Before ANY code changes |
 | Save | `git commit -m "type(scope): msg"` | After each logical unit of work |
-| Verify | `bun run smoke` | Before commits and merges |
-| Finish | `git checkout main && git merge ...` | After ALL DoD criteria met |
+| Verify | `/verify-task` OR `bun run smoke` | Before commits and merges |
+| Finish | `/finish-task` OR `git checkout main ...` | After ALL DoD criteria met |
 | Clean | `git branch -d feature/<name>` | After successful merge |
 
 ## ⚠️ Rules
