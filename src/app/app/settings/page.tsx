@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslation } from '@/lib/i18n';
-import { Moon, Sun, Globe, LogOut, Trash2, X, ArrowLeft, Settings, Fingerprint, ShieldCheck } from 'lucide-react';
+import { Moon, Sun, Globe, LogOut, Trash2, X, ArrowLeft, Fingerprint, ShieldCheck, ChevronRight } from 'lucide-react';
 import { logout } from '@/app/auth/actions';
 import { registerPasskey } from '@/lib/auth';
 import { useTheme } from 'next-themes';
@@ -11,7 +11,6 @@ import { useTheme } from 'next-themes';
 export default function SettingsPage() {
   const router = useRouter();
   const { t, locale, setLocale } = useTranslation();
-  // const supabase = createClient(); // Supabase client removed
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -47,8 +46,6 @@ export default function SettingsPage() {
     if (deleteConfirmText !== 'DELETE') return;
     setIsDeleting(true);
     try {
-      // In a real app, you'd call a function to delete the user data and then sign out.
-      // We'll just sign them out and redirect for this demo/MVP.
       await logout();
     } catch (error) {
       console.error('Failed to delete account:', error);
@@ -60,135 +57,143 @@ export default function SettingsPage() {
     return (
       <div className="p-6">
         <div className="animate-pulse space-y-4">
-          <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-1/3"></div>
-          <div className="h-40 bg-gray-200 dark:bg-gray-700 rounded"></div>
+          <div className="h-8 bg-muted rounded w-1/3"></div>
+          <div className="h-40 bg-muted rounded-2xl"></div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="p-6 space-y-6 pb-24">
+    <div className="p-6 space-y-8 pb-32 animate-in fade-in slide-in-from-bottom-4 duration-700">
       {/* Header */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-4">
         <button
           onClick={() => router.back()}
-          className="p-2 -ml-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+          className="p-3 -ml-3 hover:bg-secondary/50 rounded-full transition-colors active:scale-95"
           aria-label="Go back"
         >
-          <ArrowLeft className="h-5 w-5 text-gray-600 dark:text-gray-400" />
+          <ArrowLeft className="h-6 w-6 text-muted-foreground" />
         </button>
-        <div className="flex items-center gap-2">
-          <Settings className="h-6 w-6 text-indigo-600 dark:text-indigo-400" />
-          <h1 className="text-xl font-bold text-gray-900 dark:text-white">
+        <div>
+          <h1 className="text-3xl font-black text-foreground font-heading tracking-tight">
             {t('settings.title')}
           </h1>
+          <p className="text-sm text-muted-foreground font-medium">
+             Manage your preferences
+          </p>
         </div>
       </div>
 
-      {/* Appearance Section */}
-      <section className="space-y-3">
-        <h2 className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+      {/* Appearance Island */}
+      <section className="space-y-4">
+        <h2 className="text-xs font-bold text-muted-foreground uppercase tracking-widest px-1">
           {t('settings.appearance')}
         </h2>
-        <div className="bg-gray-50 dark:bg-gray-800/50 rounded-xl overflow-hidden divide-y divide-gray-100 dark:divide-gray-700/50">
+        <div className="glass-panel overflow-hidden rounded-3xl divide-y divide-border/50">
           {/* Theme Toggle */}
-          <div className="flex items-center justify-between p-4">
-            <div className="flex items-center gap-3">
-              {theme === 'light' ? (
-                <Sun className="h-5 w-5 text-amber-500" />
-              ) : (
-                <Moon className="h-5 w-5 text-indigo-400" />
-              )}
-              <span className="text-gray-900 dark:text-white font-medium">
-                {t('settings.theme')}
-              </span>
+          <div className="flex items-center justify-between p-5 hover:bg-white/5 transition-colors">
+            <div className="flex items-center gap-4">
+              <div className={`p-3 rounded-full ${theme === 'dark' ? 'bg-indigo-500/10 text-indigo-400' : 'bg-amber-500/10 text-amber-600'}`}>
+                 {theme === 'light' ? <Sun className="h-6 w-6" /> : <Moon className="h-6 w-6" />}
+              </div>
+              <div>
+                  <span className="block text-base font-bold text-foreground">
+                    {t('settings.theme')}
+                  </span>
+                  <span className="text-xs text-muted-foreground font-medium">
+                    {theme === 'light' ? t('settings.lightMode') : t('settings.darkMode')}
+                  </span>
+              </div>
             </div>
-            <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-2xl border border-slate-200 dark:border-slate-700 relative">
+            
+            <div className="flex bg-secondary p-1 rounded-xl border border-border/50 relative isolate">
               <button
                 onClick={() => setTheme('light')}
-                className={`relative z-10 flex-1 px-4 py-2 rounded-xl text-sm font-black transition-all duration-300 flex items-center justify-center gap-2 ${
-                  theme === 'light' ? 'text-indigo-600' : 'text-slate-400 opacity-50'
+                className={`relative z-10 p-2 rounded-lg transition-all duration-300 ${
+                  theme === 'light' ? 'text-amber-600' : 'text-muted-foreground hover:text-foreground'
                 }`}
               >
-                <Sun size={18} />
-                {t('settings.lightMode')}
+                <Sun size={20} strokeWidth={2.5} />
               </button>
               <button
                 onClick={() => setTheme('dark')}
-                className={`relative z-10 flex-1 px-4 py-2 rounded-xl text-sm font-black transition-all duration-300 flex items-center justify-center gap-2 ${
-                  theme === 'dark' ? 'text-indigo-400' : 'text-slate-500 opacity-50'
+                className={`relative z-10 p-2 rounded-lg transition-all duration-300 ${
+                  theme === 'dark' ? 'text-indigo-400' : 'text-muted-foreground hover:text-foreground'
                 }`}
               >
-                <Moon size={18} />
-                {t('settings.darkMode')}
+                <Moon size={20} strokeWidth={2.5} />
               </button>
-              {/* Slider overlay */}
+              {/* Active Pill */}
               <div 
-                className={`absolute inset-y-1 w-[calc(50%-4px)] bg-white dark:bg-slate-700 shadow-xl rounded-xl transition-all duration-500 ease-spring ${
-                  theme === 'dark' ? 'left-[calc(50%+2px)]' : 'left-1'
+                className={`absolute inset-y-1 w-[calc(50%-4px)] bg-background shadow-sm rounded-lg transition-all duration-500 ease-spring ${
+                  theme === 'dark' ? 'translate-x-full left-1' : 'left-1'
                 }`}
               />
             </div>
           </div>
 
           {/* Language Toggle */}
-          <div className="flex items-center justify-between p-4">
-            <div className="flex items-center gap-3">
-              <Globe className="h-5 w-5 text-emerald-500" />
-              <span className="text-gray-900 dark:text-white font-medium">
+          <div className="flex items-center justify-between p-5 hover:bg-white/5 transition-colors">
+            <div className="flex items-center gap-4">
+              <div className="p-3 rounded-full bg-emerald-500/10 text-emerald-500">
+                 <Globe className="h-6 w-6" />
+              </div>
+              <span className="text-base font-bold text-foreground">
                 {t('settings.language')}
               </span>
             </div>
-            <div className="flex rounded-lg overflow-hidden border border-gray-200 dark:border-gray-600">
+            <div className="flex gap-2">
               <button
                 onClick={() => setLocale('en')}
-                className={`px-3 py-1.5 text-sm font-medium transition-colors ${
+                className={`px-4 py-2 text-sm font-bold rounded-xl transition-all border ${
                   locale === 'en'
-                    ? 'bg-indigo-600 text-white'
-                    : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600'
+                    ? 'bg-primary/10 border-primary/20 text-primary'
+                    : 'bg-transparent border-transparent text-muted-foreground hover:bg-secondary'
                 }`}
               >
-                {t('settings.langEn')}
+                EN
               </button>
               <button
                 onClick={() => setLocale('th')}
-                className={`px-3 py-1.5 text-sm font-medium transition-colors ${
+                className={`px-4 py-2 text-sm font-bold rounded-xl transition-all border ${
                   locale === 'th'
-                    ? 'bg-indigo-600 text-white'
-                    : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600'
+                    ? 'bg-primary/10 border-primary/20 text-primary'
+                    : 'bg-transparent border-transparent text-muted-foreground hover:bg-secondary'
                 }`}
               >
-                {t('settings.langTh')}
+                TH
               </button>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Security Section (Passkeys) */}
-      <section className="space-y-3">
-        <h2 className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+      {/* Security Island */}
+      <section className="space-y-4">
+        <h2 className="text-xs font-bold text-muted-foreground uppercase tracking-widest px-1">
           Security
         </h2>
-        <div className="bg-gray-50 dark:bg-gray-800/50 rounded-xl p-4 space-y-4">
-            <div className="flex items-start gap-3">
-                <div className="p-2 bg-indigo-100 dark:bg-indigo-900/30 rounded-lg">
-                    <Fingerprint className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
+        <div className="glass-panel p-5 rounded-3xl space-y-4">
+            <div className="flex items-start gap-4">
+                <div className="p-3 bg-purple-500/10 rounded-full text-purple-500">
+                    <Fingerprint className="h-6 w-6" />
                 </div>
                 <div className="flex-1 space-y-1">
-                    <p className="text-gray-900 dark:text-white font-medium">Passkeys</p>
-                    <p className="text-gray-500 dark:text-gray-400 text-sm">
-                        Use your fingerprint, face, or screen lock to sign in faster.
+                    <p className="text-base font-bold text-foreground">Passkeys</p>
+                    <p className="text-sm text-muted-foreground leading-relaxed">
+                        Secure your account with biometric authentication (FaceID, TouchID).
                     </p>
                 </div>
             </div>
             
             {passkeyMsg && (
-                <div className={`p-3 rounded-lg text-sm font-medium flex items-center gap-2 ${
-                    passkeyMsg.type === 'success' ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-700'
+                <div className={`p-4 rounded-xl text-sm font-bold flex items-center gap-3 animate-in slide-in-from-top-2 ${
+                    passkeyMsg.type === 'success' 
+                        ? 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20' 
+                        : 'bg-destructive/10 text-destructive border border-destructive/20'
                 }`}>
-                    <ShieldCheck className="h-4 w-4" />
+                    <ShieldCheck className="h-5 w-5 shrink-0" />
                     {passkeyMsg.text}
                 </div>
             )}
@@ -196,39 +201,50 @@ export default function SettingsPage() {
             <button
                 onClick={handleAddPasskey}
                 disabled={passkeyLoading}
-                className="w-full py-2.5 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white font-bold text-sm shadow-sm hover:bg-gray-50 dark:hover:bg-gray-600 transition-all active:scale-[0.98] disabled:opacity-50"
+                className="w-full btn-primary-glow py-4 rounded-xl font-bold flex items-center justify-center gap-2 group"
             >
-                {passkeyLoading ? 'Processing...' : 'Add Passkey'}
+                {passkeyLoading ? (
+                    'Processing...' 
+                ) : (
+                    <>
+                        Add New Passkey
+                        <ChevronRight className="h-4 w-4 opacity-50 group-hover:translate-x-1 transition-transform" />
+                    </>
+                )}
             </button>
         </div>
       </section>
 
-      {/* Account Section */}
-      <section className="space-y-3">
-        <h2 className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+      {/* Account Island */}
+      <section className="space-y-4">
+        <h2 className="text-xs font-bold text-muted-foreground uppercase tracking-widest px-1">
           {t('settings.account')}
         </h2>
-        <div className="bg-gray-50 dark:bg-gray-800/50 rounded-xl overflow-hidden divide-y divide-gray-100 dark:divide-gray-700/50">
+        <div className="glass-panel overflow-hidden rounded-3xl divide-y divide-border/50">
           {/* Logout */}
           <button
             onClick={handleLogout}
             disabled={isLoggingOut}
-            className="w-full flex items-center gap-3 p-4 text-left hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-colors disabled:opacity-50"
+            className="w-full flex items-center gap-4 p-5 text-left hover:bg-white/5 transition-colors disabled:opacity-50"
           >
-            <LogOut className="h-5 w-5 text-gray-500" />
-            <span className="text-gray-900 dark:text-white font-medium">
+            <div className="p-3 rounded-full bg-secondary text-muted-foreground">
+                <LogOut className="h-6 w-6" />
+            </div>
+            <span className="flex-1 text-base font-bold text-foreground">
               {isLoggingOut ? t('app.processing') : t('app.logout')}
             </span>
-            {isLoggingOut && <div className="ml-auto w-4 h-4 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" />}
+            {isLoggingOut && <div className="ml-auto w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin" />}
           </button>
 
           {/* Delete Account */}
           <button
             onClick={() => setShowDeleteModal(true)}
-            className="w-full flex items-center gap-3 p-4 text-left hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors group"
+            className="w-full flex items-center gap-4 p-5 text-left hover:bg-destructive/5 transition-colors group"
           >
-            <Trash2 className="h-5 w-5 text-red-500" />
-            <span className="text-red-600 dark:text-red-400 font-medium">
+            <div className="p-3 rounded-full bg-destructive/10 text-destructive group-hover:scale-110 transition-transform">
+                <Trash2 className="h-6 w-6" />
+            </div>
+            <span className="text-base font-bold text-destructive group-hover:translate-x-1 transition-transform">
               {t('settings.deleteAccount')}
             </span>
           </button>
@@ -236,60 +252,69 @@ export default function SettingsPage() {
       </section>
       
       {/* Version Footer */}
-      <div className="text-center pt-8 pb-4">
-        <p className="text-xs font-mono text-slate-400 dark:text-slate-600 opacity-60">
-            v{process.env.NEXT_PUBLIC_APP_VERSION || '0.0.0-dev'}
+      <div className="text-center pt-8">
+        <p className="text-xs font-mono font-bold text-muted-foreground/30 uppercase tracking-widest">
+            Restock v{process.env.NEXT_PUBLIC_APP_VERSION || '1.0.0'}
         </p>
       </div>
 
       {/* Delete Account Modal */}
       {showDeleteModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 w-full max-w-sm shadow-xl">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-bold text-gray-900 dark:text-white">
-                {t('settings.confirmDeleteTitle')}
-              </h3>
-              <button
-                onClick={() => {
-                  setShowDeleteModal(false);
-                  setDeleteConfirmText('');
-                }}
-                className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg"
-              >
-                <X className="h-5 w-5 text-gray-500" />
-              </button>
-            </div>
-            <p className="text-gray-600 dark:text-gray-400 text-sm mb-4">
-              {t('settings.confirmDeleteDesc')}
-            </p>
-            <p className="text-gray-600 dark:text-gray-400 text-sm mb-2">
-              {t('settings.typeToDelete')}
-            </p>
-            <input
-              type="text"
-              value={deleteConfirmText}
-              onChange={(e) => setDeleteConfirmText(e.target.value)}
-              placeholder={t('settings.deletePlaceholder')}
-              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white mb-4 focus:ring-2 focus:ring-red-500 focus:border-transparent"
-            />
-            <div className="flex gap-3">
-              <button
-                onClick={() => {
-                  setShowDeleteModal(false);
-                  setDeleteConfirmText('');
-                }}
-                className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 font-medium hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-              >
-                {t('settings.cancel')}
-              </button>
-              <button
-                onClick={handleDeleteAccount}
-                disabled={deleteConfirmText !== 'DELETE' || isDeleting}
-                className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg font-medium hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {isDeleting ? t('settings.deleting') : t('settings.confirm')}
-              </button>
+        <div className="fixed inset-0 z-100 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-background/80 backdrop-blur-xl animate-in fade-in" onClick={() => setShowDeleteModal(false)} />
+          
+          <div className="relative w-full max-w-sm glass-card p-1 rounded-[2rem] animate-in zoom-in-95 duration-300 shadow-2xl">
+            <div className="bg-background/80 backdrop-blur-lg rounded-[1.8rem] p-6 space-y-6 border border-white/10">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-xl font-bold text-destructive">
+                    {t('settings.confirmDeleteTitle')}
+                  </h3>
+                  <button
+                    onClick={() => {
+                      setShowDeleteModal(false);
+                      setDeleteConfirmText('');
+                    }}
+                    className="p-2 hover:bg-secondary rounded-full transition-colors"
+                  >
+                    <X className="h-5 w-5 text-muted-foreground" />
+                  </button>
+                </div>
+                
+                <div className="space-y-4">
+                    <p className="text-muted-foreground font-medium leading-relaxed">
+                      {t('settings.confirmDeleteDesc')}
+                    </p>
+                    
+                    <div className="space-y-2">
+                        <label className="text-xs font-bold text-muted-foreground uppercase opacity-70">{t('settings.typeToDelete')}</label>
+                        <input
+                          type="text"
+                          value={deleteConfirmText}
+                          onChange={(e) => setDeleteConfirmText(e.target.value)}
+                          placeholder={t('settings.deletePlaceholder')}
+                          className="w-full px-4 py-3 border border-border bg-secondary/50 rounded-xl text-foreground font-bold focus:ring-2 focus:ring-destructive/50 focus:border-destructive outline-none transition-all placeholder:font-normal"
+                        />
+                    </div>
+                </div>
+
+                <div className="flex gap-3 pt-2">
+                  <button
+                    onClick={() => {
+                      setShowDeleteModal(false);
+                      setDeleteConfirmText('');
+                    }}
+                    className="flex-1 px-4 py-3 rounded-xl font-bold text-muted-foreground hover:bg-secondary transition-colors"
+                  >
+                    {t('settings.cancel')}
+                  </button>
+                  <button
+                    onClick={handleDeleteAccount}
+                    disabled={deleteConfirmText !== 'DELETE' || isDeleting}
+                    className="flex-1 px-4 py-3 bg-destructive text-destructive-foreground rounded-xl font-bold hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-destructive/20"
+                  >
+                    {isDeleting ? t('settings.deleting') : t('settings.confirm')}
+                  </button>
+                </div>
             </div>
           </div>
         </div>

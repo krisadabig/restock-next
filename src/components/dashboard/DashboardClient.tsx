@@ -8,7 +8,7 @@ import DeleteEntryModal from './DeleteEntryModal';
 import TimelineModal from './TimelineModal';
 import ManageInventoryModal from './ManageInventoryModal';
 import { useRouter } from 'next/navigation';
-import { Search, Edit2, Trash2, Calendar, ChevronDown, CloudOff, History } from 'lucide-react';
+import { Search, Edit2, Trash2, Calendar, ChevronDown, CloudOff, History, Package } from 'lucide-react';
 import { useOffline } from '@/components/providers/OfflineContext';
 import { useUI } from '@/components/providers/UIContext';
 import { getEntriesCache, getPendingMutations } from '@/lib/idb';
@@ -51,7 +51,7 @@ export default function DashboardClient({
   const [searchQuery, setSearchQuery] = useState('');
   const [filterMonth, setFilterMonth] = useState<string>('all');
   
-  // Modal states (using strings/objects for lazy load references)
+  // Modal states
   const [activeModal, setActiveModal] = useState<'add' | 'edit' | 'delete' | 'timeline' | 'manage' | null>(null);
   const [selectedEntry, setSelectedEntry] = useState<Entry | null>(null);
   const [selectedInventory, setSelectedInventory] = useState<InventoryItem | null>(null);
@@ -59,11 +59,11 @@ export default function DashboardClient({
   
   const [isUpdatingStatus, setIsUpdatingStatus] = useState<string | null>(null);
 
-  // Refs for tracking hydration/refresh state to prevent loops
+  // Refs
   const processedActionRef = useRef(lastAction);
   const hasAttemptedHydrationRef = useRef(false);
 
-  // Sync Global Context to Local State for Add Modal
+  // Sync Global Context
   useEffect(() => {
     if (isAddModalOpen) {
         setActiveModal('add');
@@ -75,19 +75,15 @@ export default function DashboardClient({
   // Hydrate & Merge Mutations
   useEffect(() => {
     const hydrate = async () => {
-        // 1. Get Base Entries (Server or Cache)
         let baseEntries = initialEntries;
         
-        // If server entries empty (offline/error), try cache
         if (baseEntries.length === 0) {
              const cached = await getEntriesCache();
              if (cached.length > 0) baseEntries = cached;
         } else {
-             // If we have server entries, update cache
              await refreshCache(initialEntries);
         }
 
-        // 2. Apply Pending Mutations (Optimistic UI)
         const mutations = await getPendingMutations();
         let optimisticEntries = [...baseEntries];
 
@@ -105,11 +101,8 @@ export default function DashboardClient({
             }
         }
 
-        // Sort by date desc
         setEntries(optimisticEntries.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()));
         
-        // Re-Sync check (PWA fix): If online but data was from cache (or new sync action occurred)
-        // Prevent infinite loop by checking refs
         const shouldRefresh = isOnline && (
             (initialEntries.length === 0 && !hasAttemptedHydrationRef.current) || 
             (lastAction > 0 && lastAction > processedActionRef.current)
@@ -118,7 +111,6 @@ export default function DashboardClient({
         if (shouldRefresh) {
            hasAttemptedHydrationRef.current = true;
            processedActionRef.current = lastAction;
-           // Small delay to ensure navigation is complete
            setTimeout(() => router.refresh(), 100);
         }
     };
@@ -134,7 +126,6 @@ export default function DashboardClient({
         const { toggleItemStatus } = await import('@/app/app/actions');
         await toggleItemStatus(item, newStatus as 'in-stock' | 'out-of-stock');
         
-        // Optimistic update
         setInventory(prev => prev.map(inv => 
             inv.item === item ? { ...inv, status: newStatus } : inv
         ));
@@ -145,7 +136,6 @@ export default function DashboardClient({
     }
   };
 
-  // Derived data
   const filteredEntries = useMemo(() => {
     return entries.filter(entry => {
       const matchesSearch = entry.item.toLowerCase().includes(searchQuery.toLowerCase());
@@ -160,44 +150,45 @@ export default function DashboardClient({
   }, [entries]);
 
   return (
-    <div className="p-6 pb-24 space-y-6">
-        <header className="flex justify-between items-center animate-in slide-in-from-top-4 duration-1000">
+    <div className="pb-32 space-y-6">
+        {/* Sticky Header with Blur */}
+        <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-xl border-b border-border/50 px-6 py-4 flex justify-between items-center transition-all duration-300">
             <div>
-                <h1 className="text-3xl font-black tracking-tight text-slate-900 dark:text-white uppercase">
+                <h1 className="text-2xl font-black tracking-tight text-foreground font-heading">
                     {t('app.title')}
                 </h1>
-                <p className="text-xs font-bold text-indigo-500 uppercase tracking-widest">{t('app.subtitle')}</p>
+                <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{t('app.subtitle')}</p>
             </div>
             <div className="flex items-center gap-3">
                 {!isOnline && (
-                    <div className="bg-slate-100 dark:bg-slate-800 text-slate-500 p-2 rounded-full animate-pulse">
-                        <CloudOff size={20} />
+                    <div className="bg-amber-500/10 text-amber-500 p-2 rounded-full animate-pulse border border-amber-500/20">
+                        <CloudOff size={18} />
                     </div>
                 )}
-                <div className="btn-premium h-11 w-11 rounded-2xl flex items-center justify-center font-black shadow-lg text-lg transform active:scale-90 transition-transform">
+                <div className="bg-primary/10 text-primary h-10 w-10 rounded-xl flex items-center justify-center font-black text-sm border border-primary/20 shadow-sm">
                     {filteredEntries.length}
                 </div>
             </div>
         </header>
 
         {/* Search & Filter Bar */}
-        <div className="flex flex-col sm:flex-row gap-3 animate-in fade-in duration-700 delay-200">
-            <div className="relative flex-1">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+        <div className="px-6 flex flex-col sm:flex-row gap-3">
+            <div className="relative flex-1 group">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground group-focus-within:text-primary transition-colors" size={18} />
                 <input 
                     type="text"
                     placeholder="Search items..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full pl-11 pr-4 py-3 bg-white dark:bg-slate-900 border-0 rounded-2xl shadow-sm focus:ring-2 focus:ring-indigo-500 transition-all dark:text-white dark:placeholder-slate-500"
+                    className="w-full pl-11 pr-4 py-3 bg-secondary/50 border border-transparent focus:border-primary/30 focus:bg-secondary focus:ring-0 rounded-2xl transition-all placeholder:text-muted-foreground/70"
                 />
             </div>
             <div className="relative">
-                <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={18} />
+                <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" size={18} />
                 <select 
                     value={filterMonth}
                     onChange={(e) => setFilterMonth(e.target.value)}
-                    className="appearance-none pl-11 pr-10 py-3 bg-white dark:bg-slate-900 border-0 rounded-2xl shadow-sm focus:ring-2 focus:ring-indigo-500 transition-all dark:text-white cursor-pointer min-w-40"
+                    className="appearance-none pl-11 pr-10 py-3 bg-secondary/50 border border-transparent focus:border-primary/30 focus:bg-secondary focus:ring-0 rounded-2xl transition-all cursor-pointer min-w-40"
                 >
                     <option value="all">All Time</option>
                     {months.map(m => (
@@ -206,135 +197,118 @@ export default function DashboardClient({
                         </option>
                     ))}
                 </select>
-                <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={16} />
+                <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" size={16} />
             </div>
         </div>
 
-        {filteredEntries.length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-64 text-slate-400">
-                <p>{searchQuery || filterMonth !== 'all' ? 'No items found matching criteria' : t('app.addFirst')}</p>
-            </div>
-        ) : (
-              <div className="space-y-4">
-                 {filteredEntries.map(entry => (
-                     <div key={entry.id} className="glass p-5 rounded-3xl flex justify-between items-center transition-all duration-300 hover:scale-[1.01] group relative">
-                         <div className="flex flex-col gap-1 pr-4">
-                              <div className="flex items-center gap-2">
-                                  <h3 className="font-exhibit font-bold text-base text-slate-800 dark:text-slate-100 group-hover:text-indigo-500 transition-colors uppercase tracking-tight">{entry.item}</h3>
-                                  {inventory.find(inv => inv.item === entry.item) && (
-                                     <div className="flex items-center gap-1.5">
-                                         <button 
-                                            disabled={isUpdatingStatus === entry.item}
-                                            onClick={() => handleToggleStatus(entry.item, inventory.find(inv => inv.item === entry.item)!.status)}
-                                            className={`text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-tighter shadow-sm transition-all active:scale-95 ${
-                                                inventory.find(inv => inv.item === entry.item)?.status === 'in-stock'
-                                                ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20'
-                                                : 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20'
-                                            } ${isUpdatingStatus === entry.item ? 'animate-pulse opacity-50' : ''}`}
-                                         >
-                                             {inventory.find(inv => inv.item === entry.item)?.status === 'in-stock' ? 'In Stock' : 'Out of Stock'}
-                                         </button>
-                                         <button 
-                                            onClick={() => {
-                                                setSelectedInventory(inventory.find(inv => inv.item === entry.item)!);
-                                                setActiveModal('manage');
-                                            }}
-                                            className="text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-tighter bg-indigo-500/10 text-indigo-500 border border-indigo-500/20 hover:bg-indigo-500 hover:text-white transition-all shadow-sm active:scale-90"
-                                         >
-                                            {inventory.find(inv => inv.item === entry.item)?.quantity} {inventory.find(inv => inv.item === entry.item)?.unit}
-                                         </button>
-                                     </div>
-                                  )}
-                              </div>
-                              <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">
-                                 {new Date(entry.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
-                              </p>
-                              {entry.note && (
-                                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 line-clamp-1 italic">{entry.note}</p>
-                              )}
-                          </div>
-                              <div className="flex items-center gap-4">
-                                  <div className="text-lg font-black text-indigo-600 dark:text-indigo-400 bg-indigo-500/10 px-4 py-2 rounded-2xl">
-                                      ฿{entry.price.toLocaleString()}
-                                  </div>
-                                  
-                                  {/* Actions (visible on hover for desktop, or icons for mobile) */}
-                                  <div className="flex items-center gap-1 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity">
+        {/* List Content */}
+        <div className="px-6">
+            {filteredEntries.length === 0 ? (
+                <div className="flex flex-col items-center justify-center h-64 text-muted-foreground bg-secondary/20 rounded-3xl border border-dashed border-border">
+                    <Package size={48} className="text-muted-foreground/20 mb-4" />
+                    <p className="font-medium">{searchQuery || filterMonth !== 'all' ? 'No items found' : t('app.addFirst')}</p>
+                </div>
+            ) : (
+                  <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                     {filteredEntries.map(entry => (
+                         <div key={entry.id} className="glass-card p-5 rounded-3xl flex flex-col gap-4 group relative overflow-hidden">
+                             {/* Top Row: Title & Price */}
+                             <div className="flex justify-between items-start">
+                                 <div className="flex-1 pr-2">
+                                     <h3 className="font-heading font-bold text-lg text-foreground leading-tight">{entry.item}</h3>
+                                     <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mt-1">
+                                        {new Date(entry.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+                                     </p>
+                                 </div>
+                                 <div className="text-lg font-black text-primary bg-primary/5 px-3 py-1 rounded-xl">
+                                     ฿{entry.price.toLocaleString()}
+                                 </div>
+                             </div>
+
+                             {entry.note && (
+                                  <p className="text-xs text-muted-foreground line-clamp-2 bg-secondary/50 p-2 rounded-lg -mt-2">
+                                    &quot;{entry.note}&quot;
+                                  </p>
+                             )}
+
+                             {/* Bottom Row: Actions & Badges (Mobile Optimized) */}
+                             <div className="flex items-center justify-between pt-2 border-t border-border/50">
+                                 {/* Badges Container */}
+                                 <div className="flex flex-wrap gap-2 items-center">
+                                      {inventory.find(inv => inv.item === entry.item) && (
+                                         <>
+                                             <button 
+                                                disabled={isUpdatingStatus === entry.item}
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    handleToggleStatus(entry.item, inventory.find(inv => inv.item === entry.item)!.status);
+                                                }}
+                                                className={`text-[10px] font-black px-2.5 py-1 rounded-lg uppercase tracking-wider transition-all active:scale-95 flex items-center gap-1.5 ${
+                                                    inventory.find(inv => inv.item === entry.item)?.status === 'in-stock'
+                                                    ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20'
+                                                    : 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20'
+                                                } ${isUpdatingStatus === entry.item ? 'animate-pulse opacity-50' : ''}`}
+                                             >
+                                                 <span className={`h-1.5 w-1.5 rounded-full ${inventory.find(inv => inv.item === entry.item)?.status === 'in-stock' ? 'bg-emerald-500' : 'bg-rose-500'}`} />
+                                                 {inventory.find(inv => inv.item === entry.item)?.status === 'in-stock' ? 'In Stock' : 'Out'}
+                                             </button>
+                                             <button 
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    setSelectedInventory(inventory.find(inv => inv.item === entry.item)!);
+                                                    setActiveModal('manage');
+                                                }}
+                                                className="text-[10px] font-black px-2.5 py-1 rounded-lg uppercase tracking-wider bg-secondary text-secondary-foreground border border-border hover:bg-primary hover:text-primary-foreground hover:border-primary transition-colors active:scale-95"
+                                             >
+                                                {inventory.find(inv => inv.item === entry.item)?.quantity} {inventory.find(inv => inv.item === entry.item)?.unit}
+                                             </button>
+                                         </>
+                                      )}
+                                 </div>
+                                 
+                                 {/* Action Buttons */}
+                                 <div className="flex items-center gap-1">
                                     <button 
                                         onClick={() => {
                                             setTimelineItem(entry.item);
                                             setActiveModal('timeline');
                                         }}
-                                        className="h-11 w-11 flex items-center justify-center text-slate-400 hover:text-indigo-500 hover:bg-indigo-50/50 dark:hover:bg-indigo-900/20 rounded-xl transition-all active:scale-90"
-                                        title="View History"
-                                        aria-label="View History"
+                                        className="h-8 w-8 flex items-center justify-center text-muted-foreground hover:text-primary hover:bg-primary/10 rounded-lg transition-colors active:scale-90"
                                     >
-                                        <History size={20} />
+                                        <History size={16} />
                                     </button>
                                     <button 
                                         onClick={() => {
                                             setSelectedEntry(entry);
                                             setActiveModal('edit');
                                         }}
-                                        className="h-11 w-11 flex items-center justify-center text-slate-400 hover:text-indigo-500 hover:bg-indigo-50/50 dark:hover:bg-indigo-900/20 rounded-xl transition-all active:scale-90"
-                                        title="Edit"
-                                        aria-label="Edit"
+                                        className="h-8 w-8 flex items-center justify-center text-muted-foreground hover:text-primary hover:bg-primary/10 rounded-lg transition-colors active:scale-90"
                                     >
-                                        <Edit2 size={20} />
+                                        <Edit2 size={16} />
                                     </button>
                                     <button 
                                         onClick={() => {
                                             setSelectedEntry(entry);
                                             setActiveModal('delete');
                                         }}
-                                        className="h-11 w-11 flex items-center justify-center text-slate-400 hover:text-red-500 hover:bg-red-50/50 dark:hover:bg-red-900/20 rounded-xl transition-all disabled:opacity-50 active:scale-90"
-                                        title="Delete"
-                                        aria-label="Delete"
+                                        className="h-8 w-8 flex items-center justify-center text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-lg transition-colors active:scale-90"
                                     >
-                                        <Trash2 size={20} />
+                                        <Trash2 size={16} />
                                     </button>
-                                  </div>
-                              </div>
-                      </div>
-                  ))}
-               </div>
-         )}
+                                 </div>
+                             </div>
+                         </div>
+                     ))}
+                  </div>
+            )}
+        </div>
 
-        {/* MODALS - LAZY RENDERED */}
-        {activeModal === 'add' && (
-            <AddEntryModal isOpen={true} onClose={() => setAddModalOpen(false)} />
-        )}
-        
-        {activeModal === 'edit' && selectedEntry && (
-            <EditEntryModal 
-                entry={selectedEntry} 
-                onClose={() => { setActiveModal(null); setSelectedEntry(null); }} 
-            />
-        )}
-
-        {activeModal === 'delete' && selectedEntry && (
-            <DeleteEntryModal 
-                entry={selectedEntry} 
-                onClose={() => { setActiveModal(null); setSelectedEntry(null); }} 
-            />
-        )}
-
-        {activeModal === 'timeline' && timelineItem && (
-            <TimelineModal 
-                isOpen={true} 
-                onCloseAction={() => { setActiveModal(null); setTimelineItem(null); }} 
-                itemName={timelineItem} 
-                entries={entries} 
-            />
-        )}
-
-        {activeModal === 'manage' && selectedInventory && (
-            <ManageInventoryModal
-                isOpen={true}
-                onClose={() => { setActiveModal(null); setSelectedInventory(null); }}
-                inventoryItem={selectedInventory}
-            />
-        )}
+        {/* MODALS */}
+        {activeModal === 'add' && <AddEntryModal isOpen={true} onClose={() => setAddModalOpen(false)} />}
+        {activeModal === 'edit' && selectedEntry && <EditEntryModal entry={selectedEntry} onClose={() => { setActiveModal(null); setSelectedEntry(null); }} />}
+        {activeModal === 'delete' && selectedEntry && <DeleteEntryModal entry={selectedEntry} onClose={() => { setActiveModal(null); setSelectedEntry(null); }} />}
+        {activeModal === 'timeline' && timelineItem && <TimelineModal isOpen={true} onCloseAction={() => { setActiveModal(null); setTimelineItem(null); }} itemName={timelineItem} entries={entries} />}
+        {activeModal === 'manage' && selectedInventory && <ManageInventoryModal isOpen={true} onClose={() => { setActiveModal(null); setSelectedInventory(null); }} inventoryItem={selectedInventory} />}
     </div>
   );
 }

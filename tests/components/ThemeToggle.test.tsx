@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, cleanup } from '@testing-library/react';
 import ThemeToggle from '@/components/ThemeToggle';
+import { ThemeProvider } from 'next-themes';
 import { afterEach } from 'vitest';
 
 // Mock localStorage
@@ -47,14 +48,22 @@ describe('ThemeToggle', () => {
         cleanup();
     });
 
-    it('should render successfully', () => {
-        render(<ThemeToggle />);
-        expect(screen.getByRole('button')).toBeDefined();
+    it('should render successfully', async () => {
+        render(
+            <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+                <ThemeToggle />
+            </ThemeProvider>
+        );
+        expect(await screen.findByRole('button')).toBeDefined();
     });
 
     it('should toggle theme classes on html element', async () => {
-        render(<ThemeToggle />);
-        const button = screen.getByRole('button');
+        render(
+            <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
+                <ThemeToggle />
+            </ThemeProvider>
+        );
+        const button = await screen.findByRole('button');
 
         // Initial state is light (default) so no dark class
         expect(document.documentElement.classList.contains('dark')).toBe(false);

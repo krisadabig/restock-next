@@ -175,6 +175,14 @@
     - [x] Add smooth transitions and micro-animations <!-- id: 43 -->
     - [x] Improve empty states and loading skeletons <!-- id: 44 -->
     - [x] Ensure consistent spacing and typography <!-- id: 45 -->
+
+# Phase 27: Ultimate UI Revamp (Premium PWA)
+- [/] UI Redesign & Mobile Fixes <!-- id: ui-revamp -->
+    - [ ] Implement "Deep Glass" Design System (Colors, Fonts, Globals) <!-- id: ui-ds -->
+    - [ ] Redesign Dashboard List (Card Layout + Fix Overlap) <!-- id: ui-dashboard -->
+    - [ ] Revamp Bottom Navigation (Floating Glass) <!-- id: ui-nav -->
+    - [ ] Polish Login & Settings Pages <!-- id: ui-pages -->
+    - [ ] Verify Mobile Responsiveness & Aesthetics <!-- id: ui-verify -->
 - [x] Application Specification & Spec Workflow <!-- id: 46 -->
     - [x] Create `.agent/spec.md` with tech stack and core logic <!-- id: 47 -->
     - [x] Update `/resume` workflow to include spec check <!-- id: 48 -->

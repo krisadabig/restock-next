@@ -35,28 +35,29 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-white dark:bg-black transition-colors duration-500 overflow-hidden relative flex items-center justify-center p-4">
+    <div className="min-h-screen bg-background relative flex items-center justify-center p-4 overflow-hidden">
         {/* Floating Guest Controls */}
-        <div className="fixed top-6 right-6 z-50 flex gap-2">
-            <div className="glass p-1 rounded-2xl flex gap-1 shadow-2xl scale-90 sm:scale-100 origin-right transition-all">
+        <div className="fixed top-6 right-6 z-50 flex gap-2 animate-in fade-in duration-1000 delay-500">
+            <div className="glass-panel p-1.5 rounded-full flex gap-1 shadow-2xl">
                 <ThemeToggle />
-                <div className="w-px bg-white/10 mx-1" />
+                <div className="w-px bg-border mx-1" />
                 <LanguageToggle />
             </div>
         </div>
         
         {/* Background Elements */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
-            <div className="absolute -top-24 -left-24 w-96 h-96 bg-indigo-500/10 dark:bg-indigo-500/5 rounded-full blur-3xl"></div>
-            <div className="absolute -bottom-24 -right-24 w-96 h-96 bg-purple-500/10 dark:bg-purple-500/5 rounded-full blur-3xl"></div>
+            <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-indigo-600/20 rounded-full blur-[120px] animate-float opacity-50" />
+            <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-purple-600/20 rounded-full blur-[120px] animate-float opacity-50" style={{ animationDelay: '-3s' }} />
         </div>
 
-        <div className="w-full max-w-sm relative z-10 space-y-8 animate-in fade-in slide-in-from-bottom-8 duration-1000">
-            <div className="text-center space-y-2">
-                <div className="inline-flex items-center justify-center p-3 rounded-2xl bg-black dark:bg-white mb-4 shadow-2xl transform hover:scale-110 transition-transform duration-300">
+        <div className="w-full max-w-sm relative z-10 space-y-8 animate-in zoom-in-95 fade-in duration-700">
+            {/* Logo Section */}
+            <div className="text-center space-y-4">
+                <div className="inline-flex items-center justify-center p-4 rounded-3xl bg-linear-to-br from-indigo-500 to-purple-600 shadow-[0_0_40px_-10px_rgba(99,102,241,0.5)] transform hover:scale-110 transition-transform duration-500">
                     <svg
                         xmlns="http://www.w3.org/2000/svg"
-                        className="h-8 w-8 text-white dark:text-black"
+                        className="h-10 w-10 text-white"
                         viewBox="0 0 24 24"
                         fill="none"
                         stroke="currentColor"
@@ -67,115 +68,133 @@ export default function LoginPage() {
                         <path d="m21 21-4.3-4.3" /><circle cx="10" cy="10" r="7" /><path d="M10 7v3m0 0v3m0-3h3m-3 0H7" />
                     </svg>
                 </div>
-                <h1 className="text-4xl font-black tracking-tight text-black dark:text-white sm:text-5xl">
-                    Restock<span className="text-indigo-600">.</span>
-                </h1>
-                <p className="text-gray-400 dark:text-gray-500 font-medium">
-                    {isSignup ? t('app.signupSubtitle') : t('app.loginSubtitle')}
-                </p>
-            </div>
-
-            <div className="flex p-1 bg-gray-100 dark:bg-gray-900 rounded-xl">
-                <button
-                    type="button"
-                    onClick={() => setMethod('password')}
-                    className={`flex-1 py-2 text-sm font-bold rounded-lg transition-all ${method === 'password'
-                        ? 'bg-white dark:bg-gray-800 text-black dark:text-white shadow-sm'
-                        : 'text-gray-500 hover:text-gray-700'}`}
-                >
-                    Password
-                </button>
-                <button
-                    type="button"
-                    onClick={() => setMethod('passkey')}
-                    className={`flex-1 py-2 text-sm font-bold rounded-lg transition-all ${method === 'passkey'
-                        ? 'bg-white dark:bg-gray-800 text-black dark:text-white shadow-sm'
-                        : 'text-gray-500 hover:text-gray-700'}`}
-                >
-                    Passkey
-                </button>
-            </div>
-
-            {method === 'password' ? (
-                <form action={isSignup ? signupAction : loginAction} className="space-y-4">
-                    <input
-                        name="username"
-                        type="text"
-                        required
-                        placeholder={t('app.username')}
-                        className="block w-full rounded-xl border-0 bg-gray-100 p-4 text-center text-lg font-semibold lowercase text-black placeholder:text-gray-300 focus:bg-white focus:ring-2 focus:ring-black dark:bg-gray-900 dark:text-white dark:placeholder:text-gray-700 transition-all shadow-sm"
-                    />
-                    
-                    <input
-                        name="password"
-                        type="password"
-                        required
-                        placeholder="password"
-                        className="block w-full rounded-xl border-0 bg-gray-100 p-4 text-center text-lg font-semibold text-black placeholder:text-gray-300 focus:bg-white focus:ring-2 focus:ring-black dark:bg-gray-900 dark:text-white dark:placeholder:text-gray-700 transition-all shadow-sm"
-                    />
-
-                    {error && (
-                        <div className="text-center text-sm font-medium text-red-500 animate-pulse">{error}</div>
-                    )}
-
-                    <button
-                        type="submit"
-                        disabled={loading}
-                        className="w-full rounded-xl bg-black py-3.5 text-base font-bold text-white transition-all hover:scale-[1.02] hover:shadow-xl dark:bg-white dark:text-black disabled:opacity-70"
-                    >
-                        {loading ? t('app.processing') : isSignup ? t('app.signup') : t('app.login')}
-                    </button>
-
-                    <button
-                        type="button"
-                        onClick={() => setIsSignup(!isSignup)}
-                        className="w-full py-2 text-sm font-medium text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-white transition-colors"
-                    >
-                        {isSignup ? 'Already have an account? Login' : "Don't have an account? Sign up"}
-                    </button>
-                </form>
-            ) : (
-                <div className="space-y-4 text-center py-4">
-                     <div className="p-4 bg-indigo-50 dark:bg-indigo-900/10 rounded-2xl mb-4">
-                         <div className="flex justify-center mb-3">
-                            <div className="p-3 bg-indigo-100 dark:bg-indigo-900/30 rounded-full">
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    className="h-8 w-8 text-indigo-600 dark:text-indigo-400"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                    stroke="currentColor"
-                                    strokeWidth={2}
-                                >
-                                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.131A8 8 0 008 4.07M3 15.364c.64-1.319 1-2.8 1-4.364 0-1.457.2-2.858.59-4.18" />
-                                </svg>
-                            </div>
-                         </div>
-                         <h3 className="font-bold text-gray-900 dark:text-white">Passkey Ready</h3>
-                         <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Use FaceID, TouchID or your security key to login instantly.</p>
-                     </div>
-
-                     {passkeyError && (
-                        <div className="text-center text-sm font-medium text-red-500 animate-pulse mb-4">{passkeyError}</div>
-                     )}
-
-                     <button
-                        type="button"
-                        onClick={handlePasskeyLogin}
-                        disabled={isPasskeyLoading}
-                        className="w-full rounded-xl bg-indigo-600 py-3.5 text-base font-bold text-white transition-all hover:bg-indigo-700 hover:scale-[1.02] hover:shadow-xl dark:bg-indigo-500 dark:hover:bg-indigo-400 disabled:opacity-70 flex items-center justify-center gap-2"
-                    >
-                        {isPasskeyLoading ? (
-                             <>
-                                <span className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></span>
-                                {t('app.processing')}
-                             </>
-                        ) : (
-                            "Log in with Passkey"
-                        )}
-                    </button>
+                <div>
+                    <h1 className="text-5xl font-black tracking-tighter text-foreground font-heading">
+                        Restock<span className="text-primary text-6xl">.</span>
+                    </h1>
+                    <p className="text-muted-foreground font-medium tracking-wide uppercase text-xs mt-2">
+                        {isSignup ? t('app.signupSubtitle') : t('app.loginSubtitle')}
+                    </p>
                 </div>
-            )}
+            </div>
+
+            {/* Auth Card */}
+            <div className="glass-card p-1 rounded-[2rem]">
+                <div className="bg-background/50 backdrop-blur-sm rounded-[1.8rem] p-6 space-y-6">
+                    {/* Method Toggle */}
+                    <div className="flex p-1 bg-secondary rounded-xl">
+                        <button
+                            type="button"
+                            onClick={() => setMethod('password')}
+                            className={`flex-1 py-2.5 text-sm font-bold rounded-lg transition-all ${method === 'password'
+                                ? 'bg-background text-foreground shadow-sm scale-[1.02]'
+                                : 'text-muted-foreground hover:text-foreground'}`}
+                        >
+                            Password
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => setMethod('passkey')}
+                            className={`flex-1 py-2.5 text-sm font-bold rounded-lg transition-all ${method === 'passkey'
+                                ? 'bg-background text-foreground shadow-sm scale-[1.02]'
+                                : 'text-muted-foreground hover:text-foreground'}`}
+                        >
+                            Passkey
+                        </button>
+                    </div>
+
+                    {method === 'password' ? (
+                        <form action={isSignup ? signupAction : loginAction} className="space-y-4">
+                            <div className="space-y-3">
+                                <input
+                                    name="username"
+                                    type="text"
+                                    required
+                                    placeholder={t('app.username')}
+                                    className="block w-full rounded-xl border border-border bg-secondary/50 p-4 text-center text-lg font-semibold placeholder:text-muted-foreground/50 focus:bg-background focus:border-primary focus:ring-1 focus:ring-primary transition-all outline-none"
+                                />
+                                
+                                <input
+                                    name="password"
+                                    type="password"
+                                    required
+                                    placeholder="••••••••"
+                                    className="block w-full rounded-xl border border-border bg-secondary/50 p-4 text-center text-lg font-semibold placeholder:text-muted-foreground/50 focus:bg-background focus:border-primary focus:ring-1 focus:ring-primary transition-all outline-none"
+                                />
+                            </div>
+
+                            {error && (
+                                <div className="text-center text-sm font-bold text-destructive animate-pulse bg-destructive/10 p-3 rounded-lg border border-destructive/20">
+                                    {error}
+                                </div>
+                            )}
+
+                            <button
+                                type="submit"
+                                disabled={loading}
+                                className="w-full btn-primary-glow h-14 rounded-xl text-lg font-bold"
+                            >
+                                {loading ? (
+                                    <span className="flex items-center justify-center gap-2">
+                                        <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                        {t('app.processing')}
+                                    </span>
+                                ) : isSignup ? t('app.signup') : t('app.login')}
+                            </button>
+
+                            <button
+                                type="button"
+                                onClick={() => setIsSignup(!isSignup)}
+                                className="w-full py-2 text-xs font-bold uppercase tracking-widest text-muted-foreground hover:text-primary transition-colors"
+                            >
+                                {isSignup ? 'Already have an account? Login' : "Don't have an account? Sign up"}
+                            </button>
+                        </form>
+                    ) : (
+                        <div className="space-y-6 text-center py-2">
+                             <div className="p-6 bg-linear-to-br from-indigo-500/10 to-purple-500/10 rounded-2xl border border-indigo-500/10 relative overflow-hidden group hover:border-indigo-500/30 transition-colors">
+                                 <div className="absolute inset-0 bg-indigo-500/5 blur-xl group-hover:bg-indigo-500/10 transition-colors" />
+                                 <div className="relative flex flex-col items-center">
+                                     <div className="p-4 bg-background rounded-full shadow-lg mb-4">
+                                         <svg
+                                             xmlns="http://www.w3.org/2000/svg"
+                                             className="h-8 w-8 text-primary"
+                                             fill="none"
+                                             viewBox="0 0 24 24"
+                                             stroke="currentColor"
+                                             strokeWidth={2}
+                                         >
+                                             <path strokeLinecap="round" strokeLinejoin="round" d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.131A8 8 0 008 4.07M3 15.364c.64-1.319 1-2.8 1-4.364 0-1.457.2-2.858.59-4.18" />
+                                         </svg>
+                                     </div>
+                                     <h3 className="font-bold text-foreground text-lg">Passkey Ready</h3>
+                                     <p className="text-xs text-muted-foreground mt-2 max-w-50">Use FaceID, TouchID or your security key to login instantly.</p>
+                                 </div>
+                             </div>
+        
+                             {passkeyError && (
+                                <div className="text-center text-sm font-bold text-destructive animate-pulse bg-destructive/10 p-3 rounded-lg border border-destructive/20">{passkeyError}</div>
+                             )}
+        
+                             <button
+                                type="button"
+                                onClick={handlePasskeyLogin}
+                                disabled={isPasskeyLoading}
+                                className="w-full btn-primary-glow h-14 rounded-xl text-lg font-bold flex items-center justify-center gap-2"
+                            >
+                                {isPasskeyLoading ? (
+                                     <>
+                                        <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                        {t('app.processing')}
+                                     </>
+                                ) : (
+                                    "Log in with Passkey"
+                                )}
+                            </button>
+                        </div>
+                    )}
+                </div>
+            </div>
         </div>
     </div>
   );

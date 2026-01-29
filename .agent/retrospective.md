@@ -1,4 +1,20 @@
+
 # Retrospective Log
+
+## [2026-01-30] Session: UI Polishing & Verification
+
+### Lessons Learned 🧠
+- **Tailwind 4 & PostCSS**: `CssSyntaxError` with `@apply` often comes from using non-standard utilities or complex variants (like `dark:`) directly in `@apply`. It's safer to use standard CSS nesting (`&:where(.dark, ...)`).
+- **Test Hydration**: Components that rely on client-side hydration (like `ThemeToggle`) must be tested with `findBy` (async) queries rather than `getBy` (sync) to allow for the mounting effect to clear.
+- **Provider Mocking**: Integration tests for components using libraries like `next-themes` require the component to be wrapped in the actual Provider during tests, rather than relying on global mocks that miss the side-effects (like class toggling).
+
+### Upgrades Implemented 🚀
+- **Robust Styling**: Refactored `globals.css` to use standard, nested CSS for complex variants, eliminating build fragility with Tailwind 4 parser.
+- **Visual Polish**: Implemented "Deep Glass" aesthetic across Login, Dashboard, and Settings pages.
+- **Test Reliability**: Updated `ThemeToggle` tests to be async-aware and properly wrapped, reducing flake.
+- **Browser Verification**: Used browser subagent to visually verify UI states, complementing automated tests.
+
+---
 
 ## [2026-01-29] Session: Inventory Quantity & PWA Fixes
 
