@@ -59,15 +59,16 @@ Failure to run the verification script constitutes a violation of project govern
 | **Governance Upgrade** | PASS | 2026-01-23T16:00:00 | Implemented Definition of Done rules and `verify-task` automation script. |
 | **Modal Positioning Fix** | PASS | 2026-01-25T04:42:00 | Fixed Edit and Delete modal positioning on mobile by adding createPortal. All modals now render to document.body. 7/7 tests pass (4 modal-positioning + 3 dashboard). Verified on iPhone 16 Pro. |
 | **Inventory Quantity & PWA Fix** | PASS | 2026-01-29T18:45:00 | Implemented quantity/unit tracking, management UI, and fixed PWA stale state. Verified manually & via Unit tests. E2E tests flaky (timeouts). |
+| **Bug Fix: Add Entry Interaction** | PASS | 2026-01-29T18:55:00 | Fixed `DashboardClient` to sync modal state with URL prop. Verified via single-worker E2E test. |
 
 ## Session Handoff / Next Steps
 **Current State**:
-- **Inventory System**: Detailed tracking (qty/unit) enabled. Management UI live.
-- **PWA**: Network-First navigation strategy live. Stale state bug fixed.
-- **Verification**: Manual verification confirmed. E2E smoke tests disabled due to local env instability.
+- **Critical Fix**: "Add Entry" button now works reliably on mobile/client transitions.
+- **Inventory System**: Stable and live.
+- **Verification**: Single-worker E2E tests are stable; full suite needs tuning.
 
 **Immediate Next Actions**:
 1. **[SEV2] Inventory Alerts**: Implement push notifications for "Out of Stock" items.
 2. **[SEV2] Data Portability**: Implement CSV Export in Settings.
-3. **[SEV3] E2E Test Stabilization**: Address timeouts in smoke tests.
+3. **[SEV3] E2E Test Stabilization**: Address timeouts in smoke tests (DB connection limits).
 
