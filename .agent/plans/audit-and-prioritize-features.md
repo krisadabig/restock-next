@@ -11,13 +11,16 @@ Analyze the current `restock-next` codebase to identify essential features, addr
 
 ## Proposed Priority List
 
-### 1. [High] DX Hardening (Process Leak Fix)
-- **Problem**: `vitest` and `playwright` processes hang indefinitely, requiring manual cleanup.
-- **Goal**: Ensure clean exit of all test runners.
+### 1. [High] Core Inventory System & SDD Workflow
+- **Goal**: Implement stateful tracking and formalize development process.
 - **Tasks**:
-    - Audit async hooks in `vitest.config.ts`.
-    - Check for unclosed DB connections in test setup/teardown.
-    - Update `verify-task.ts` to be more resilient.
+    - [x] Update `.agent/spec.md` with inventory schema.
+    - [x] Integrate "Spec Check" in `start-task.ts`.
+    - [x] Implement inventory table and auto-sync in `actions.ts`.
+    - [x] Create `TimelineModal` for item history.
+    - [x] Add stock status badges to `DashboardClient`.
+    - [x] Fix test runner hangs (Unit/Smoke).
+    - [x] Ensure 100% mocked unit tests.
 
 ### 2. [Medium] Data Portability (Export Features)
 - **Goal**: Allow users to backup and move their data.

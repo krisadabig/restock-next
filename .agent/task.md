@@ -159,6 +159,13 @@
 # Phase 24: Governance Fixes
 - [x] Commit pending lint fixes and manifest updates <!-- id: 135 -->
     
+# Phase 25: SDD Workflow & Inventory System
+
+- [x] Workflow Migration (SDD + TDD Integration) <!-- id: 136 -->
+- [x] DX Hardening (Process Leak Fix) <!-- id: 137 -->
+- [x] Core Inventory System (Phase 1: DB & Logic) <!-- id: 138 -->
+- [x] Inventory UI (Phase 2: Badges & Timeline) <!-- id: 139 -->
+
 # Phase 19: Data Portability
 
 - [ ] Export & Share <!-- id: 92 -->
