@@ -17,12 +17,52 @@ async function startTask() {
 	if (existsSync(skillsDir)) {
 		const skills = readdirSync(skillsDir).filter((f: string) => !f.startsWith('.'));
 		console.log(`🔎 SKILL DISCOVERY 🔎`);
-		console.log('Available Skills:');
-		skills.forEach((skill: string) => console.log(` - ${skill}`));
 
-		console.log(`\n${warn('ACTION REQUIRED')}: Review the list above.`);
-		console.log(`Identify relevant skills and run: ${GREEN}view_file .agent/skills/<skill>/SKILL.md${RESET}`);
-		console.log(`(e.g., if doing UI, check 'frontend-design' and 'tailwind-design-system')\n`);
+		// Smart Recommendations
+		const recommendations: string[] = [];
+		const lowerName = taskName.toLowerCase();
+
+		const mappings: { keywords: string[]; skill: string }[] = [
+			{
+				keywords: ['ui', 'design', 'css', 'style', 'layout', 'tailwind', 'component', 'modal', 'card'],
+				skill: 'frontend-design',
+			},
+			{ keywords: ['ui', 'design', 'css', 'style', 'layout', 'tailwind'], skill: 'tailwind-design-system' },
+			{ keywords: ['mobile', 'pwa', 'responsive', 'touch'], skill: 'mobile-design' },
+			{
+				keywords: ['api', 'route', 'server', 'backend', 'fetch', 'next', 'rsc', 'cache'],
+				skill: 'next-best-practices',
+			},
+			{ keywords: ['test', 'verify', 'e2e', 'spec'], skill: 'playwright-skill' },
+			{ keywords: ['test', 'verify', 'unit', 'vitest'], skill: 'test-driven-development' },
+			{ keywords: ['db', 'database', 'sql', 'drizzle', 'postgres', 'schema'], skill: 'postgres-best-practices' },
+			{ keywords: ['review', 'audit', 'debt', 'analysis', 'complex'], skill: 'codebase-analysis' },
+			{ keywords: ['pr', 'pull request', 'review'], skill: 'code-review-checklist' },
+			{ keywords: ['debug', 'fix', 'error', 'bug'], skill: 'systematic-debugging' },
+		];
+
+		mappings.forEach((m) => {
+			if (m.keywords.some((k) => lowerName.includes(k))) {
+				if (skills.includes(m.skill) && !recommendations.includes(m.skill)) {
+					recommendations.push(m.skill);
+				}
+			}
+		});
+
+		if (recommendations.length > 0) {
+			console.log(`\n🌟 RECOMMENDED SKILLS for "${taskName}":`);
+			recommendations.forEach((skill) => console.log(`   ${GREEN}➜ ${skill}${RESET}`));
+			console.log('');
+		}
+
+		console.log('All Available Skills:');
+		skills.forEach((skill: string) => {
+			const isRecommended = recommendations.includes(skill);
+			console.log(` - ${skill}${isRecommended ? ` ${GREEN} <-- (Recommended)${RESET}` : ''}`);
+		});
+
+		console.log(`\n${warn('ACTION REQUIRED')}: Review the recommendations above.`);
+		console.log(`Run: ${GREEN}view_file .agent/skills/<skill>/SKILL.md${RESET} for each relevant skill.`);
 	}
 
 	// 0.5 Spec Check (SDD)

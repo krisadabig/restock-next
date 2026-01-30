@@ -136,3 +136,24 @@
 - **Monitoring**: Watch for any "double consumption" issues in production (mitigated by IDB logic but worth tracking).
 - **UX**: Consider adding an "Undo" toast for consumption events, as they are destructive.
 
+
+## [2026-01-30] Session: Enhance Agent Workflows
+
+### Successes
+- **Unified Workflow**: Merged `git-flow` manual steps into `scripts/finish-task.ts`, creating a single, interactive command for verification and submission.
+- **Smart Reminders**: Implemented context-aware warnings in `finish-task` (e.g., checking mobile responsiveness if UI files changed).
+- **Closed Loop System**: Created `scripts/implement-retrospective.ts` to turn lessons into permanent system rules/skills instantly.
+- **Cleanup**: Removed 6 unused skill directories, reducing noise.
+
+### Lessons Learned 🧠
+- **Linting Scripts**: When writing governance scripts in TypeScript, ensure they are also linted. `verify-task` catches them, so `finish-task` (which runs verify) can fail if the script *itself* has lint errors.
+- **Interactive Scripts**: Using `readline` in scripts executed via `child_process` or agent tools requires careful handling of stdin/stdout.
+
+### Upgrades Implemented 🚀
+- **finish-task.ts**: Interactive Mode, Conventional Commits prompt, Smart Reminders.
+- **implement-retrospective.ts**: New tool for operationalizing learnings.
+- **Agent Skillset**: Added `codebase-analysis` and `next-skills`.
+
+### Preventive Measures 🛡️
+- **Self-Correction**: The `finish-task` script now warns users if they try to finish without updating documentation or running tests, physically preventing skipped steps.
+

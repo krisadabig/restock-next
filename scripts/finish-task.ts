@@ -1,95 +1,167 @@
 import { execSync } from 'child_process';
 import { readFileSync } from 'fs';
-import { log, success, error, warn, GREEN, RESET, run } from './utils';
+import { createInterface } from 'readline';
+import { log, success, error, warn, GREEN, RESET, run, YELLOW, CYAN } from './utils';
+
+// Helper for interactive prompts
+const ask = (question: string): Promise<string> => {
+	const rl = createInterface({
+		input: process.stdin,
+		output: process.stdout,
+	});
+	return new Promise((resolve) => {
+		rl.question(question, (answer) => {
+			rl.close();
+			resolve(answer);
+		});
+	});
+};
 
 async function finishTask() {
 	console.log(`\n🏁 FINISHING TASK... 🏁\n`);
 
 	// 1. Run Verification Gate
-	// This is the hard blocker.
 	try {
-		// Assuming verify-task.ts is executable via bun
-		// We import it? No, it's a script. We exec it.
 		run('bun scripts/verify-task.ts', 'Governance Verification');
 	} catch {
 		error('Verification failed. You cannot finish the task yet. Fix the errors above.');
+		process.exit(1);
 	}
 
-	// 2. Check Documentation and Git Status
-	log('Checking Documentation & Git Status...');
+	// 2. Check Documentation Status
+	log('Checking Documentation Status...');
 	try {
-		const changes = execSync('git status --porcelain').toString().trim();
-		const docsUpdated = changes.includes('.agent/manifest.md') || changes.includes('.agent/task.md');
-		const branchName = execSync('git rev-parse --abbrev-ref HEAD').toString().trim();
+		const statusOutput = execSync('git status --porcelain').toString().trim();
+		const docsUpdated = statusOutput.includes('.agent/manifest.md') || statusOutput.includes('.agent/task.md');
+		const retroUpdated = statusOutput.includes('.agent/retrospective.md');
 
 		if (!docsUpdated) {
 			error('Governance Check Failed: `.agent/manifest.md` or `.agent/task.md` NOT modified.');
 			console.log('You must update the Session Handoff before finishing.');
 			console.log(`\n👉 Run the ${GREEN}/handoff${RESET} workflow to fix this.\n`);
-			return; // Stop execution
-		} else {
-			success('Documentation updates detected.');
+			process.exit(1);
 		}
 
 		// Check Retrospective content
-		const retroUpdated = changes.includes('.agent/retrospective.md');
 		if (!retroUpdated) {
 			error('Governance Check Failed: `.agent/retrospective.md` NOT modified.');
 			console.log('You must log a retrospective before finishing.');
-			return;
+			process.exit(1);
 		}
 
-		// Read retrospective to check for Preventive Measures
+		// Read retrospective for Preventive Measures
 		const retroContent = readFileSync('.agent/retrospective.md', 'utf-8');
 		if (!retroContent.includes('## Preventive Measures') && !retroContent.includes('## Prevention')) {
 			error('Governance Check Failed: `.agent/retrospective.md` missing "Preventive Measures" section.');
-			return;
+			process.exit(1);
 		}
-		success('Retrospective and Preventive Measures detected.');
 
 		// 3. Spec Check (SDD)
-		const specUpdated = changes.includes('.agent/spec.md');
-		const logicChanged = changes
+		const specUpdated = statusOutput.includes('.agent/spec.md');
+		const logicChanged = statusOutput
 			.split('\n')
 			.some((line) => line.includes('src/') && (line.endsWith('.ts') || line.endsWith('.tsx')));
 
 		if (logicChanged && !specUpdated) {
-			warn('Governance Warning: Logic changes detected in `src/` but `.agent/spec.md` was NOT updated.');
-			console.log(
-				'Spec-Driven Development (SDD) requires keeping the specification in sync with implementation.',
-			);
-			// For now, we warn. We might block later.
-		} else if (specUpdated) {
-			success('Spec update detected.');
+			warn('Governance Warning: Logic changes detected but `.agent/spec.md` NOT updated.');
+			console.log('SDD requires keeping the spec in sync with implementation.');
 		}
 
-		console.log(`\n${GREEN}✨ PRE-FLIGHT CHECKS PASSED ✨${RESET}\n`);
+		success('Documentation & Verification checks passed.');
 
-		if (changes) {
-			console.log('Modified Files:');
+		// 4. Smart Verification Reminders
+		console.log(`\n🧠 ${CYAN}SMART VERIFICATION REMINDERS${RESET} 🧠`);
+		const changedFiles = statusOutput.split('\n').map((l) => l.substring(3)); // remove status code
+		let warnings = 0;
+
+		if (changedFiles.some((f) => f.startsWith('src/components'))) {
 			console.log(
-				changes
-					.split('\n')
-					.map((line) => `   ${line}`)
-					.join('\n'),
+				`${YELLOW}⚠  UI Changes Detected:${RESET} Did you check mobile responsiveness and Theme Toggle?`,
 			);
-			console.log('\nTo complete the handoff:');
-			console.log(`1. Review the changes above.`);
-			console.log(`2. Run:  git add <file>   (or "git add -A" if you are sure)`);
-			console.log(`3. Run:  git commit -m "feat: [Your Task Description]"`);
-			if (branchName !== 'develop') {
-				if (branchName === 'main') {
-					error('You are on `main`. Requires manual fix. Use `release.ts` to touch `main`.');
-				} else {
-					console.log(`4. Run:  git push origin ${branchName}`);
-					console.log(`5. Create PR into 'develop'`);
+			warnings++;
+		}
+		if (changedFiles.some((f) => f.startsWith('src/db') || f.includes('schema.ts'))) {
+			console.log(
+				`${YELLOW}⚠  DB Changes Detected:${RESET} Did you run migrations (db:push) and verify data integrity?`,
+			);
+			warnings++;
+		}
+		if (changedFiles.some((f) => f.startsWith('src/app/api'))) {
+			console.log(
+				`${YELLOW}⚠  API Changes Detected:${RESET} Did you check error handling and auth interceptors?`,
+			);
+			warnings++;
+		}
+		if (changedFiles.some((f) => f.includes('package.json'))) {
+			console.log(`${YELLOW}⚠  Deps Changes Detected:${RESET} Did you run 'bun install' and verify build?`);
+			warnings++;
+		}
+
+		if (warnings === 0) {
+			console.log(`${GREEN}No specific context warnings. Good to go!${RESET}`);
+		} else {
+			console.log(`\n${YELLOW}Please verify the items above before proceeding.${RESET}`);
+		}
+
+		// 5. Git Automation
+		console.log(`\n🚀 ${CYAN}GIT AUTOMATION${RESET} 🚀`);
+
+		if (!statusOutput) {
+			console.log('No changes to commit.');
+			process.exit(0);
+		}
+
+		console.log('Modified Files:');
+		console.log(statusOutput);
+
+		const proceed = await ask(`\nDo you want to stage and commit these changes? (y/n) `);
+		if (proceed.toLowerCase() !== 'y') {
+			console.log('Aborted.');
+			process.exit(0);
+		}
+
+		run('git add .', 'Staging changes');
+
+		const commitMsg = await ask(`Enter commit message (Conventional Commits): `);
+		if (!commitMsg) {
+			error('Commit message required.');
+			process.exit(1);
+		}
+
+		// Validate conventional commit (basic check)
+		if (!/^(feat|fix|docs|style|refactor|test|chore)(\(.+\))?: .+/.test(commitMsg)) {
+			warn('Message does not look like Conventional Commits (type(scope): output). Proceeding anyway...');
+		}
+
+		try {
+			execSync(`git commit -m "${commitMsg}"`, { stdio: 'inherit' });
+			success('Changes committed.');
+		} catch {
+			error('Commit failed.');
+			process.exit(1);
+		}
+
+		const branchName = execSync('git rev-parse --abbrev-ref HEAD').toString().trim();
+		if (branchName === 'main' || branchName === 'develop') {
+			warn(`You are on ${branchName}. Skipping auto-push. Use 'release.ts' for releases.`);
+		} else {
+			const push = await ask(`Push to origin/${branchName}? (y/n) `);
+			if (push.toLowerCase() === 'y') {
+				try {
+					execSync(`git push origin ${branchName}`, { stdio: 'inherit' });
+					success(`Pushed to ${branchName}`);
+					console.log(
+						`\n🔗 Create PR: https://github.com/bigbigbig/restock-next/compare/${branchName}?expand=1`,
+					);
+				} catch {
+					error('Push failed.');
 				}
 			}
-		} else {
-			console.log('No changes detected in working directory (everything committed?)');
 		}
+
+		console.log(`\n${GREEN}✨ TASK FINISHED SUCCESSFULLY ✨${RESET}\n`);
 	} catch {
-		warn('Could not check git status.');
+		error('Unexpected error during finish-task.');
 	}
 }
 
