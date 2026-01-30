@@ -6,24 +6,32 @@ description: Finish the current task and run governance checks.
 
 This workflow merges verification, governance checks, and git operations into a single command. It is the **ONLY** way to complete a task.
 
-## Steps
+## Agent Procedure (Interactive UI)
 
-1. **Run the Script**:
+1. **Verify First**:
+   Run the checks *without* committing to validate the state.
    ```bash
-   # // turbo
-   bun scripts/finish-task.ts
+   bun scripts/finish-task.ts --verify-only
    ```
 
-2. **Automated Checks**:
-   - **Verification**: Runs `scripts/verify-task.ts` (Build, Lint, Test).
-   - **Governance**: Checks if `manifest.md`, `task.md`, and `retrospective.md` are updated.
-   - **Smart Reminders**: Scans changed files and reminds you of specific context checks (e.g., "Check Mobile Responsiveness" if UI changed).
+2. **Wait for Approval (The "Button")**:
+   If verification passes, you MUST pause and ask the user for confirmation using `notify_user`.
+   - **BlockedOnUser**: `true`
+   - **Message**: "Verification passed. Modified files: [list files]. Ready to commit?"
 
-3. **Interactive Git Flow**:
-   - The script will show you the modified files.
-   - It will ask for a **Conventional Commit** message.
-   - It will automatically stage (`git add .`), commit, and push.
-   - It prints a link to create a PR.
+3. **Commit & Push**:
+   Once the user approves (clicking the button), run the auto-commit command.
+   ```bash
+   bun scripts/finish-task.ts --auto-commit "type(scope): message"
+   ```
+
+## Manual Procedure (Terminal)
+
+If the user is running this manually in their terminal:
+```bash
+bun scripts/finish-task.ts
+```
+(This will run interactively with Y/N prompts).
 
 ## Handling Failures
 

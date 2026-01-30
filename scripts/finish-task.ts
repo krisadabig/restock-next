@@ -17,7 +17,17 @@ const ask = (question: string): Promise<string> => {
 	});
 };
 
+function parseArgs() {
+	const args = process.argv.slice(2);
+	const verifyOnly = args.includes('--verify-only');
+	const autoCommitIndex = args.indexOf('--auto-commit');
+	const autoCommitMsg = autoCommitIndex !== -1 ? args[autoCommitIndex + 1] : null;
+
+	return { verifyOnly, autoCommitMsg };
+}
+
 async function finishTask() {
+	const { verifyOnly, autoCommitMsg } = parseArgs();
 	console.log(`\n🏁 FINISHING TASK... 🏁\n`);
 
 	// 1. Run Verification Gate
@@ -103,6 +113,21 @@ async function finishTask() {
 			console.log(`\n${YELLOW}Please verify the items above before proceeding.${RESET}`);
 		}
 
+		// 4.5 check for untracked files
+		if (statusOutput.includes('??')) {
+			console.log(`\n${YELLOW}⚠  WARNING: Untracked files detected (??).${RESET}`);
+			console.log('These will be added to the commit if you proceed.');
+		}
+
+		// Exit early if verify only
+		if (verifyOnly) {
+			console.log(`\n${GREEN}✨ VERIFICATION SUCCESSFUL (Verify-Only Mode) ✨${RESET}`);
+			// Print modified files for Agent context
+			console.log('\nModified Files (Ready to Stage):');
+			console.log(statusOutput);
+			process.exit(0);
+		}
+
 		// 5. Git Automation
 		console.log(`\n🚀 ${CYAN}GIT AUTOMATION${RESET} 🚀`);
 
@@ -114,28 +139,31 @@ async function finishTask() {
 		console.log('Modified Files:');
 		console.log(statusOutput);
 
-		// Check for untracked files
-		if (statusOutput.includes('??')) {
-			console.log(`\n${YELLOW}⚠  WARNING: Untracked files detected (??).${RESET}`);
-			console.log('These will be added to the commit if you proceed.');
-		}
+		let commitMsg = autoCommitMsg;
 
-		console.log(`\n${YELLOW}⚠  ACTION: The next step will run 'git add .' which stages EVERYTHING above.${RESET}`);
-		console.log('Please review the file list above carefully.');
+		if (!commitMsg) {
+			console.log(
+				`\n${YELLOW}⚠  ACTION: The next step will run 'git add .' which stages EVERYTHING above.${RESET}`,
+			);
+			console.log('Please review the file list above carefully.');
 
-		const proceed = await ask(`\nAre you absolutely sure these files are ready to commit? (y/n) `);
-		if (proceed.toLowerCase() !== 'y') {
-			console.log('Aborted.');
-			process.exit(0);
+			const proceed = await ask(`\nAre you absolutely sure these files are ready to commit? (y/n) `);
+			if (proceed.toLowerCase() !== 'y') {
+				console.log('Aborted.');
+				process.exit(0);
+			}
+
+			commitMsg = await ask(`Enter commit message (Conventional Commits): `);
+			if (!commitMsg) {
+				error('Commit message required.');
+				process.exit(1);
+			}
+		} else {
+			console.log(`${GREEN}Auto-commit enabled with message:${RESET} "${commitMsg}"`);
+			// Auto-stage implies we skip the "Are you sure?" prompt, assuming Agent/CI has validated
 		}
 
 		run('git add .', 'Staging changes');
-
-		const commitMsg = await ask(`Enter commit message (Conventional Commits): `);
-		if (!commitMsg) {
-			error('Commit message required.');
-			process.exit(1);
-		}
 
 		// Validate conventional commit (basic check)
 		if (!/^(feat|fix|docs|style|refactor|test|chore)(\(.+\))?: .+/.test(commitMsg)) {
@@ -154,8 +182,8 @@ async function finishTask() {
 		if (branchName === 'main' || branchName === 'develop') {
 			warn(`You are on ${branchName}. Skipping auto-push. Use 'release.ts' for releases.`);
 		} else {
-			const push = await ask(`Push to origin/${branchName}? (y/n) `);
-			if (push.toLowerCase() === 'y') {
+			const shouldPush = autoCommitMsg ? 'y' : await ask(`Push to origin/${branchName}? (y/n) `);
+			if (shouldPush.toLowerCase() === 'y') {
 				try {
 					execSync(`git push origin ${branchName}`, { stdio: 'inherit' });
 					success(`Pushed to ${branchName}`);

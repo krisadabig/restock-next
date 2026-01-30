@@ -143,6 +143,7 @@
 - **Unified Workflow**: Merged `git-flow` manual steps into `scripts/finish-task.ts`, creating a single, interactive command for verification and submission.
 - **Smart Reminders**: Implemented context-aware warnings in `finish-task` (e.g., checking mobile responsiveness if UI files changed).
 - **Safety First**: Added explicit "Ready to Stage?" confirmation with untracked file detection to `finish-task.ts`.
+- **Agent UI Flow**: Implemented `--verify-only` and `--auto-commit` flags to enable "Click to Proceed" workflow for the Agent.
 - **Closed Loop System**: Created `scripts/implement-retrospective.ts` to turn lessons into permanent system rules/skills instantly.
 - **Cleanup**: Removed 6 unused skill directories, reducing noise.
 
