@@ -23,6 +23,7 @@ export const entries = pgTable('entries', {
 	price: real('price').notNull(),
 	quantity: real('quantity').default(1),
 	unit: text('unit').default('pcs'),
+	type: text('type').default('purchase').notNull(), // 'purchase' or 'consume'
 	date: text('date').notNull(),
 	note: text('note'),
 	userId: text('user_id')

@@ -11,6 +11,9 @@ export interface Entry {
 	price: number;
 	date: string;
 	note: string | null;
+	type?: 'purchase' | 'consume';
+	quantity?: number | null;
+	unit?: string | null;
 }
 
 import jwt from 'jsonwebtoken';
@@ -88,6 +91,7 @@ export async function getEntries(): Promise<Entry[]> {
 	return result.map((e) => ({
 		...e,
 		date: e.date,
+		type: (e.type as 'purchase' | 'consume') || 'purchase',
 	}));
 }
 
@@ -104,6 +108,7 @@ export async function getEntriesByItem(itemName: string): Promise<Entry[]> {
 	return result.map((e) => ({
 		...e,
 		date: e.date,
+		type: (e.type as 'purchase' | 'consume') || 'purchase',
 	}));
 }
 
@@ -137,7 +142,9 @@ export async function addEntry(rawData: {
 		date: data.date,
 		note: data.note,
 		userId: user.id,
+		type: 'purchase', // Explicitly set type to purchase
 	});
+	console.log(`[addEntry] Inserted entry: ${data.item} Qty: ${data.quantity}`);
 
 	// Sync with Inventory: Ensure record exists and update quantity/unit
 	const existingStock = await db
@@ -171,6 +178,7 @@ export async function addEntry(rawData: {
 	}
 
 	revalidatePath('/app');
+	revalidatePath('/app/inventory');
 	revalidatePath('/app/trends');
 }
 
@@ -306,6 +314,19 @@ export async function consumeItem(item: string, quantity: number) {
 			})
 			.where(eq(inventory.id, existingStock[0].id));
 	}
+
+	// NEW: Log this consumption as a history entry
+	const today = new Date().toISOString().split('T')[0];
+	await db.insert(entries).values({
+		item: item,
+		price: 0, // Consumption has no purchase price
+		quantity: quantity,
+		unit: existingStock.length > 0 ? existingStock[0].unit : 'pcs',
+		date: today,
+		note: 'Consumed from stock',
+		userId: user.id,
+		type: 'consume',
+	});
 
 	revalidatePath('/app');
 	revalidatePath('/app/inventory');

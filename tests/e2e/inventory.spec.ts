@@ -58,6 +58,7 @@ test.describe('Stock Tracking & Inventory', () => {
 		// 2. Navigate to Inventory
 		await page.getByRole('link', { name: /Inventory/i }).click();
 		await expect(page).toHaveURL(/\/app\/inventory/);
+		await page.reload(); // Force reload to ensure fresh data
 
 		// 3. Search & Key Hygiene
 		const searchInput = page.getByPlaceholder('Search stock...'); // Correct placeholder

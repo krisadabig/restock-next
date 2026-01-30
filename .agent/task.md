@@ -223,5 +223,13 @@
     - [x] Input Hygiene (Auto-trim whitespace) <!-- id: 169 -->
     - [x] Navigation Glow Animations <!-- id: 170 -->
 - [ ] Verification <!-- id: 161 -->
-    - [ ] Create `tests/e2e/inventory.spec.ts` <!-- id: 162 -->
-    - [ ] Verify manual consumption flow <!-- id: 163 -->
+    - [x] Create `tests/e2e/inventory.spec.ts` <!-- id: 162 -->
+    - [x] Verify manual consumption flow <!-- id: 163 -->
+
+# Phase 30: Dashboard Revamp (Client Architecture)
+- [x] Revamp Dashboard Client <!-- id: 171 -->
+    - [x] Create `EntryCard.tsx` <!-- id: 172 -->
+    - [x] Create `DashboardFilters.tsx` <!-- id: 173 -->
+    - [x] Implement distinct event types (Purchase vs Consume) <!-- id: 174 -->
+    - [x] Fix Inventory Sync Logic (`revalidatePath`) <!-- id: 175 -->
+
