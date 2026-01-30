@@ -263,6 +263,10 @@
     - [x] Update `.agent/workflows/finish-task.md` to require Plan Artifact creation. <!-- id: plan-workflow-1 -->
     - [x] Clean up mock test files. <!-- id: plan-workflow-2 -->
     - [x] Commit using the new Plan-Based Workflow. <!-- id: plan-workflow-3 -->
+- [x] Operationalize Retrospective (Workflow) <!-- id: retro-workflow -->
+    - [x] Run `bun scripts/implement-retrospective.ts`. <!-- id: retro-workflow-1 -->
+    - [x] Select a lesson (e.g., Linting Scripts). <!-- id: retro-workflow-2 -->
+    - [x] Create/Update the corresponding Rule/Skill. <!-- id: retro-workflow-3 -->
 
 # Phase 31: Enhancing Agent Configuration
 

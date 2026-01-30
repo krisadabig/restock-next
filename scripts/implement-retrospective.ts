@@ -33,7 +33,7 @@ async function implementRetrospective() {
 		process.exit(1);
 	}
 
-	const latestSession = sessions[0]; // First one is latest
+	const latestSession = sessions[sessions.length - 1]; // Last one is latest (appended)
 	const lines = latestSession.split('\n');
 	const header = lines[0].trim(); // e.g. [2024-03-20] Session: ...
 

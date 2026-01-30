@@ -146,6 +146,7 @@
 - **Agent UI Flow**: Implemented `--verify-only` and `--auto-commit` flags to enable "Click to Proceed" workflow for the Agent.
 - **Closed Loop System**: Created `scripts/implement-retrospective.ts` to turn lessons into permanent system rules/skills instantly.
 - **Workflow Test**: Successfully tested the end-to-end "Verify -> Notify -> Commit" flow with a mock task.
+- **Operationalized**: Turned "Lift Scripts" lesson into `.agent/rules/governance-linting.md` using the new `/implement-retrospective` workflow.
 - **Cleanup**: Removed 6 unused skill directories, reducing noise.
 
 ### Lessons Learned 🧠
