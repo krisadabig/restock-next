@@ -114,7 +114,16 @@ async function finishTask() {
 		console.log('Modified Files:');
 		console.log(statusOutput);
 
-		const proceed = await ask(`\nDo you want to stage and commit these changes? (y/n) `);
+		// Check for untracked files
+		if (statusOutput.includes('??')) {
+			console.log(`\n${YELLOW}⚠  WARNING: Untracked files detected (??).${RESET}`);
+			console.log('These will be added to the commit if you proceed.');
+		}
+
+		console.log(`\n${YELLOW}⚠  ACTION: The next step will run 'git add .' which stages EVERYTHING above.${RESET}`);
+		console.log('Please review the file list above carefully.');
+
+		const proceed = await ask(`\nAre you absolutely sure these files are ready to commit? (y/n) `);
 		if (proceed.toLowerCase() !== 'y') {
 			console.log('Aborted.');
 			process.exit(0);

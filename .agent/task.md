@@ -233,3 +233,22 @@
     - [x] Implement distinct event types (Purchase vs Consume) <!-- id: 174 -->
     - [x] Fix Inventory Sync Logic (`revalidatePath`) <!-- id: 175 -->
 
+# Phase 31: Enhancing Agent Configuration
+
+- [x] Analyze existing agent configuration files <!-- id: 176 -->
+    - [x] Identify unused skills (Elysia, Yjs, Monorepo). <!-- id: 177 -->
+    - [x] Verify rules and workflows. <!-- id: 178 -->
+- [x] Create Implementation Plan <!-- id: 179 -->
+- [x] Execute Changes <!-- id: 180 -->
+    - [x] Delete unused skill directories. <!-- id: 181 -->
+    - [x] Update `scripts/start-task.ts` with Smart Skill Recommendations. <!-- id: 182 -->
+    - [x] Adopt `next-skills`. <!-- id: 183 -->
+    - [x] Adopt `codebase-analysis`. <!-- id: 184 -->
+    - [x] Enhance `finish-task` script (Smart Reminders + Auto Git). <!-- id: 185 -->
+    - [x] Merge `git-flow.md` into `finish-task.md`. <!-- id: 186 -->
+    - [x] Create `scripts/implement-retrospective.ts` and workflow. <!-- id: 187 -->
+- [x] Verify Changes <!-- id: 188 -->
+- [x] Refine 'finish-task' Safety <!-- id: 189 -->
+    - [x] Update `scripts/finish-task.ts` with explicit "Ready to Stage?" warning. <!-- id: 190 -->
+    - [x] Verified interactively. <!-- id: 191 -->
+
