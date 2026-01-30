@@ -6,6 +6,8 @@ import { useTranslation } from '@/lib/i18n';
 import { getUniqueItems } from '@/app/app/actions';
 import { X, Calendar, DollarSign, Tag, FileText } from 'lucide-react';
 import { useOffline } from '@/components/providers/OfflineContext';
+import SmartAutocomplete from '@/components/ui/Autocomplete';
+import PillSelector from '@/components/ui/PillSelector';
 
 export default function AddEntryModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
     const { t } = useTranslation();
@@ -13,6 +15,7 @@ export default function AddEntryModal({ isOpen, onClose }: { isOpen: boolean; on
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [suggestions, setSuggestions] = useState<string[]>([]);
+    const [unit, setUnit] = useState('pcs');
 
     const [mounted, setMounted] = useState(false);
     const [optimisticClosed, setOptimisticClosed] = useState(false);
@@ -78,16 +81,12 @@ export default function AddEntryModal({ isOpen, onClose }: { isOpen: boolean; on
                         <label className="text-sm font-bold text-gray-500 dark:text-gray-400 flex items-center gap-2 uppercase tracking-wider ml-1">
                             <Tag size={14} /> {t('app.itemName')}
                         </label>
-                        <input 
+                        <SmartAutocomplete 
                             name="item"
-                            list="item-suggestions"
                             required
                             placeholder={t('app.placeholderItem')}
-                            className="w-full p-4 bg-gray-100 dark:bg-slate-800 border-2 border-transparent rounded-2xl focus:border-indigo-500 focus:bg-white dark:focus:bg-slate-900 focus:ring-0 transition-all dark:text-white font-bold"
+                            suggestions={suggestions}
                         />
-                        <datalist id="item-suggestions">
-                            {suggestions.map(s => <option key={s} value={s} />)}
-                        </datalist>
                     </div>
 
                     <div className="grid grid-cols-2 gap-4">
@@ -106,32 +105,30 @@ export default function AddEntryModal({ isOpen, onClose }: { isOpen: boolean; on
                             />
                         </div>
 
-                        <div className="space-y-2">
+                        <div className="space-y-2 col-span-2 sm:col-span-1">
                             <label className="text-sm font-bold text-gray-500 dark:text-gray-400 flex items-center gap-2 uppercase tracking-wider ml-1">
-                                <Tag size={14} /> Quantity / Unit
+                                <Tag size={14} /> Quantity
                             </label>
-                            <div className="flex gap-2">
-                                <input 
-                                    name="quantity"
-                                    type="number"
-                                    defaultValue="1"
-                                    min="0"
-                                    step="0.01"
-                                    className="w-full p-4 bg-gray-100 dark:bg-slate-800 border-2 border-transparent rounded-2xl focus:border-indigo-500 focus:bg-white dark:focus:bg-slate-900 focus:ring-0 transition-all dark:text-white font-bold"
-                                />
-                                <select 
-                                    name="unit"
-                                    defaultValue="pcs"
-                                    className="w-24 p-4 bg-gray-100 dark:bg-slate-800 border-2 border-transparent rounded-2xl focus:border-indigo-500 focus:bg-white dark:focus:bg-slate-900 focus:ring-0 transition-all dark:text-white font-bold appearance-none"
-                                >
-                                    <option value="pcs">pcs</option>
-                                    <option value="kg">kg</option>
-                                    <option value="gram">g</option>
-                                    <option value="liters">L</option>
-                                    <option value="bottle">bottle</option>
-                                    <option value="pack">pack</option>
-                                </select>
-                            </div>
+                            <input 
+                                name="quantity"
+                                type="number"
+                                defaultValue="1"
+                                min="0"
+                                step="0.01"
+                                className="w-full p-4 bg-gray-100 dark:bg-slate-800 border-2 border-transparent rounded-2xl focus:border-indigo-500 focus:bg-white dark:focus:bg-slate-900 focus:ring-0 transition-all dark:text-white font-bold"
+                            />
+                        </div>
+                        
+                        <div className="col-span-2 space-y-2">
+                             <label className="text-sm font-bold text-gray-500 dark:text-gray-400 flex items-center gap-2 uppercase tracking-wider ml-1">
+                                <Tag size={14} /> Unit
+                            </label>
+                            <PillSelector 
+                                name="unit"
+                                options={['pcs', 'kg', 'g', 'pack', 'box', 'btl', 'can', 'L', 'ml']}
+                                value={unit}
+                                onChange={setUnit}
+                            />
                         </div>
                     </div>
 

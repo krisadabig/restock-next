@@ -202,3 +202,26 @@
     - [x] Lighten Dark Mode Primary (#818cf8) <!-- id: 148 -->
     - [x] Lighten Dark Mode Destructive (#f87171) <!-- id: 149 -->
     - [x] Verify Contrast Ratios <!-- id: 150 -->
+
+# Phase 29: Stock Tracking Feature
+
+- [x] Stock Tracking Proposal & Spec <!-- id: 151 -->
+    - [x] Analyze current schema <!-- id: 152 -->
+    - [x] Create Proposal / Plan <!-- id: 153 -->
+- [x] Backend Implementation <!-- id: 154 -->
+    - [x] Implement `consumeItem` server action <!-- id: 155 -->
+    - [x] Verify `addEntry` stock sync logic <!-- id: 156 -->
+- [x] Frontend Implementation <!-- id: 157 -->
+    - [x] Create `InventoryCard` component <!-- id: 158 -->
+    - [x] Create `src/app/app/inventory/page.tsx` (List) <!-- id: 159 -->
+    - [x] Create `src/app/app/inventory/[item]/page.tsx` (Item Details) <!-- id: 164 -->
+    - [x] Add Inventory link to BottomNav <!-- id: 160 -->
+
+- [x] Journey Perfection (UI/UX) <!-- id: 166 -->
+    - [x] Smart Autocomplete (Add Entry) <!-- id: 167 -->
+    - [x] Unit Pill Selector (Add Entry/Inventory) <!-- id: 168 -->
+    - [x] Input Hygiene (Auto-trim whitespace) <!-- id: 169 -->
+    - [x] Navigation Glow Animations <!-- id: 170 -->
+- [ ] Verification <!-- id: 161 -->
+    - [ ] Create `tests/e2e/inventory.spec.ts` <!-- id: 162 -->
+    - [ ] Verify manual consumption flow <!-- id: 163 -->

@@ -65,17 +65,17 @@ Failure to run the verification script constitutes a violation of project govern
 | **Bug Fix: Add Entry Interaction** | PASS | 2026-01-29T18:55:00 | Fixed `DashboardClient` to sync modal state with URL prop. Verified via single-worker E2E test. |
 | **UI Polishing & Verification** | PASS | 2026-01-30T02:00:00 | Fixed Tailwind 4 build errors (`globals.css`), polished UI (Deep Glass), & verified Theme/Nav via Browser Subagent. |
 | **Dark Theme Palette Fix** | PASS | 2026-01-30T02:15:00 | Lightened Dark Mode Primary (#818cf8) & Destructive (#f87171) to pass WCAG AA. Verified visually. |
+| Stock Tracking | PASS | 2026-01-30T14:30:00 | Implemented Inventory UI, Smart Inputs, Consumption Logic. Verified full E2E lifecycle (Add->Consume->Restock). |
 
 ## Session Handoff / Next Steps
 **Current State**:
-- **Feature Complete**: "Version Display" (vX.Y.Z in Settings).
-- **Workflow Upgrade**: Git Flow enforced (`develop` branch, `release.ts`).
-- **Optimization**: "Add Entry" modal remains instant (0ms).
-- **Verification**: All E2E tests passed on `develop`.
+- **Feature Complete**: Stock Tracking (Inventory UI, Smart Inputs, E2E Tests).
+- **Verification**: 100% Passed (Build + Lint + E2E).
+- **Documentation**: Updated Spec, Tasks, Plans, and Retro.
 - **UI Polish**: "Deep Glass" aesthetic & Tailwind 4 fixes applied.
 
 **Immediate Next Actions**:
-1. **[SEV2] Inventory Alerts**: Implement push notifications for "Out of Stock" items.
+1. **[SEV2] Inventory Alerts**: Group items by alert status (Low/Out).
 2. **[SEV2] Data Portability**: Implement CSV Export in Settings.
 3. **[Release]**: When ready, run `bun scripts/release.ts minor` to deploy v0.2.0.
 

@@ -180,6 +180,7 @@ export default function DashboardClient({
                     placeholder="Search items..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
+                    onBlur={() => setSearchQuery(prev => prev.trim())} // Input Hygiene
                     className="w-full pl-11 pr-4 py-3 bg-secondary/50 border border-transparent focus:border-primary/30 focus:bg-secondary focus:ring-0 rounded-2xl transition-all placeholder:text-muted-foreground/70"
                 />
             </div>

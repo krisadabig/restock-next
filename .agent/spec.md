@@ -56,6 +56,12 @@ Restock is a web application designed to help users track their grocery stock, p
 - **Metrics**: Calculates total spending, groups costs by item, and provides **Month-over-Month (MO-M)** comparison.
 - **Visualization**: Uses modern CSS and Tailwind animations for progress bars and metric cards instead of external charting libraries for lightness.
 
+### 5. Stock Tracking
+- **Inventory System**: Dedicated inventory view (`/app/inventory`) separating current stock from purchase history.
+- **Consumption Logic**: Dedicated "Consume" action decrements stock without creating a purchase entry.
+- **Smart Input**: "Add Entry" features smart autocomplete and a pill-based unit selector for ergonomic data entry.
+- **Optimistic UI**: Stock updates (consume/restock) are reflected instantly in the UI while syncing in the background.
+
 ## Directory Structure
 - `src/app/`: Next.js App Router routes.
 - `src/components/`: Reusable UI components (Dashboard, Shared, etc.).

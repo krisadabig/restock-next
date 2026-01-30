@@ -1,6 +1,23 @@
 
 # Retrospective Log
 
+## [2026-01-30] Session: Stock Tracking Feature Verification
+
+### Successes
+- **Robust E2E Testing**: Established a comprehensive Playwright suite for the Inventory lifecycle (Add -> List -> Consume -> Restock).
+- **Accessibility Improvements**: Proactively added `aria-label` to all BottomNav links, which significantly improved testability and accessibility.
+
+### Lessons Learned 🧠
+- **Test Selectors**: Relying on `hasText` for testing cards can be fragile if the text is nested or split. Using generic class locators like `.glass-card` with `hasText` filters is more robust.
+- **Exact Matches**: Playwright's `getByPlaceholder` is strict. Always copy-paste strings from the source code to avoid "Search items..." vs "Search stock..." mismatches.
+- **Interactions**: Elements with complex styling or animations (like the Pill Selector) may require `{ force: true }` in tests to bypass strict actionability checks.
+
+### Action Items
+- Continue enforcing `aria-label` on all interactive icon-only elements.
+- Consider sharing the E2E test patterns (Auth injection, robust selectors) with the team.
+
+---
+
 ## [2026-01-30] Session: UI Polishing & Verification
 
 ### Lessons Learned 🧠

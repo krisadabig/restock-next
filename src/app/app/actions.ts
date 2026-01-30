@@ -91,6 +91,22 @@ export async function getEntries(): Promise<Entry[]> {
 	}));
 }
 
+export async function getEntriesByItem(itemName: string): Promise<Entry[]> {
+	const user = await getUser();
+	if (!user) return [];
+
+	const result = await db
+		.select()
+		.from(entries)
+		.where(and(eq(entries.userId, user.id), eq(entries.item, itemName)))
+		.orderBy(desc(entries.date));
+
+	return result.map((e) => ({
+		...e,
+		date: e.date,
+	}));
+}
+
 const entrySchema = z.object({
 	item: z.string().min(1, 'Item name is required'),
 	price: z.number().min(0, 'Price must be 0 or more'),
@@ -213,6 +229,19 @@ export async function getInventory() {
 	return await db.select().from(inventory).where(eq(inventory.userId, user.id)).orderBy(inventory.item);
 }
 
+export async function getInventoryItem(itemName: string) {
+	const user = await getUser();
+	if (!user) return null;
+
+	const result = await db
+		.select()
+		.from(inventory)
+		.where(and(eq(inventory.item, itemName), eq(inventory.userId, user.id)))
+		.limit(1);
+
+	return result[0] || null;
+}
+
 export async function toggleItemStatus(item: string, status: 'in-stock' | 'out-of-stock') {
 	const user = await getUser();
 	if (!user) throw new Error('Unauthorized');
@@ -243,4 +272,76 @@ export async function updateInventory(
 		.where(and(eq(inventory.item, item), eq(inventory.userId, user.id)));
 
 	revalidatePath('/app');
+}
+
+export async function consumeItem(item: string, quantity: number) {
+	const user = await getUser();
+	if (!user) throw new Error('Unauthorized');
+
+	const existingStock = await db
+		.select()
+		.from(inventory)
+		.where(and(eq(inventory.item, item), eq(inventory.userId, user.id)))
+		.limit(1);
+
+	if (existingStock.length === 0) {
+		// If item doesn't exist, we can't consume it. Or should we create it with negative?
+		// For now, let's create it with negative quantity to assume "Backorder" or just 0
+		await db.insert(inventory).values({
+			item,
+			userId: user.id,
+			status: 'out-of-stock',
+			quantity: -quantity,
+			unit: 'pcs', // Default
+			lastStockUpdate: new Date(),
+		});
+	} else {
+		const newQuantity = (existingStock[0].quantity || 0) - quantity;
+		await db
+			.update(inventory)
+			.set({
+				quantity: newQuantity,
+				status: newQuantity > 0 ? 'in-stock' : 'out-of-stock',
+				lastStockUpdate: new Date(),
+			})
+			.where(eq(inventory.id, existingStock[0].id));
+	}
+
+	revalidatePath('/app');
+	revalidatePath('/app/inventory');
+}
+
+export async function restockItem(item: string, quantity: number) {
+	const user = await getUser();
+	if (!user) throw new Error('Unauthorized');
+
+	const existingStock = await db
+		.select()
+		.from(inventory)
+		.where(and(eq(inventory.item, item), eq(inventory.userId, user.id)))
+		.limit(1);
+
+	if (existingStock.length === 0) {
+		await db.insert(inventory).values({
+			item,
+			userId: user.id,
+			status: 'in-stock',
+			quantity: quantity,
+			unit: 'pcs',
+			lastStockUpdate: new Date(),
+		});
+	} else {
+		const newQuantity = (existingStock[0].quantity || 0) + quantity;
+		await db
+			.update(inventory)
+			.set({
+				quantity: newQuantity,
+				status: 'in-stock',
+				lastStockUpdate: new Date(),
+			})
+			.where(eq(inventory.id, existingStock[0].id));
+	}
+
+	revalidatePath('/app');
+	revalidatePath('/app/inventory');
 }
