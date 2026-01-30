@@ -47,11 +47,17 @@ export class SyncEngine {
 				}
 			}
 
-			// After processing queue, refresh local cache from server
-			const freshEntries = await getEntries();
-			await saveEntriesCache(freshEntries);
+			// After processing queue, try to refresh local cache from server
+			// We wrap this in try-catch so that if it fails, we STILL remove the mutations
+			// to prevent duplication on next sync.
+			try {
+				const freshEntries = await getEntries();
+				await saveEntriesCache(freshEntries);
+			} catch (err) {
+				console.error('Failed to refresh cache after sync:', err);
+			}
 
-			// NOW remove the mutations (Cache is up to date, so no missing data gap)
+			// NOW remove the mutations
 			for (const id of processedIds) {
 				await removePendingMutation(id);
 			}

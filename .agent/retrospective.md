@@ -116,3 +116,23 @@
 - **Governance Automation**: If you don't enforce documentation updates in code (scripts), they won't happen. Hard blocks are necessary for discipline.
 - **Zero Warnings**: Warnings are errors waiting to happen. Enforcing `max-warnings=0` keeps the codebase pristine and prevents "broken windows".
 - **Closed Loops**: Governance is only effective if mistakes lead to permanent fixes. The "Retro -> Backlog" loop ensures this.
+
+---
+
+## [2026-01-30] Session: Dashboard Revamp & Inventory Logic
+
+### Successes
+- **UI Architecture**: Successfully split `DashboardClient` into focused sub-components (`EntryCard`, `DashboardFilters`), improving readability and maintainability.
+- **Visual Feedback**: Distinct UI for "Purchase" (Green) vs "Consume" (Orange) events makes the history feed instantly parseable.
+- **Resilience**: Implemented a manual migration script when `drizzle-kit` failed, ensuring we weren't blocked by tooling issues.
+- **Sync Logic**: Fixed a critical bug where inventory counts weren't updating after adding entries by adding targeted `revalidatePath` calls.
+
+### Lessons Learned 🧠
+- **Tooling Fallbacks**: `drizzle-kit push` can be flaky with complex schema changes (like adding columns to existing tables with data). Always have a manual `postgres.js` script ready to run raw SQL.
+- **Server Actions & Cache**: `revalidatePath` is not recursive by default in some contexts or might be missed. Explicitly revalidating precise paths (`/app/inventory`) ensures data consistency across the app.
+- **Linting vs Logic**: Some lint errors (like `useEffect` dependencies) point to real logic flaws. Refactoring to avoid the specific pattern (e.g. syncing props to state) is better than suppressing the rule.
+
+### Action Items
+- **Monitoring**: Watch for any "double consumption" issues in production (mitigated by IDB logic but worth tracking).
+- **UX**: Consider adding an "Undo" toast for consumption events, as they are destructive.
+
