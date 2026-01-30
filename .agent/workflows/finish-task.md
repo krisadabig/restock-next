@@ -14,10 +14,14 @@ This workflow merges verification, governance checks, and git operations into a 
    bun scripts/finish-task.ts --verify-only
    ```
 
-2. **Wait for Approval (The "Button")**:
-   If verification passes, you MUST pause and ask the user for confirmation using `notify_user`.
+2. **Create Verification Plan**:
+   Create a temporary artifact (e.g., `verification_plan.md`) summarizing the changes and verification results. This is required to trigger the "Plan Approval" UI.
+
+3. **Wait for Approval (The "Button")**:
+   Call `notify_user` pointing to the artifact you just created.
+   - **PathsToReview**: `['/absolute/path/to/verification_plan.md']`
    - **BlockedOnUser**: `true`
-   - **Message**: "Verification passed. Modified files: [list files]. Ready to commit?"
+   - **Message**: "Verification passed. Please approve the plan to commit."
 
 3. **Commit & Push**:
    Once the user approves (clicking the button), run the auto-commit command.

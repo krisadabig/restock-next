@@ -255,6 +255,14 @@
     - [x] Update `scripts/finish-task.ts` to support `--verify-only` flag (skips git). <!-- id: 193 -->
     - [x] Update `scripts/finish-task.ts` to support `--auto-commit` flag (skips prompts). <!-- id: 194 -->
     - [x] Update `.agent/workflows/finish-task.md` to mandate `notify_user` usage. <!-- id: 195 -->
+- [x] Mock Task for Workflow Test <!-- id: mock-test -->
+    - [x] Create dummy file. <!-- id: mock-test-1 -->
+    - [x] Update docs. <!-- id: mock-test-2 -->
+    - [x] Verify workflow. <!-- id: mock-test-3 -->
+- [x] Formalize Plan-Based Finish Workflow (New Request) <!-- id: plan-workflow -->
+    - [x] Update `.agent/workflows/finish-task.md` to require Plan Artifact creation. <!-- id: plan-workflow-1 -->
+    - [x] Clean up mock test files. <!-- id: plan-workflow-2 -->
+    - [x] Commit using the new Plan-Based Workflow. <!-- id: plan-workflow-3 -->
 
 # Phase 31: Enhancing Agent Configuration
 
