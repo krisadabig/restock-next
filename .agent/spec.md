@@ -29,7 +29,7 @@ Restock is a web application designed to help users track their grocery stock, p
 - **Passkeys**: Integrated via `simplewebauthn`. Supports "Usernameless" login. Passkey login issues the same JWE session cookie.
 
 ### 2. Entries Tracking
-- **Schema**: Defined in `src/lib/db/schema.ts`. Each entry contains `item`, `price`, `date`, `note`, and `userId`.
+- **Schema**: Defined in `src/lib/db/schema.ts`. Each entry contains `item`, `price`, `date`, `note`, `userId`, `type` ('purchase' | 'consume'), `quantity`, and `unit`.
 - **CRUD Operations**: Handled via Server Actions in `src/app/app/actions.ts`. Includes `addEntry`, `updateEntry`, and `deleteEntry`.
 - **Validation**: All server actions utilize **Zod** for input validation and schema enforcement.
 - **Search & Filtering**: `DashboardClient.tsx` implements client-side search (by item name) and date filtering (by month).
@@ -58,7 +58,7 @@ Restock is a web application designed to help users track their grocery stock, p
 
 ### 5. Stock Tracking
 - **Inventory System**: Dedicated inventory view (`/app/inventory`) separating current stock from purchase history.
-- **Consumption Logic**: Dedicated "Consume" action decrements stock without creating a purchase entry.
+- **Consumption Logic**: Dedicated "Consume" action decrements stock and creates a historical entry with `type: 'consume'`.
 - **Smart Input**: "Add Entry" features smart autocomplete and a pill-based unit selector for ergonomic data entry.
 - **Optimistic UI**: Stock updates (consume/restock) are reflected instantly in the UI while syncing in the background.
 
