@@ -1,0 +1,147 @@
+.
+├── design-references
+├── docs
+│   └── reference
+│       └── file-structure.tree
+├── drizzle
+│   ├── meta
+│   │   ├── 0000_snapshot.json
+│   │   ├── 0001_snapshot.json
+│   │   ├── 0002_snapshot.json
+│   │   ├── 0003_snapshot.json
+│   │   └── _journal.json
+│   ├── 0000_brave_stryfe.sql
+│   ├── 0001_warm_grandmaster.sql
+│   ├── 0002_thankful_moondragon.sql
+│   └── 0003_glamorous_titania.sql
+├── playwright-report
+│   ├── data
+│   │   └── 78ed9570193c116f2f36d0015f4c17f33f99b6b5.md
+│   └── index.html
+├── public
+│   ├── images
+│   │   └── hero.png
+│   ├── favicon.ico
+│   ├── file.svg
+│   ├── globe.svg
+│   ├── hero_3d_illustration.png
+│   ├── icon-192x192.png
+│   ├── icon-512x512.png
+│   ├── manifest.json
+│   ├── next.svg
+│   ├── sw.js
+│   ├── vercel.svg
+│   └── window.svg
+├── scripts
+│   ├── finish-task.ts
+│   ├── manual-migrate.ts
+│   ├── release.ts
+│   ├── start-task.ts
+│   ├── utils.ts
+│   └── verify-task.ts
+├── src
+│   ├── app
+│   │   ├── api
+│   │   │   └── auth
+│   │   │       └── route.ts
+│   │   ├── app
+│   │   │   ├── inventory
+│   │   │   │   ├── [item]
+│   │   │   │   │   └── page.tsx
+│   │   │   │   └── page.tsx
+│   │   │   ├── settings
+│   │   │   │   └── page.tsx
+│   │   │   ├── trends
+│   │   │   │   └── page.tsx
+│   │   │   ├── actions.ts
+│   │   │   ├── layout.tsx
+│   │   │   └── page.tsx
+│   │   ├── auth
+│   │   │   └── actions.ts
+│   │   ├── login
+│   │   │   └── page.tsx
+│   │   ├── favicon.ico
+│   │   ├── globals.css
+│   │   ├── layout.tsx
+│   │   └── page.tsx
+│   ├── components
+│   │   ├── dashboard
+│   │   │   ├── AddEntryModal.tsx
+│   │   │   ├── BottomNav.tsx
+│   │   │   ├── DashboardClient.tsx
+│   │   │   ├── DashboardFilters.tsx
+│   │   │   ├── DeleteEntryModal.tsx
+│   │   │   ├── EditEntryModal.tsx
+│   │   │   ├── EntryCard.tsx
+│   │   │   ├── ManageInventoryModal.tsx
+│   │   │   ├── TimelineModal.tsx
+│   │   │   └── TrendsClient.tsx
+│   │   ├── inventory
+│   │   │   ├── InventoryCard.tsx
+│   │   │   ├── InventoryClient.tsx
+│   │   │   └── ItemDetailClient.tsx
+│   │   ├── landing
+│   │   │   ├── FeatureSection.tsx
+│   │   │   ├── Footer.tsx
+│   │   │   ├── HeroSection.tsx
+│   │   │   └── InstallAppSection.tsx
+│   │   ├── providers
+│   │   │   ├── OfflineContext.tsx
+│   │   │   └── UIContext.tsx
+│   │   ├── ui
+│   │   │   ├── Autocomplete.tsx
+│   │   │   └── PillSelector.tsx
+│   │   ├── LanguageToggle.tsx
+│   │   ├── PWARegistry.tsx
+│   │   ├── Providers.tsx
+│   │   ├── SkeletonList.tsx
+│   │   └── ThemeToggle.tsx
+│   ├── lib
+│   │   ├── db
+│   │   │   ├── index.ts
+│   │   │   └── schema.ts
+│   │   ├── server
+│   │   │   └── session.ts
+│   │   ├── auth.ts
+│   │   ├── i18n.tsx
+│   │   ├── idb.test.ts
+│   │   ├── idb.ts
+│   │   ├── session.ts
+│   │   └── sync.ts
+│   └── proxy.ts
+├── test-results
+│   └── inventory-Stock-Tracking-I-7540a-te-full-inventory-lifecycle-chromium
+│       └── error-context.md
+├── tests
+│   ├── components
+│   │   ├── LanguageToggle.test.tsx
+│   │   └── ThemeToggle.test.tsx
+│   ├── e2e
+│   │   ├── dashboard.spec.ts
+│   │   ├── inventory.spec.ts
+│   │   ├── landing.spec.ts
+│   │   ├── login.spec.ts
+│   │   ├── modal-positioning.spec.ts
+│   │   ├── polish.spec.ts
+│   │   ├── settings.spec.ts
+│   │   └── trends.spec.ts
+│   ├── mocks
+│   │   └── server-only.ts
+│   ├── db.test.ts
+│   ├── inventory-quantity.test.ts
+│   ├── inventory.test.ts
+│   └── session.test.ts
+├── README.md
+├── bun.lock
+├── drizzle.config.ts
+├── eslint.config.mjs
+├── next-env.d.ts
+├── next.config.ts
+├── package.json
+├── playwright.config.ts
+├── postcss.config.mjs
+├── supabase_trigger.sql
+├── tsconfig.json
+└── vitest.config.ts
+
+37 directories, 108 files

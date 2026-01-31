@@ -268,22 +268,18 @@
     - [x] Select a lesson (e.g., Linting Scripts). <!-- id: retro-workflow-2 -->
     - [x] Create/Update the corresponding Rule/Skill. <!-- id: retro-workflow-3 -->
 
-# Phase 31: Enhancing Agent Configuration
+# Phase 32: Application Visualization
 
-- [x] Analyze existing agent configuration files <!-- id: 176 -->
-    - [x] Identify unused skills (Elysia, Yjs, Monorepo). <!-- id: 177 -->
-    - [x] Verify rules and workflows. <!-- id: 178 -->
-- [x] Create Implementation Plan <!-- id: 179 -->
-- [x] Execute Changes <!-- id: 180 -->
-    - [x] Delete unused skill directories. <!-- id: 181 -->
-    - [x] Update `scripts/start-task.ts` with Smart Skill Recommendations. <!-- id: 182 -->
-    - [x] Adopt `next-skills`. <!-- id: 183 -->
-    - [x] Adopt `codebase-analysis`. <!-- id: 184 -->
-    - [x] Enhance `finish-task` script (Smart Reminders + Auto Git). <!-- id: 185 -->
-    - [x] Merge `git-flow.md` into `finish-task.md`. <!-- id: 186 -->
-    - [x] Create `scripts/implement-retrospective.ts` and workflow. <!-- id: 187 -->
-- [x] Verify Changes <!-- id: 188 -->
-- [x] Refine 'finish-task' Safety <!-- id: 189 -->
-    - [x] Update `scripts/finish-task.ts` with explicit "Ready to Stage?" warning. <!-- id: 190 -->
-    - [x] Verified interactively. <!-- id: 191 -->
+- [x] Visualize Application Structure <!-- id: visualize-app -->
+    - [x] Create `docs/reference/` directory. <!-- id: vis-1 -->
+    - [x] Generate `file-structure.tree` (Textual representation). <!-- id: vis-2 -->
+    - [x] Generate `architecture.md` (Mermaid Diagrams: System Context, Database, Component). <!-- id: vis-3 -->
+    - [x] Generate `tech-stack.md` (Comprehensive list of tools/libraries). <!-- id: vis-4 -->
+    - [x] Capture Comprehensive UI Screenshots using Playwright. <!-- id: vis-5 -->
+        - [x] Landing & Login <!-- id: vis-5a -->
+        - [x] Dashboard (Empty & Populated) <!-- id: vis-5b -->
+        - [x] Inventory List & Details <!-- id: vis-5c -->
+        - [x] Settings <!-- id: vis-5d -->
+        - [x] Add/Edit Modals <!-- id: vis-5e -->
+    - [x] Compile `README.md` for the reference folder. <!-- id: vis-6 -->
 
