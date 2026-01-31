@@ -55,3 +55,7 @@ Each rule file contains:
 ## Full Compiled Document
 
 For the complete guide with all rules expanded: `AGENTS.md`
+
+
+### New Guideline
+`drizzle-kit push` can be flaky with complex schema changes (e.g., adding columns to populated tables). Always have a manual `postgres.js` script ready to run raw SQL migrations as a fallback.

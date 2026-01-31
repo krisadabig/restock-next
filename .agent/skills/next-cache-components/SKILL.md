@@ -358,3 +358,6 @@ async function DynamicContent() {
 Sources:
 - [Cache Components Guide](https://nextjs.org/docs/app/getting-started/cache-components)
 - [use cache Directive](https://nextjs.org/docs/app/api-reference/directives/use-cache)
+
+## Standard Cache Validation
+`revalidatePath` is not recursive by default in some contexts. Explicitly revalidate precise paths (e.g., `/app/inventory`) after mutations to ensure immediate data consistency across the app, rather than relying on layout revalidation.

@@ -1,6 +1,27 @@
 
 # Retrospective Log
 
+## [2026-01-31] Session: Visualize Application Structure
+- **Reference Docs**: Created `docs/reference/` with File Tree, Tech Stack, and Architecture Diagrams.
+- **Documentation**: Generated diagrams from code analysis (Schema -> ER Diagram).
+- **Screenshots**: Automated capture of Landing and Login pages using Playwright.
+
+### Lessons Learned 🧠
+- **Path Resolution**: The `tree` tool is invaluable for quickly orienting in a codebase where file paths are not immediately obvious (e.g., finding `schema.ts`).
+- **Playwright Navigation**: Automated screenshot capture requires the dev server to be running. `bun dev` makes this fast, but ensuring it's ready before navigation is key.
+- **Robust Selectors**: When capturing screenshots of dynamic apps, waiting for `load` or `networkidle` is often insufficient. Always wait for specific UI elements (e.g., `form`, `header.sticky`) and add stability delays (e.g., `waitForTimeout(2000)`) to ensure hydration and animations are complete.
+- **Selector Specificity**: Generic selectors like `[role="dialog"]` can fail if libraries implement modals as simple `divs`. Inspect the DOM to find robust alternatives (like `form` inside the modal).
+
+### Upgrades Implemented 🚀
+- **Skill Upgrade**: Updated `playwright-skill` with mandatory guidelines for:
+  1. "Robust Selectors" (Wait for `form` not just `load`)
+  2. "Selector Specificity" (Avoid generic `[role="dialog"]`)
+  3. "Playwright Navigation" (Verify dev server readiness)
+- **Deep Knowledge**: Added "Path Resolution" strategy to `codebase-analysis` skill to improve orientation speed.
+- **Workflow Improvement**: Fixed session ordering and added **Multi-Select & Session Selection** capability to `implement-retrospective.ts` (process history).
+
+---
+
 ## [2026-01-30] Session: Stock Tracking Feature Verification
 
 ### Successes
@@ -16,6 +37,11 @@
 - Continue enforcing `aria-label` on all interactive icon-only elements.
 - Consider sharing the E2E test patterns (Auth injection, robust selectors) with the team.
 
+### Upgrades Implemented 🚀
+- **Skill Upgrade**: Updated `playwright-skill` with:
+  1. "Exact Matches" (Copy-paste restriction for placeholders)
+  2. "Interactions" (Use `{ force: true }` for complex styled elements like Pill Selectors)
+
 ---
 
 ## [2026-01-30] Session: UI Polishing & Verification
@@ -30,6 +56,8 @@
 - **Visual Polish**: Implemented "Deep Glass" aesthetic across Login, Dashboard, and Settings pages.
 - **Test Reliability**: Updated `ThemeToggle` tests to be async-aware and properly wrapped, reducing flake.
 - **Browser Verification**: Used browser subagent to visually verify UI states, complementing automated tests.
+- **Skill Upgrade**: Updated `tailwind-design-system` with strict rules against complex `@apply` variants (fixing Tailwind 4 syntax errors).
+- **Skill Upgrade**: Updated `test-driven-development` with guidelines for async testing of hydrated components.
 
 ---
 
@@ -60,8 +88,6 @@
 
 ### Upgrades Implemented 🚀
 - **DashboardClient**: Added `useEffect` to sync `activeModal` with `showAddModal` prop, fixing the "Add Entry" button on mobile/client nav.
-
----
 
 ---
 
@@ -119,17 +145,6 @@
 - **Operationalized**: Turned "Lift Scripts" lesson into `.agent/rules/governance-linting.md` using the new `/implement-retrospective` workflow.
 - **Cleanup**: Removed 6 unused skill directories, reducing noise.
 
-## [2026-01-31] Session: Visualize Application Structure
-- **Reference Docs**: Created `docs/reference/` with File Tree, Tech Stack, and Architecture Diagrams.
-- **Documentation**: Generated diagrams from code analysis (Schema -> ER Diagram).
-- **Screenshots**: Automated capture of Landing and Login pages using Playwright.
-
-### Lessons Learned 🧠
-- **Path Resolution**: The `tree` tool is invaluable for quickly orienting in a codebase where file paths are not immediately obvious (e.g., finding `schema.ts`).
-- **Playwright Navigation**: Automated screenshot capture requires the dev server to be running. `bun dev` makes this fast, but ensuring it's ready before navigation is key.
-
----
-
 ## [2026-01-30] Session: Dashboard Revamp & Inventory Logic
 
 ### Successes
@@ -142,6 +157,10 @@
 - **Tooling Fallbacks**: `drizzle-kit push` can be flaky with complex schema changes (like adding columns to existing tables with data). Always have a manual `postgres.js` script ready to run raw SQL.
 - **Server Actions & Cache**: `revalidatePath` is not recursive by default in some contexts or might be missed. Explicitly revalidating precise paths (`/app/inventory`) ensures data consistency across the app.
 - **Linting vs Logic**: Some lint errors (like `useEffect` dependencies) point to real logic flaws. Refactoring to avoid the specific pattern (e.g. syncing props to state) is better than suppressing the rule.
+
+### Upgrades Implemented 🚀
+- **Skill Upgrade**: Updated `postgres-best-practices` with fallback strategy (manual SQL script) for flaky `drizzle-kit` pushes.
+- **Skill Upgrade**: Updated `next-cache-components` with `revalidatePath` precision guidelines to prevent stale data.
 
 ### Action Items
 - **Monitoring**: Watch for any "double consumption" issues in production (mitigated by IDB logic but worth tracking).
@@ -171,4 +190,3 @@
 
 ### Preventive Measures 🛡️
 - **Self-Correction**: The `finish-task` script now warns users if they try to finish without updating documentation or running tests, physically preventing skipped steps.
-

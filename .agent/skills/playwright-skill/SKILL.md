@@ -451,3 +451,19 @@ User: "Use 3001"
 - Test scripts written to `/tmp` for automatic cleanup (no clutter)
 - Code executes reliably with proper module resolution via `run.js`
 - Progressive disclosure - API_REFERENCE.md loaded only when advanced features needed
+
+
+### New Guideline
+When capturing screenshots of dynamic apps, waiting for `load` or `networkidle` is often insufficient. Always wait for specific UI elements (e.g., `form`, `header.sticky`) and add stability delays (e.g., `waitForTimeout(2000)`) to ensure hydration and animations are complete.
+
+### New Guideline
+Generic selectors like `[role="dialog"]` can fail if libraries implement modals as simple `divs`. Inspect the DOM to find robust alternatives (like `form` inside the modal).
+
+### New Guideline
+Automated screenshot capture requires the dev server to be running. `bun dev` makes this fast, but ensuring it's ready before navigation is key. Always check if the server is up (e.g. `detectDevServers()`) before executing tests.
+
+### New Guideline
+Playwright's `getByPlaceholder` is strict. Always copy-paste strings from the source code to avoid mismatches (e.g., "Search items..." vs "Search stock...").
+
+### New Guideline
+Elements with complex styling or animations (like custom Pill Selectors) may require `{ force: true }` in tests to bypass strict actionability checks. Use sparingly, but prefer it over flaky tests for custom UI controls.

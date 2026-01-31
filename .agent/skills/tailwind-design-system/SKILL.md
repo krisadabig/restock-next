@@ -31,3 +31,7 @@ Build production-ready design systems with Tailwind CSS, including design tokens
 ## Resources
 
 - `resources/implementation-playbook.md` for detailed patterns and examples.
+
+
+### New Guideline
+Avoid using complex variants (like `dark:`) directly in `@apply`. It triggers `CssSyntaxError` with Tailwind 4. Use standard CSS nesting (`&:where(.dark, ...)`) instead.

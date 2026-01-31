@@ -369,3 +369,7 @@ Otherwise → not TDD
 ```
 
 No exceptions without your human partner's permission.
+
+
+### New Guideline
+Components that rely on client-side hydration (like `ThemeToggle` or anything reading `localStorage` on mount) must be tested with `findBy` (async) queries rather than `getBy` (sync). This allows time for the `useEffect` to fire and the DOM to settle.

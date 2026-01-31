@@ -67,20 +67,23 @@ Failure to run the verification script constitutes a violation of project govern
 | **Dark Theme Palette Fix** | PASS | 2026-01-30T02:15:00 | Lightened Dark Mode Primary (#818cf8) & Destructive (#f87171) to pass WCAG AA. Verified visually. |
 | Stock Tracking | PASS | 2026-01-30T14:30:00 | Implemented Inventory UI, Smart Inputs, Consumption Logic. Verified full E2E lifecycle (Add->Consume->Restock). |
 | Dashboard Revamp | PASS | 2026-01-30T15:05:00 | Modularized Dashboard (EntryCard, Filters). Fixed Inventory Sync & 'Consume' logic. 100% tests pass. |
+| Operationalize Retro | PASS | 2026-01-31T00:30:00 | Upgraded implement-retrospective.ts with Session Selection. Operationalized 4 lessons from history. |
 
 ## 🔄 Session Handoff
 
-**Current Status**: [COMPLETED] "Enhance Agent Workflows"
+**Current Status**: [COMPLETED] "Operationalize Retrospective"
 **Branch**: `feature/enhance-agent-configuration`
 
 ### 📌 Recent Achievements
 1.  **Workflow Upgrade**:
     -   Merged `git-flow` + `finish-task` into a single interactive `bun scripts/finish-task.ts`.
     -   Added "Smart Verification" to prompt checks based on changed files.
-    -   Created `bun scripts/implement-retrospective.ts` for closed-loop improvement.
-2.  **Skill & Config Cleanup**:
-    -   Removed unused skills (`elysia*`, `monorepo*`, `yjs*`).
-    -   Adopted `codebase-analysis` and `next-skills`.
+    -   Created `bun scripts/implement-retrospective.ts` with **Time Travel** (Session Selection).
+2.  **Operationalized Lessons**:
+    -   Backfilled improvements for Playwright (Exact Matches), Tailwind (v4 Syntax), and Database (Drizzle Fallbacks).
+3.  **Skill & Config Cleanup**:
+    -   Removed unused skills.
+    -   Adopted `codebase-analysis`.
 
 ### ⚠️ Known Issues / Blockers
 - None. Governance scripts are verified and passing.

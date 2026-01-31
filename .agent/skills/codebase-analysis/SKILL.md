@@ -384,3 +384,7 @@ Track progress with clear KPIs:
 7. **ROI Projections**: Expected returns on debt reduction investment
 
 Focus on delivering measurable improvements that directly impact development velocity, system reliability, and team morale.
+
+
+### New Guideline
+When oriented in a new codebase, avoid aimlessly clicking around. Use the `tree` tool to map the directory structure and identify key files (e.g., `schema.ts`, `layout.tsx`). This provides a "spatial" understanding that accelerates navigation.
