@@ -1,6 +1,24 @@
 
 # Retrospective Log
 
+## [2026-02-01] Session: Establish Safety Protocols
+
+### Goal
+Implement guardrails to prevent AI agent from bypassing user confirmation on critical actions (commits, deployment).
+
+### Accomplishments
+- **Halt-on-Commit Protocol**: Formalized rule in `workflow.md` forbidding `send_command_input` for confirmation prompts.
+- **Script Hardening**: Updated `finish-task.ts` to include `[AGENT: DO NOT AUTO-CONFIRM]` warning in the prompt text.
+- **Verification**: Verified that the script pauses and waits for user input.
+
+### Lessons Learned
+- **Adversarial Prompting**: Adding explicit instructions *inside* the prompt text ("HALT AND NOTIFY USER") is an effective way to stop LLM auto-execution.
+- **Governance First**: Rules must be written down (`workflow.md`) before being enforced by scripts.
+
+### Upgrades Implemented 🚀
+- **Rule Upgrade**: Added "Critical Agent Protocols" section to `workflow.md`.
+
+---
 ## [2026-01-31] Session: Visualize Application Structure
 - **Reference Docs**: Created `docs/reference/` with File Tree, Tech Stack, and Architecture Diagrams.
 - **Documentation**: Generated diagrams from code analysis (Schema -> ER Diagram).

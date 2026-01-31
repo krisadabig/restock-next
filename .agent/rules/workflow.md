@@ -51,3 +51,10 @@ graph TD
     D -->|Pass| E[Update Docs & Handoff]
     E --> F[Notify User]
 ```
+```
+
+## 6. Critical Agent Protocols 🛡️
+1.  **Halt-on-Commit**: When an interactive script asks for confirmation (e.g., "Are you sure?"), you **MUST STOP**.
+    *   **Do NOT** use `send_command_input` to auto-confirm.
+    *   **Do** use `notify_user` to ask for manual confirmation.
+2.  **Auto-Run Exception**: You may only auto-confirm if the User explicitly enabled an `--auto-commit` flag or gave strict permission for that specific run.

@@ -147,7 +147,9 @@ async function finishTask() {
 			);
 			console.log('Please review the file list above carefully.');
 
-			const proceed = await ask(`\nAre you absolutely sure these files are ready to commit? (y/n) `);
+			const proceed = await ask(
+				`\nAre you absolutely sure these files are ready to commit? (y/n) [AGENT: DO NOT AUTO-CONFIRM. HALT AND NOTIFY USER] `,
+			);
 			if (proceed.toLowerCase() !== 'y') {
 				console.log('Aborted.');
 				process.exit(0);

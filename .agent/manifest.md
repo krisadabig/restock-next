@@ -81,7 +81,10 @@ Failure to run the verification script constitutes a violation of project govern
     -   Created `bun scripts/implement-retrospective.ts` with **Time Travel** (Session Selection).
 2.  **Operationalized Lessons**:
     -   Backfilled improvements for Playwright (Exact Matches), Tailwind (v4 Syntax), and Database (Drizzle Fallbacks).
-3.  **Skill & Config Cleanup**:
+3.  **Safety Protocols**:
+    -   Implemented 'Halt-on-Commit' rule to prevent authorized agent commits.
+    -   Hardened `finish-task.ts` with adversarial warnings.
+4.  **Skill & Config Cleanup**:
     -   Removed unused skills.
     -   Adopted `codebase-analysis`.
 

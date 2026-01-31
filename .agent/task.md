@@ -267,6 +267,9 @@
     - [x] Run `bun scripts/implement-retrospective.ts`. <!-- id: retro-workflow-1 -->
     - [x] Select a lesson (e.g., Linting Scripts). <!-- id: retro-workflow-2 -->
     - [x] Create/Update the corresponding Rule/Skill. <!-- id: retro-workflow-3 -->
+- [x] **Safety Protocol (Self-Correction)** <!-- id: safety-1 -->
+    - [x] Implement "Halt-on-Commit" rule in `workflow.md`. <!-- id: safety-2 -->
+    - [x] Add explicit AGENT WARNING to `finish-task.ts` prompt. <!-- id: safety-3 -->
 
 # Phase 32: Application Visualization
 
