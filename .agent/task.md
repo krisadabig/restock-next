@@ -233,3 +233,18 @@
     - [x] Implement distinct event types (Purchase vs Consume) <!-- id: 174 -->
     - [x] Fix Inventory Sync Logic (`revalidatePath`) <!-- id: 175 -->
 
+# Phase 32: Application Visualization
+
+- [x] Visualize Application Structure <!-- id: visualize-app -->
+    - [x] Create `docs/reference/` directory. <!-- id: vis-1 -->
+    - [x] Generate `file-structure.tree` (Textual representation). <!-- id: vis-2 -->
+    - [x] Generate `architecture.md` (Mermaid Diagrams: System Context, Database, Component). <!-- id: vis-3 -->
+    - [x] Generate `tech-stack.md` (Comprehensive list of tools/libraries). <!-- id: vis-4 -->
+    - [x] Capture Comprehensive UI Screenshots using Playwright. <!-- id: vis-5 -->
+        - [x] Landing & Login <!-- id: vis-5a -->
+        - [x] Dashboard (Empty & Populated) <!-- id: vis-5b -->
+        - [x] Inventory List & Details <!-- id: vis-5c -->
+        - [x] Settings <!-- id: vis-5d -->
+        - [x] Add/Edit Modals <!-- id: vis-5e -->
+    - [x] Compile `README.md` for the reference folder. <!-- id: vis-6 -->
+

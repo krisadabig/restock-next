@@ -116,6 +116,17 @@
 - **Governance Automation**: If you don't enforce documentation updates in code (scripts), they won't happen. Hard blocks are necessary for discipline.
 - **Zero Warnings**: Warnings are errors waiting to happen. Enforcing `max-warnings=0` keeps the codebase pristine and prevents "broken windows".
 - **Closed Loops**: Governance is only effective if mistakes lead to permanent fixes. The "Retro -> Backlog" loop ensures this.
+- **Operationalized**: Turned "Lift Scripts" lesson into `.agent/rules/governance-linting.md` using the new `/implement-retrospective` workflow.
+- **Cleanup**: Removed 6 unused skill directories, reducing noise.
+
+## [2026-01-31] Session: Visualize Application Structure
+- **Reference Docs**: Created `docs/reference/` with File Tree, Tech Stack, and Architecture Diagrams.
+- **Documentation**: Generated diagrams from code analysis (Schema -> ER Diagram).
+- **Screenshots**: Automated capture of Landing and Login pages using Playwright.
+
+### Lessons Learned 🧠
+- **Path Resolution**: The `tree` tool is invaluable for quickly orienting in a codebase where file paths are not immediately obvious (e.g., finding `schema.ts`).
+- **Playwright Navigation**: Automated screenshot capture requires the dev server to be running. `bun dev` makes this fast, but ensuring it's ready before navigation is key.
 
 ---
 
