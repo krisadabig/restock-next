@@ -1,45 +1,46 @@
----
-description: Finish the current task and run governance checks.
----
 
 # Finish Task Workflow
 
-This workflow merges verification, governance checks, and git operations into a single command. It is the **ONLY** way to complete a task.
+This workflow merges verification, governance checks, and git operations.
 
-## Agent Procedure (Interactive UI)
+## 🤖 Agent Procedure (MANDATORY)
 
-1. **Verify First**:
-   Run the checks *without* committing to validate the state.
-   ```bash
-   bun scripts/finish-task.ts --verify-only
-   ```
+Agents **MUST** follow this exact sequence. Do **NOT** use the interactive mode.
 
-2. **Create Verification Plan**:
-   Create a temporary artifact (e.g., `verification_plan.md`) summarizing the changes and verification results. This is required to trigger the "Plan Approval" UI.
+1.  **Verify First**:
+    Run checks without committing.
+    ```bash
+    bun scripts/finish-task.ts --verify-only
+    ```
 
-3. **Wait for Approval (The "Button")**:
-   Call `notify_user` pointing to the artifact you just created.
-   - **PathsToReview**: `['/absolute/path/to/verification_plan.md']`
-   - **BlockedOnUser**: `true`
-   - **Message**: "Verification passed. Please approve the plan to commit."
+2.  **Create Verification Plan**:
+    Create `verification_plan.md` (ArtifactType: `implementation_plan`) with:
+    - Summary of changes
+    - Verification evidence (screenshots, test results)
+    - Manual protocols verified (if any)
 
-3. **Commit & Push**:
-   Once the user approves (clicking the button), run the auto-commit command.
-   ```bash
-   bun scripts/finish-task.ts --auto-commit "type(scope): message"
-   ```
+3.  **Request Approval (The "Proceed" Button)**:
+    Call `notify_user` with:
+    - `PathsToReview`: `['/absolute/path/to/verification_plan.md']`
+    - `BlockedOnUser`: `true`
+    - `ShouldAutoProceed`: `true` (Triggers the UI Button)
+    - `Message`: "Verification passed. Click Proceed to commit."
 
-## Manual Procedure (Terminal)
+4.  **Commit & Push**:
+    **ONLY** after the user clicks "Proceed" (or says "yes"), run:
+    ```bash
+    bun scripts/finish-task.ts --auto-commit "type(scope): message"
+    ```
 
-If the user is running this manually in their terminal:
+## 👤 Manual Procedure (Humans Only)
+
+Humans can run the interactive script directly:
 ```bash
 bun scripts/finish-task.ts
 ```
-(This will run interactively with Y/N prompts).
 
-## Handling Failures
-
-- **Verification Failed?** Fix the code/tests and re-run.
-- **Governance Failed?** Update the required docs (`/handoff` workflow is helper).
-- **Git Failed?** You may need to handle complex merge conflicts manually.
+## ❌ Agent Red Lines
+- **NEVER** run `bun scripts/finish-task.ts` interactively.
+- **NEVER** use `send_command_input` to bypass the prompt.
+- **ALWAYS** create a Verification Plan artifact before committing.
 

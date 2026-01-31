@@ -263,6 +263,10 @@
     - [x] Update `.agent/workflows/finish-task.md` to require Plan Artifact creation. <!-- id: plan-workflow-1 -->
     - [x] Clean up mock test files. <!-- id: plan-workflow-2 -->
     - [x] Commit using the new Plan-Based Workflow. <!-- id: plan-workflow-3 -->
+- [x] Formalize Plan-Based Commit Workflow <!-- id: formal-workflow -->
+    - [x] Update docs (`finish-task.md`) to mandate Plan-Based Workflow for Agents. <!-- id: formal-workflow-1 -->
+    - [x] Update script (`finish-task.ts`) with interactive deprecation warning. <!-- id: formal-workflow-2 -->
+    - [x] Create mock task and verify the full cycle. <!-- id: formal-workflow-3 -->
 - [x] Operationalize Retrospective (Workflow) <!-- id: retro-workflow -->
     - [x] Run `bun scripts/implement-retrospective.ts`. <!-- id: retro-workflow-1 -->
     - [x] Select a lesson (e.g., Linting Scripts). <!-- id: retro-workflow-2 -->

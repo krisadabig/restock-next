@@ -148,7 +148,7 @@ async function finishTask() {
 			console.log('Please review the file list above carefully.');
 
 			const proceed = await ask(
-				`\nAre you absolutely sure these files are ready to commit? (y/n) [AGENT: DO NOT AUTO-CONFIRM. HALT AND NOTIFY USER] `,
+				`\nAre you absolutely sure these files are ready to commit? (y/n)\n[AGENT: STOP! Do not use interactive mode. Run --verify-only, create verification_plan.md, and ask for approval.]\n> `,
 			);
 			if (proceed.toLowerCase() !== 'y') {
 				console.log('Aborted.');

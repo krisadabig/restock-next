@@ -1,6 +1,24 @@
 
 # Retrospective Log
 
+## [2026-02-01] Session: Formalize Plan-Based Commit Workflow
+
+### Goal
+Establish a mandatory, plan-driven commit workflow for AI agents to ensure explicit user approval and verification evidence.
+
+### Accomplishments
+- **Workflow Mandate**: Formally updated `finish-task.md` to require Agents to use the `verify-only` -> `verification_plan.md` -> `auto-commit` sequence.
+- **Agent Guardrails**: Integrated an adversarial deprecation warning into `finish-task.ts` interactive mode to force Agents away from bypass-prone prompts.
+- **Verification Cycle**: Successfully tested the loop with a mock file.
+
+### Lessons Learned
+- **Bypass Vulnerability**: Interactive scripts are inherently risky for agents as they can be auto-confirmed via `send_command_input`. Artifact-based approvals are much safer.
+- **Explicit Instruction**: Using clear "STOP" messages and specific instructions within CLI output acts as a secondary layer of control for the agent.
+
+### Upgrades Implemented 🚀
+- **Workflow Upgrade**: Stricter `finish-task` protocol codified.
+
+---
 ## [2026-02-01] Session: Establish Safety Protocols
 
 ### Goal
