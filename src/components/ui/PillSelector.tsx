@@ -30,7 +30,7 @@ export default function PillSelector({ name, options, value, onChange }: PillSel
 
             <div 
                 ref={scrollContainerRef}
-                className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-hide -mx-1 px-1"
+                className="flex items-center gap-3 overflow-x-auto pb-4 scrollbar-hide -mx-2 px-2"
             >
                 {options.map((option) => {
                     const isActive = value === option;
@@ -40,10 +40,10 @@ export default function PillSelector({ name, options, value, onChange }: PillSel
                             type="button"
                             data-active={isActive}
                             onClick={() => onChange(option)}
-                            className={`shrink-0 px-4 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all active:scale-95 border-2 ${
+                            className={`shrink-0 h-11 px-6 rounded-xl text-[10px] font-bold uppercase tracking-[0.2em] transition-all active:scale-95 border ${
                                 isActive
-                                    ? 'bg-indigo-600 dark:bg-indigo-500 border-indigo-600 dark:border-indigo-500 text-white shadow-lg shadow-indigo-500/30'
-                                    : 'bg-white dark:bg-slate-800 border-transparent text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-700'
+                                    ? 'bg-primary text-white border-primary shadow-lg shadow-primary/30'
+                                    : 'bg-secondary/20 border-primary/5 text-muted-foreground/60 hover:bg-secondary/40 hover:text-foreground'
                             }`}
                         >
                             {option}

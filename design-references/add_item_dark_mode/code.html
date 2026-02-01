@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Add Item Dark Mode</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#7f13ec",
+                        "background-light": "#f7f6f8",
+                        "background-dark": "#0d0d0d",
+                        "field-dark": "#1a1a1a",
+                        "field-border": "#2d2d2d"
+                    },
+                    fontFamily: {
+                        "display": ["Plus Jakarta Sans", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: "Plus Jakarta Sans", sans-serif;
+        }
+        .ios-blur {
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-black flex items-center justify-center min-h-screen">
+<!-- Phone Container Simulation -->
+<div class="relative w-full max-w-[430px] h-[932px] bg-background-dark overflow-hidden flex flex-col shadow-2xl border-x border-gray-800">
+<!-- Status Bar Spacer (Simulated) -->
+<div class="h-12 w-full"></div>
+<!-- Main Background Content (Faded/Overlayed) -->
+<div class="absolute inset-0 z-0 opacity-20 pointer-events-none p-6">
+<div class="space-y-4">
+<div class="h-24 w-full bg-field-dark rounded-xl"></div>
+<div class="h-24 w-full bg-field-dark rounded-xl"></div>
+<div class="h-24 w-full bg-field-dark rounded-xl"></div>
+<div class="h-24 w-full bg-field-dark rounded-xl"></div>
+</div>
+</div>
+<!-- Bottom Sheet Background Blur -->
+<div class="absolute inset-0 bg-black/60 z-10"></div>
+<!-- Bottom Sheet Modal -->
+<div class="mt-auto relative z-20 w-full bg-background-dark border-t border-white/10 rounded-t-[32px] flex flex-col">
+<!-- BottomSheetHandle -->
+<div class="flex flex-col items-center pt-3 pb-2">
+<div class="h-1.5 w-10 rounded-full bg-white/20"></div>
+</div>
+<!-- Header -->
+<div class="flex items-center justify-between px-6 pt-2 pb-4">
+<h2 class="text-white text-2xl font-bold tracking-tight">Add New Item</h2>
+<button class="w-8 h-8 flex items-center justify-center rounded-full bg-white/10">
+<span class="material-symbols-outlined text-white text-[20px]">close</span>
+</button>
+</div>
+<div class="flex-1 overflow-y-auto px-6 pb-10">
+<form class="space-y-6">
+<!-- Product Name Field (Select/Type) -->
+<div class="flex flex-col gap-2">
+<label class="text-white/60 text-sm font-medium px-1 uppercase tracking-wider">Product Name</label>
+<div class="relative">
+<select class="appearance-none w-full h-14 bg-field-dark border border-field-border rounded-xl px-4 text-white focus:ring-2 focus:ring-primary focus:outline-none focus:border-transparent transition-all">
+<option disabled="" selected="" value="">Search or select item...</option>
+<option value="milk">Whole Milk</option>
+<option value="eggs">Organic Eggs (12pk)</option>
+<option value="bread">Sourdough Bread</option>
+</select>
+<div class="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
+<span class="material-symbols-outlined text-white/40">expand_more</span>
+</div>
+</div>
+</div>
+<!-- Quantity and Price Row -->
+<div class="grid grid-cols-2 gap-4">
+<div class="flex flex-col gap-2">
+<label class="text-white/60 text-sm font-medium px-1 uppercase tracking-wider">Quantity</label>
+<div class="flex items-center bg-field-dark border border-field-border rounded-xl h-14 overflow-hidden">
+<button class="px-3 text-white/40 hover:text-white transition-colors" type="button">
+<span class="material-symbols-outlined">remove</span>
+</button>
+<input class="w-full bg-transparent border-none text-center text-white text-lg font-semibold focus:ring-0" placeholder="0" type="number" value="1"/>
+<button class="px-3 text-white/40 hover:text-white transition-colors" type="button">
+<span class="material-symbols-outlined">add</span>
+</button>
+</div>
+</div>
+<div class="flex flex-col gap-2">
+<label class="text-white/60 text-sm font-medium px-1 uppercase tracking-wider">Price</label>
+<div class="relative">
+<span class="absolute left-4 top-1/2 -translate-y-1/2 text-white/40 font-medium">$</span>
+<input class="w-full h-14 bg-field-dark border border-field-border rounded-xl pl-8 pr-4 text-white text-lg font-semibold focus:ring-2 focus:ring-primary focus:outline-none focus:border-transparent transition-all" placeholder="0.00" type="text"/>
+</div>
+</div>
+</div>
+<!-- Unit Segmented Picker -->
+<div class="flex flex-col gap-3">
+<label class="text-white/60 text-sm font-medium px-1 uppercase tracking-wider">Unit</label>
+<div class="flex p-1 bg-field-dark rounded-xl border border-field-border">
+<button class="flex-1 py-2.5 text-sm font-semibold rounded-lg bg-primary text-white shadow-lg" type="button">pcs</button>
+<button class="flex-1 py-2.5 text-sm font-medium text-white/40 hover:text-white" type="button">kg</button>
+<button class="flex-1 py-2.5 text-sm font-medium text-white/40 hover:text-white" type="button">ml</button>
+<button class="flex-1 py-2.5 text-sm font-medium text-white/40 hover:text-white" type="button">box</button>
+</div>
+</div>
+<!-- Date Selection -->
+<div class="flex flex-col gap-2">
+<label class="text-white/60 text-sm font-medium px-1 uppercase tracking-wider">Best Before</label>
+<div class="flex items-center bg-field-dark border border-field-border rounded-xl h-14 px-4 gap-3">
+<span class="material-symbols-outlined text-primary">calendar_today</span>
+<span class="text-white flex-1">Set expiration date</span>
+<span class="material-symbols-outlined text-white/20">chevron_right</span>
+</div>
+</div>
+<!-- Category Pills -->
+<div class="flex flex-col gap-3">
+<label class="text-white/60 text-sm font-medium px-1 uppercase tracking-wider">Category</label>
+<div class="flex flex-wrap gap-2">
+<span class="px-4 py-2 bg-field-dark border border-primary/40 text-primary text-sm font-semibold rounded-full">Dairy</span>
+<span class="px-4 py-2 bg-field-dark border border-field-border text-white/60 text-sm font-medium rounded-full">Produce</span>
+<span class="px-4 py-2 bg-field-dark border border-field-border text-white/60 text-sm font-medium rounded-full">Bakery</span>
+<span class="px-4 py-2 bg-field-dark border border-field-border text-white/60 text-sm font-medium rounded-full">Frozen</span>
+</div>
+</div>
+<!-- Stark White "Add Item" Button -->
+<div class="pt-6 pb-2">
+<button class="w-full h-16 bg-[#f2f2f2] hover:bg-white active:scale-[0.98] transition-all rounded-2xl flex items-center justify-center gap-2 group" type="button">
+<span class="text-black text-lg font-bold">Add Item to Pantry</span>
+<span class="material-symbols-outlined text-black font-bold group-hover:translate-x-1 transition-transform">arrow_forward</span>
+</button>
+</div>
+</form>
+</div>
+<!-- iOS Home Indicator -->
+<div class="flex justify-center pb-2">
+<div class="h-1.5 w-32 rounded-full bg-white/20"></div>
+</div>
+</div>
+</div>
+</body></html>

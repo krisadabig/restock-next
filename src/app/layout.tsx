@@ -1,15 +1,9 @@
 import type { Metadata } from "next";
-import { Outfit, Inter } from "next/font/google";
+import { Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 
-const outfit = Outfit({
-  variable: "--font-heading",
-  subsets: ["latin"],
-  display: "swap",
-});
-
-const inter = Inter({
-  variable: "--font-sans",
+const jakarta = Plus_Jakarta_Sans({
+  variable: "--font-jakarta",
   subsets: ["latin"],
   display: "swap",
 });
@@ -21,7 +15,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport = {
-  themeColor: "#6366f1",
+  themeColor: "#7f13ec",
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,
@@ -43,9 +37,9 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark" style={{ colorScheme: 'dark' }} suppressHydrationWarning>
       <body
-        className={`${outfit.variable} ${inter.variable} antialiased font-sans bg-slate-950`}
+        className={`${jakarta.variable} antialiased font-sans bg-background text-foreground`}
       >
-        <NextTopLoader color="#6366f1" showSpinner={false} />
+        <NextTopLoader color="#7f13ec" showSpinner={false} />
         <Providers>
           <PWARegistry />
           <main className="min-h-screen">

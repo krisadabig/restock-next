@@ -178,11 +178,13 @@
 
 # Phase 27: Ultimate UI Revamp (Premium PWA)
 - [/] UI Redesign & Mobile Fixes <!-- id: ui-revamp -->
-    - [ ] Implement "Deep Glass" Design System (Colors, Fonts, Globals) <!-- id: ui-ds -->
-    - [ ] Redesign Dashboard List (Card Layout + Fix Overlap) <!-- id: ui-dashboard -->
-    - [ ] Revamp Bottom Navigation (Floating Glass) <!-- id: ui-nav -->
-    - [ ] Polish Login & Settings Pages <!-- id: ui-pages -->
-    - [ ] Verify Mobile Responsiveness & Aesthetics <!-- id: ui-verify -->
+    - [ ] Implement "Deep Glass" Design System (Tailwind 4 Variables, Global CSS) <!-- id: ui-ds -->
+    - [ ] Redesign Landing Page (Hero, Features, Premium Polish) <!-- id: ui-landing -->
+    - [ ] Revamp Login & Signup Pages (Auth Method Selector, Deep Dark) <!-- id: ui-auth -->
+    - [ ] Restyle Dashboard (Glass Cards, Floating Bottom Nav) <!-- id: ui-dashboard -->
+    - [ ] Update Modals (Add/Edit Entry, Manage Inventory) to Bottom Sheets <!-- id: ui-modals -->
+    - [ ] Polish Settings Page (Premium Lists, Profile Header) <!-- id: ui-settings -->
+    - [ ] Verify Mobile Responsiveness & "Thumb Zone" Ergonomics <!-- id: ui-verify -->
 - [x] Application Specification & Spec Workflow <!-- id: 46 -->
     - [x] Create `.agent/spec.md` with tech stack and core logic <!-- id: 47 -->
     - [x] Update `/resume` workflow to include spec check <!-- id: 48 -->

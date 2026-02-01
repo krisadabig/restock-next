@@ -1,4 +1,5 @@
 import { Search, Calendar, ChevronDown } from 'lucide-react';
+import { useTranslation } from '@/lib/i18n';
 
 interface DashboardFiltersProps {
     searchQuery: string;
@@ -15,35 +16,36 @@ export default function DashboardFilters({
     setFilterMonth, 
     months 
 }: DashboardFiltersProps) {
+    const { t } = useTranslation();
+
     return (
-        <div className="px-6 flex flex-col sm:flex-row gap-3 animate-in fade-in slide-in-from-top-4 duration-500">
+        <div className="px-6 flex flex-col sm:flex-row gap-4 animate-in fade-in slide-in-from-top-4 duration-500">
             <div className="relative flex-1 group">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground group-focus-within:text-primary transition-colors" size={18} />
+                <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-muted-foreground group-focus-within:text-primary transition-colors" size={20} />
                 <input 
                     type="text"
-                    placeholder="Search history..."
+                    placeholder={t('app.searchPlaceholder')}
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    // Input Hygiene: Trim on blur but keep updating on change for responsiveness
                     onBlur={() => setSearchQuery(searchQuery.trim())} 
-                    className="w-full pl-11 pr-4 py-3 bg-secondary/50 border border-transparent focus:border-primary/30 focus:bg-secondary focus:ring-0 rounded-2xl transition-all placeholder:text-muted-foreground/70"
+                    className="w-full pl-14 pr-6 h-14 bg-secondary/30 glass border border-primary/5 focus:border-primary/30 focus:bg-secondary/50 focus:ring-4 focus:ring-primary/5 rounded-2xl transition-all placeholder:text-muted-foreground/30 font-semibold"
                 />
             </div>
-            <div className="relative">
-                <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" size={18} />
+            <div className="relative group min-w-45">
+                <Calendar className="absolute left-5 top-1/2 -translate-y-1/2 text-muted-foreground group-focus-within:text-primary pointer-events-none transition-colors" size={20} />
                 <select 
                     value={filterMonth}
                     onChange={(e) => setFilterMonth(e.target.value)}
-                    className="appearance-none pl-11 pr-10 py-3 bg-secondary/50 border border-transparent focus:border-primary/30 focus:bg-secondary focus:ring-0 rounded-2xl transition-all cursor-pointer min-w-40"
+                    className="appearance-none w-full h-14 pl-14 pr-12 bg-secondary/30 glass border border-primary/5 focus:border-primary/30 focus:bg-secondary/50 focus:ring-4 focus:ring-primary/5 rounded-2xl transition-all cursor-pointer font-bold"
                 >
-                    <option value="all">All Time</option>
+                    <option value="all">{t('app.allTime')}</option>
                     {months.map(m => (
                         <option key={m} value={m}>
                             {new Date(m + '-01').toLocaleDateString(undefined, { month: 'short', year: 'numeric' })}
                         </option>
                     ))}
                 </select>
-                <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" size={16} />
+                <ChevronDown className="absolute right-5 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" size={18} />
             </div>
         </div>
     );

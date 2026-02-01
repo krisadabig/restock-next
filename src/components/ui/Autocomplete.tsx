@@ -72,7 +72,7 @@ export default function SmartAutocomplete({
                          setQuery(val);
                          if (onBlur) onBlur(val);
                     }}
-                    className="w-full p-4 bg-gray-100 dark:bg-slate-800 border-2 border-transparent rounded-2xl focus:border-indigo-500 focus:bg-white dark:focus:bg-slate-900 focus:ring-0 transition-all dark:text-white font-bold"
+                    className="input-premium"
                 />
                  {/* Chevron Indicator */}
                  {suggestions.length > 0 && (
@@ -84,17 +84,17 @@ export default function SmartAutocomplete({
 
              {/* Dropdown */}
              {isOpen && filteredSuggestions.length > 0 && (
-                 <div className="absolute top-[calc(100%+0.5rem)] left-0 right-0 bg-white dark:bg-slate-800 border border-gray-100 dark:border-slate-700 shadow-xl rounded-2xl overflow-hidden z-50 animate-in fade-in zoom-in-95 duration-200">
-                     <div className="max-h-48 overflow-y-auto p-1 custom-scrollbar">
+                 <div className="absolute top-[calc(100%+0.75rem)] left-0 right-0 glass shadow-2xl rounded-2xl overflow-hidden z-200 animate-in fade-in slide-in-from-top-2 duration-300 border border-primary/10">
+                     <div className="max-h-60 overflow-y-auto p-2 space-y-1 custom-scrollbar">
                          {filteredSuggestions.map(s => (
                              <button
                                  key={s}
                                  type="button"
                                  onClick={() => handleSelect(s)}
-                                 className="w-full text-left px-4 py-3 rounded-xl hover:bg-indigo-50 dark:hover:bg-slate-700/50 hover:text-indigo-600 dark:hover:text-indigo-400 font-bold text-sm transition-colors flex items-center justify-between group"
+                                 className="w-full h-12 text-left px-4 rounded-xl hover:bg-primary/10 hover:text-primary font-bold text-sm transition-all flex items-center justify-between group active:scale-[0.98]"
                              >
                                  {s}
-                                 {s === query && <Check size={14} className="text-indigo-500" />}
+                                 {s === query && <Check size={16} className="text-primary" />}
                              </button>
                          ))}
                      </div>

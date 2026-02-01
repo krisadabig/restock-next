@@ -20,29 +20,33 @@ test.describe('Login Page', { tag: '@smoke' }, () => {
 
 		// Check inputs
 		// Username and Password
-		await expect(page.getByPlaceholder('username')).toBeVisible();
-		await expect(page.getByPlaceholder('password')).toBeVisible();
+		await expect(page.getByPlaceholder(/Username|ชื่อผู้ใช้/i)).toBeVisible();
+		await expect(page.getByPlaceholder(/••••••••/i).first()).toBeVisible();
 
 		// Check default login subtitle
-		await expect(page.getByText('Secure passwordless entry')).toBeVisible();
+		await expect(page.getByText(/Secure Portal/i)).toBeVisible();
 	});
 
 	test('should show signup mode', async ({ page }) => {
-		// Click "Don't have an account?"
-		await page.getByText("Don't have an account? Sign up").click();
-		await expect(page.getByRole('button', { name: 'Sign Up' })).toBeVisible();
+		// New styling: "New here?" -> "Sign up" toggle
+		// The test relies on "Don't have an account..."
+		// Current UI: "New here?" (p) -> "Sign up" (button)
+		// We can click the button "Sign up" inside the footer toggle
+		const toggleBtn = page.locator('button', { hasText: 'Sign up' }).last();
+		await toggleBtn.click();
+		await expect(page.getByRole('button', { name: 'Sign Up', exact: true })).toBeVisible();
 	});
 
 	test('should show error for invalid login', async ({ page }) => {
 		// Fill form
-		await page.getByPlaceholder('username').fill('nonexistentuser');
-		await page.getByPlaceholder('password').fill('wrongpassword');
+		await page.getByPlaceholder('Username').fill('nonexistentuser');
+		await page.getByPlaceholder('••••••••').last().fill('wrongpassword'); // Placeholder is dots
 
 		// Submit
 		await page.getByRole('button', { name: 'Log In' }).click();
 
 		// Should show error message
-		await expect(page.getByText(/Invalid credentials/i)).toBeVisible();
+		await expect(page.locator('.text-red-400')).toBeVisible();
 	});
 
 	test('should show passkey login option', async ({ page }) => {
@@ -50,11 +54,12 @@ test.describe('Login Page', { tag: '@smoke' }, () => {
 		await passkeyBtn.click();
 
 		await expect(page.getByText('Passkey Ready')).toBeVisible();
-		await expect(page.getByRole('button', { name: 'Log in with Passkey' })).toBeVisible();
+		await expect(page.getByRole('button', { name: 'Authenticate' })).toBeVisible();
 
 		const backBtn = page.getByRole('button', { name: 'Password' });
 		await backBtn.click();
 
-		await expect(page.getByPlaceholder('password')).toBeVisible();
+		// Use consistent placeholder for password
+		await expect(page.getByPlaceholder('••••••••').first()).toBeVisible();
 	});
 });

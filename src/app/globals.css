@@ -3,32 +3,30 @@
 @plugin "@tailwindcss/typography";
 @plugin "tailwindcss-animate";
 :root {
-    /* Light Mode defaults (though we encourage dark) */
-    --background: #ffffff;
-    --foreground: #020617;
-    /* Slate 950 */
-    --card: #ffffff;
-    --card-foreground: #020617;
-    --popover: #ffffff;
-    --popover-foreground: #020617;
-    --primary: #4f46e5;
-    /* Indigo 600 */
+    /* Premium Deep Dark Aesthetic - Single Source of Truth */
+    --background: #0d0d12;
+    --foreground: #ffffff;
+    /* Card: Slightly lighter than background for depth */
+    --card: #15151e;
+    --card-foreground: #ffffff;
+    --popover: #0d0d12;
+    --popover-foreground: #ffffff;
+    /* Primary: Deep Electric Purple */
+    --primary: #7f13ec;
     --primary-foreground: #ffffff;
-    --secondary: #f1f5f9;
-    /* Slate 100 */
-    --secondary-foreground: #0f172a;
-    /* Slate 900 */
-    --muted: #f1f5f9;
-    --muted-foreground: #475569;
-    /* Slate 600 - Darker for readability */
-    --accent: #f1f5f9;
-    --accent-foreground: #0f172a;
-    --destructive: #ef4444;
+    /* Secondary: Muted cool gray-purple for inputs/elements */
+    --secondary: #1a1a25;
+    --secondary-foreground: #d8b4fe;
+    --muted: #1a1a25;
+    --muted-foreground: #d8b4fe;
+    --accent: #261933;
+    --accent-foreground: #ffffff;
+    --destructive: #ff4d4d;
     --destructive-foreground: #ffffff;
-    --border: #e2e8f0;
-    /* Slate 200 */
-    --input: #e2e8f0;
-    --ring: #4f46e5;
+    /* Global Border: Very subtle glass border */
+    --border: rgba(255, 255, 255, 0.08);
+    --input: #1a1a25;
+    --ring: #7f13ec;
     --radius: 1rem;
 }
 
@@ -52,122 +50,69 @@
     --color-border: var(--border);
     --color-input: var(--input);
     --color-ring: var(--ring);
-    --font-sans: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
-    --font-heading: var(--font-heading), ui-sans-serif, system-ui, sans-serif;
+    --font-sans: var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
     --radius-xl: 1rem;
     --radius-2xl: 1.5rem;
     --radius-3xl: 2rem;
-    --animate-float: float 6s ease-in-out infinite;
-    @keyframes float {
-        0%,
-        100% {
-            transform: translateY(0);
-        }
-        50% {
-            transform: translateY(-10px);
-        }
-    }
 }
 
 @custom-variant dark (&:where(.dark, .dark *));
 .dark {
-    --background: #020617;
-    /* Slate 950 - Deepest Dark */
-    --foreground: #f8fafc;
-    /* Slate 50 */
-    --card: #0f172a;
-    /* Slate 900 */
-    --card-foreground: #f8fafc;
-    --popover: #0f172a;
-    --popover-foreground: #f8fafc;
-    --primary: #818cf8;
-    /* Indigo 400 - Lighter for passing WCAG AA on Dark Card */
-    --primary-foreground: #ffffff;
-    --secondary: #1e293b;
-    /* Slate 800 */
-    --secondary-foreground: #f8fafc;
-    --muted: #1e293b;
-    --muted-foreground: #cbd5e1;
-    /* Slate 300 - Lighter for readability */
-    --accent: #1e293b;
-    --accent-foreground: #f8fafc;
-    --destructive: #f87171;
-    /* Red 400 - Lighter for passing WCAG AA on Dark Card */
-    --destructive-foreground: #ffffff;
-    --border: #1e293b;
-    --input: #1e293b;
-    --ring: #818cf8;
+    /* Inherit from root to avoid duplication/mismatch */
+    --background: #0d0d12;
+    --foreground: #ffffff;
 }
 
 body {
-    @apply bg-background text-foreground;
-    font-feature-settings: "cv11", "ss01";
+    @apply bg-background text-foreground font-sans antialiased;
+    min-height: 100dvh;
 }
 
 ::selection {
-    @apply bg-primary/20 text-primary;
+    @apply bg-primary/30 text-white;
 }
 
 
-/* Glassmorphism Utilities */
+/* Glassmorphism & Effects - The "Deep Glass" System */
 
-@utility glass-panel {
-    @apply bg-white/70 backdrop-blur-xl border border-white/20 shadow-xl;
-    &:where(.dark, .dark *) {
-        @apply bg-slate-900/60 border-slate-800/50;
-    }
+@utility glass {
+    /* Main surface glass (Headers, Modals) */
+    @apply bg-[#0d0d12]/80 backdrop-blur-xl;
 }
 
 @utility glass-card {
-    @apply bg-white/50 backdrop-blur-md border border-white/10 transition-all duration-300;
+    /* Interactive cards (Dashboard Entries, Feature Cards) */
+    @apply bg-[#15151e]/60 backdrop-blur-md border border-white/5 shadow-xl transition-all duration-300;
     &:hover {
-        @apply bg-white/60;
-    }
-    &:where(.dark, .dark *) {
-        @apply bg-slate-900/40 border-slate-800/30;
-        &:hover {
-            @apply bg-slate-800/40;
-        }
+        @apply bg-[#15151e]/80 border-primary/20 shadow-2xl;
     }
 }
 
-@utility text-gradient {
-    @apply bg-clip-text text-transparent;
-    background-image: linear-gradient(to right, #6366f1, #a855f7, #ec4899);
-}
-
-@utility btn-primary-glow {
-    @apply relative overflow-hidden bg-primary text-primary-foreground transition-all duration-300;
-    box-shadow: 0 0 20px rgba(99, 102, 241, 0.5);
-    &:hover {
-        box-shadow: 0 0 30px rgba(99, 102, 241, 0.7);
+@utility input-premium {
+    /* Standardized Input Styling */
+    @apply block w-full px-5 py-4 rounded-2xl bg-[#1a1a25]/50 border border-white/5 text-foreground font-bold outline-none transition-all duration-300;
+    &::placeholder {
+        @apply text-muted-foreground/40;
     }
-    &:active {
-        @apply scale-95;
+    &:focus {
+        @apply bg-[#1a1a25]/80 border-primary/40 ring-4 ring-primary/10;
     }
 }
 
-
-/* Custom Scrollbar */
-
-::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
+@utility login-glow {
+    box-shadow: 0 0 30px rgba(127, 19, 236, 0.25);
 }
 
-::-webkit-scrollbar-track {
-    @apply bg-transparent;
+@utility text-premium-gradient {
+    @apply bg-clip-text text-transparent bg-linear-to-r from-primary to-[#c4b5fd];
 }
 
-::-webkit-scrollbar-thumb {
-    @apply bg-slate-200 rounded-full;
-    &:where(.dark, .dark *) {
-        @apply bg-slate-700;
-    }
+@utility safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
 }
 
-::-webkit-scrollbar-corner {
-    @apply bg-transparent;
+@utility thumb-zone {
+    @apply fixed bottom-0 left-0 right-0 z-50 safe-bottom pt-3;
 }
 
 
@@ -175,4 +120,22 @@ body {
 
 @view-transition {
     navigation: auto;
+}
+
+
+/* Custom Scrollbar */
+
+::-webkit-scrollbar {
+    width: 6px;
+}
+
+::-webkit-scrollbar-track {
+    @apply bg-transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    @apply bg-primary/20 rounded-full transition-colors;
+    &:hover {
+        @apply bg-primary/40;
+    }
 }

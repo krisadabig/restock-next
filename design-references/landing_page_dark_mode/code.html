@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Restock - Modern Pantry Management</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#7f13ec",
+                        "background-light": "#f7f6f8",
+                        "background-dark": "#121212",
+                        "card-dark": "#1e1e1e",
+                    },
+                    fontFamily: {
+                        "display": ["Plus Jakarta Sans", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+        .glass-nav {
+            background: rgba(18, 18, 18, 0.8);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+        .feature-card-border {
+            border: 1px solid rgba(127, 19, 236, 0.2);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-white transition-colors duration-300">
+<!-- Top Navigation -->
+<nav class="sticky top-0 z-50 glass-nav border-b border-white/5">
+<div class="flex items-center p-4 justify-between max-w-md mx-auto">
+<div class="text-primary flex size-10 shrink-0 items-center justify-center bg-primary/10 rounded-xl" data-icon="inventory_2">
+<span class="material-symbols-outlined text-2xl">inventory_2</span>
+</div>
+<h2 class="text-white text-xl font-extrabold leading-tight tracking-tight flex-1 ml-3">Restock</h2>
+<div class="flex w-10 items-center justify-end">
+<button class="flex items-center justify-center rounded-full size-10 bg-white/5 text-white hover:bg-white/10 transition-colors">
+<span class="material-symbols-outlined">person_pin_circle</span>
+</button>
+</div>
+</div>
+</nav>
+<main class="max-w-md mx-auto pb-24">
+<!-- Hero Section -->
+<div class="@container">
+<div class="p-4">
+<div class="flex min-h-[520px] flex-col gap-8 bg-cover bg-center bg-no-repeat rounded-2xl items-center justify-center p-6 relative overflow-hidden" data-alt="3D isometric pantry illustration with glowing purple accents" style='background-image: linear-gradient(rgba(18, 18, 18, 0.6) 0%, rgba(18, 18, 18, 0.9) 100%), url("https://lh3.googleusercontent.com/aida-public/AB6AXuCyUCPf1Pc0T3uZqwcIf88i3fDyqUNZOFimrWsNWH8rC9MaSLAoId9v4OTT0Rb7UfoVj-0eQlNEEgN6iUEq9E2h6xuN_7Guf-idO7ofhPOxUi0h19Qk645pUYB2Xfcnn5Tyu7KV034AZNR8vPtCfwdA4WUzrv8UkkakRfgioJl3rf7MHl6_hCTFGdEDObkQO4L_piucdkrS0a9Xch3HK2wxZqLenQVaYx-As_XD8X_-gvTstS0vrl-2QUfHF0pSeoPptun5b5d0hs-r");'>
+<!-- Decorative Glow -->
+<div class="absolute -top-24 -left-24 w-64 h-64 bg-primary/20 blur-[100px] rounded-full"></div>
+<div class="absolute -bottom-24 -right-24 w-64 h-64 bg-primary/20 blur-[100px] rounded-full"></div>
+<div class="flex flex-col gap-3 text-center z-10">
+<h1 class="text-white text-5xl font-extrabold leading-[1.1] tracking-[-0.04em] drop-shadow-2xl">
+                            Master Your <span class="text-primary">Kitchen</span>
+</h1>
+<p class="text-white/70 text-base font-medium leading-relaxed max-w-[280px] mx-auto">
+                            Smart pantry management to reduce waste and save time.
+                        </p>
+</div>
+<div class="flex flex-col w-full gap-3 z-10 mt-4">
+<button class="flex w-full cursor-pointer items-center justify-center overflow-hidden rounded-xl h-14 px-6 bg-primary text-white text-lg font-bold leading-normal tracking-wide shadow-lg shadow-primary/30 active:scale-95 transition-transform">
+<span class="truncate">Get Started</span>
+</button>
+<button class="flex w-full cursor-pointer items-center justify-center overflow-hidden rounded-xl h-14 px-6 bg-white/5 border border-white/10 text-white text-base font-semibold leading-normal hover:bg-white/10 transition-colors">
+<span class="truncate">Watch Demo</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Section Header -->
+<div class="px-4 pt-8 pb-4">
+<div class="flex items-center justify-between">
+<h3 class="text-white text-xl font-bold leading-tight tracking-tight">Core Features</h3>
+<span class="text-primary text-sm font-semibold">View All</span>
+</div>
+</div>
+<!-- Image Grid / Feature Cards -->
+<div class="grid grid-cols-2 gap-4 p-4">
+<div class="bg-card-dark feature-card-border flex flex-col gap-4 rounded-2xl p-5 aspect-square justify-between group">
+<div class="size-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary transition-transform group-hover:scale-110">
+<span class="material-symbols-outlined text-2xl">barcode_scanner</span>
+</div>
+<div>
+<p class="text-white text-lg font-bold leading-tight">Auto-Inventory</p>
+<p class="text-white/40 text-xs mt-1">Scan and log items instantly</p>
+</div>
+</div>
+<div class="bg-card-dark feature-card-border flex flex-col gap-4 rounded-2xl p-5 aspect-square justify-between group">
+<div class="size-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary transition-transform group-hover:scale-110">
+<span class="material-symbols-outlined text-2xl">notifications_active</span>
+</div>
+<div>
+<p class="text-white text-lg font-bold leading-tight">Smart Alerts</p>
+<p class="text-white/40 text-xs mt-1">Expiry tracking &amp; reminders</p>
+</div>
+</div>
+<div class="bg-card-dark feature-card-border flex flex-col gap-4 rounded-2xl p-5 aspect-square justify-between group">
+<div class="size-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary transition-transform group-hover:scale-110">
+<span class="material-symbols-outlined text-2xl">shopping_cart</span>
+</div>
+<div>
+<p class="text-white text-lg font-bold leading-tight">Auto-Lists</p>
+<p class="text-white/40 text-xs mt-1">Generated by your stock</p>
+</div>
+</div>
+<div class="bg-card-dark feature-card-border flex flex-col gap-4 rounded-2xl p-5 aspect-square justify-between group relative overflow-hidden">
+<div class="size-12 rounded-xl bg-primary flex items-center justify-center text-white transition-transform group-hover:scale-110">
+<span class="material-symbols-outlined text-2xl">analytics</span>
+</div>
+<div>
+<p class="text-white text-lg font-bold leading-tight">Insights</p>
+<p class="text-white/40 text-xs mt-1">Analyze your consumption</p>
+</div>
+<!-- Mini highlight -->
+<div class="absolute -right-2 -bottom-2 size-12 bg-primary/5 rounded-full blur-xl"></div>
+</div>
+</div>
+<!-- Headline Text Section -->
+<div class="px-6 py-12 text-center bg-gradient-to-b from-transparent to-primary/5">
+<h3 class="text-white tracking-tight text-3xl font-extrabold leading-tight pb-4">Elevate your pantry management</h3>
+<p class="text-white/60 text-base leading-relaxed mb-8">
+                Join 50,000+ home chefs reducing food waste by 40% every month.
+            </p>
+<div class="flex justify-center -space-x-3 mb-4">
+<div class="size-10 rounded-full border-2 border-background-dark bg-slate-300" data-alt="User avatar 1" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBH2-TsUT7u4oo4DFmuA2Q5rZOfzGoyTQ390YMk0MtcJoRYUR-kd7we0RM9xYh_9_2LlPwViKsiWmmc__OAvbRsBZFnRzYTmoEDvoAOBzwfHjPu-hR9ZGaiOfRI12QiF_OCBeJzC1iuOzALrCq1BZZl9EPrruoe9fUuy8_-x1QqQBPPx0K8ovJ-sRfPiZQ5GhRuP7gbaWbNRCoSiCDfTpp5XgmZXYUy8PvIAe3u5GIEwwFrn2O6kFTZjGaNbS2nhRvjaKwePGJKSKKE'); background-size: cover;"></div>
+<div class="size-10 rounded-full border-2 border-background-dark bg-slate-300" data-alt="User avatar 2" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDGe2sE1vgC7qSuZDhCJI5hnGKl7gWgUyvqqEgTQ4uUCsZGxa6tshHK9j6uWxfbehAVgbL2mB5fkbnhtycVM8PVa0Cim4LQLGhoxx8UZu_rVVOYffhPxqIIPd9WT71WrcA5KaI_hpfzh068oytthtOs167g1zpREGsl8yeZDPVwzmge4I23rCyc1CpJ6DZzofrNQK6uPa4GgxQlhiwaDn4-dM54Ojj_Nxofw5xTPdsR-DVK502QhKq77nmZRlki-rSEi4Jbo_DgaJ95'); background-size: cover;"></div>
+<div class="size-10 rounded-full border-2 border-background-dark bg-slate-300" data-alt="User avatar 3" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCiSvxT3WQU70zS2W51o2BuE32bhi8fKHSz7WUTAWysBqrQtx6yKpCiDSKpWeDlbTo8eAnxB0rFe9fVpsSBkAAtEMg11lqQ9i5htqna60Vk1k3IvJvcsash18k_5eV7Y7RD321LzQdJmaCtUYj1-_riZ3tH5k8GZxoZ310jTEZIVouMawMcSFlL-tn9tAYJ7Bo9MZWGQY5Py68H1xYlGMF30HytWiQcAafC5qxrKmTk0dSBFhjw5YZo8uuGsSYDgcuP8iia8lRyTSe3'); background-size: cover;"></div>
+<div class="size-10 rounded-full border-2 border-background-dark bg-primary flex items-center justify-center text-[10px] font-bold">+2k</div>
+</div>
+</div>
+</main>
+<!-- Bottom Mobile Nav -->
+<div class="fixed bottom-0 left-0 right-0 z-50 glass-nav border-t border-white/5 pb-8 pt-3">
+<div class="max-w-md mx-auto flex justify-around items-center px-6">
+<button class="flex flex-col items-center gap-1 text-primary">
+<span class="material-symbols-outlined text-[28px] fill-1">home</span>
+<span class="text-[10px] font-bold">Home</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-white/40">
+<span class="material-symbols-outlined text-[28px]">kitchen</span>
+<span class="text-[10px] font-medium">Pantry</span>
+</button>
+<div class="relative -top-6">
+<button class="size-14 bg-primary rounded-full flex items-center justify-center text-white shadow-xl shadow-primary/40 border-4 border-background-dark">
+<span class="material-symbols-outlined text-3xl">add</span>
+</button>
+</div>
+<button class="flex flex-col items-center gap-1 text-white/40">
+<span class="material-symbols-outlined text-[28px]">receipt_long</span>
+<span class="text-[10px] font-medium">List</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-white/40">
+<span class="material-symbols-outlined text-[28px]">settings</span>
+<span class="text-[10px] font-medium">Settings</span>
+</button>
+</div>
+</div>
+</body></html>

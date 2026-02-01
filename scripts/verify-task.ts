@@ -57,7 +57,7 @@ async function verify() {
 
 	// 5. Smoke Tests (E2E)
 	if (existsSync('playwright.config.ts')) {
-		// run('bun run smoke --reporter=list', 'Smoke Tests (E2E)');
+		run('bun run smoke --reporter=list', 'Smoke Tests (E2E)');
 	}
 
 	console.log(`\n${GREEN}✨ VERIFICATION PASSED. You may mark the task as COMPLETED. ✨${RESET}\n`);

@@ -9,58 +9,69 @@ export default function HeroSection() {
   const { t } = useTranslation();
 
   return (
-    <header className="relative overflow-hidden pt-16 pb-32 lg:pt-32 lg:pb-48">
-        {/* Floating Guest Controls */}
-        <div className="fixed top-6 right-6 z-50 flex gap-2">
-            <div className="glass p-1 rounded-2xl flex gap-1 shadow-2xl scale-90 sm:scale-100 origin-right transition-all">
+    <header className="relative overflow-hidden pt-20 pb-32 lg:pt-32 lg:pb-48 bg-background">
+        {/* Floating Controls */}
+        <div className="fixed top-6 right-6 z-50 flex gap-3 animate-in fade-in duration-1000 delay-500">
+            <div className="glass-panel p-2 rounded-2xl flex gap-2 shadow-2xl border border-primary/10 transition-all hover:scale-105">
                 <ThemeToggle />
-                <div className="w-px bg-white/10 mx-1" />
+                <div className="w-px bg-primary/10 mx-1" />
                 <LanguageToggle />
             </div>
         </div>
-        {/* Background Blobs */}
-        <div className="bg-blob bg-blue-500 -top-25 -left-25" />
-        <div className="bg-blob bg-purple-500 -bottom-25 -right-25" style={{ animationDelay: '-5s' }} />
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
-            <h1 className="text-6xl md:text-8xl font-black tracking-tight text-transparent bg-clip-text bg-linear-to-br from-indigo-500 via-purple-500 to-pink-500 mb-6 drop-shadow-sm">
-                {t('app.title')}
-            </h1>
-            <p className="mt-4 max-w-2xl mx-auto text-xl text-slate-500 dark:text-slate-400 font-medium">
-                {t('app.welcome')}
-            </p>
+        {/* Cinematic Backdrop Glows */}
+        <div className="absolute top-[-20%] left-[-10%] w-[70%] h-[70%] bg-primary/10 rounded-full blur-[160px] animate-float opacity-30 pointer-events-none" />
+        <div className="absolute bottom-[-20%] right-[-10%] w-[70%] h-[70%] bg-purple-600/5 rounded-full blur-[160px] animate-float opacity-20 pointer-events-none" style={{ animationDelay: '-5s' }} />
+        <div className="absolute inset-0 bg-linear-to-b from-transparent via-primary/5 to-transparent pointer-events-none" />
 
-            {/* Hero Image with Glass effect */}
-            <div className="mt-16 relative mx-auto w-full max-w-5xl rounded-4xl overflow-hidden glass p-3 transition-all duration-1000 hover:scale-[1.01] hover:rotate-1 animate-in zoom-in-95">
-                <div className="rounded-3xl overflow-hidden border border-white/20 shadow-2xl relative">
-                    <Image
-                        src="/hero_3d_illustration.png"
-                        alt="Restock App Dashboard"
-                        width={1200}
-                        height={800}
-                        className="w-full h-auto object-cover scale-110"
-                        priority
-                    />
-                    <div className="absolute inset-0 bg-linear-to-t from-slate-900/40 to-transparent pointer-events-none" />
+        <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 relative z-10 text-center space-y-12 animate-in slide-in-from-bottom-10 fade-in duration-1000">
+            <div className="space-y-4">
+                <h1 className="text-7xl md:text-[6rem] lg:text-[7.5rem] font-bold tracking-tighter text-premium-gradient leading-none">
+                    Restock<span className="text-foreground">.</span>
+                </h1>
+                <div className="flex justify-center">
+                    <span className="h-1.5 w-24 bg-primary/20 rounded-full" />
+                </div>
+                <p className="max-w-3xl mx-auto text-xl md:text-2xl text-muted-foreground font-medium leading-relaxed opacity-80">
+                    {t('app.welcome')}
+                </p>
+            </div>
+
+            {/* Premium Hero App Showcase */}
+            <div className="mt-16 relative mx-auto w-full max-w-5xl rounded-[3rem] p-1 bg-linear-to-b from-primary/20 via-primary/5 to-transparent shadow-3xl">
+                <div className="rounded-[2.9rem] overflow-hidden glass-card p-2 group">
+                    <div className="rounded-[2.5rem] overflow-hidden border border-white/5 shadow-2xl relative aspect-21/9 sm:aspect-video bg-secondary/20">
+                        <Image
+                            src="/hero_3d_illustration.png"
+                            alt="Restock PWA Dashboard"
+                            fill
+                            className="object-cover scale-105 group-hover:scale-110 transition-transform duration-1000 ease-out"
+                            priority
+                        />
+                        <div className="absolute inset-0 bg-linear-to-t from-background/80 via-transparent to-transparent pointer-events-none" />
+                        
+                        {/* Interactive UI Hint */}
+                        <div className="absolute bottom-8 left-8 right-8 flex justify-between items-end">
+                            <div className="glass shadow-2xl p-4 rounded-2xl border border-white/10 animate-in slide-in-from-left-6 duration-700 delay-500">
+                                <div className="h-2 w-12 bg-primary/40 rounded-full mb-2" />
+                                <div className="h-1 w-24 bg-muted-foreground/20 rounded-full" />
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <div className="mt-12 flex justify-center gap-6">
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-6 pt-8">
                 <Link
                     href="/login"
-                    className="btn-premium text-lg px-12 py-4 relative group overflow-hidden flex items-center gap-2 shadow-[0_0_20px_rgba(99,102,241,0.3)] hover:shadow-[0_0_30px_rgba(99,102,241,0.5)] transition-all active:scale-95"
+                    className="group relative inline-flex items-center gap-3 bg-primary text-white px-12 py-6 rounded-2xl font-bold text-xl hover:scale-[1.05] active:scale-95 transition-all login-glow shadow-2xl shadow-primary/30"
                 >
-                    <span className="relative z-10 flex items-center gap-2">
-                        {t('app.getStarted')}
-                        <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                    </span>
-                    
-                    {/* Shimmer Effect */}
-                    <div className="absolute inset-0 w-1/2 h-full bg-linear-to-r from-transparent via-white/20 to-transparent -skew-x-12 -translate-x-full group-hover:animate-shimmer" />
-                    
-                    {/* Background Pulse */}
-                    <div className="absolute inset-0 bg-indigo-500/20 animate-pulse opacity-0 group-hover:opacity-100 transition-opacity" />
+                    {t('app.getStarted')}
+                    <ArrowRight className="w-6 h-6 group-hover:translate-x-1.5 transition-transform" />
                 </Link>
+                <button className="px-12 py-6 rounded-2xl font-bold text-xl text-foreground hover:bg-secondary/30 transition-all border border-primary/5 active:scale-95">
+                    Explore Features
+                </button>
             </div>
         </div>
     </header>

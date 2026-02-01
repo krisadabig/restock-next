@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslation } from '@/lib/i18n';
-import { Moon, Sun, Globe, LogOut, Trash2, X, ArrowLeft, Fingerprint, ShieldCheck, ChevronRight } from 'lucide-react';
+import { Moon, Sun, Globe, LogOut, Trash2, ArrowLeft, Fingerprint, ShieldCheck, ChevronRight } from 'lucide-react';
 import { logout } from '@/app/auth/actions';
 import { registerPasskey } from '@/lib/auth';
 import { useTheme } from 'next-themes';
@@ -65,101 +65,101 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="p-6 space-y-8 pb-32 animate-in fade-in slide-in-from-bottom-4 duration-700">
+    <div className="p-8 space-y-10 pb-40 animate-in fade-in slide-in-from-bottom-6 duration-700 max-w-2xl mx-auto">
       {/* Header */}
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-6">
         <button
           onClick={() => router.back()}
-          className="p-3 -ml-3 hover:bg-secondary/50 rounded-full transition-colors active:scale-95"
+          className="h-14 w-14 flex items-center justify-center -ml-4 bg-secondary/20 hover:bg-primary/10 rounded-2xl transition-all active:scale-95 border border-primary/5 shadow-md"
           aria-label="Go back"
         >
-          <ArrowLeft className="h-6 w-6 text-muted-foreground" />
+          <ArrowLeft className="h-6 w-6 text-foreground" />
         </button>
         <div>
-          <h1 className="text-3xl font-black text-foreground font-heading tracking-tight">
+          <h1 className="text-4xl font-bold text-foreground tracking-tight">
             {t('settings.title')}
           </h1>
-          <p className="text-sm text-muted-foreground font-medium">
-             Manage your preferences
+          <p className="text-sm font-bold text-primary uppercase tracking-[0.2em] mt-1">
+             Preferences
           </p>
         </div>
       </div>
 
       {/* Appearance Island */}
       <section className="space-y-4">
-        <h2 className="text-xs font-bold text-muted-foreground uppercase tracking-widest px-1">
+        <h2 className="text-[10px] font-bold text-muted-foreground/50 uppercase tracking-[0.2em] px-2">
           {t('settings.appearance')}
         </h2>
-        <div className="glass-panel overflow-hidden rounded-3xl divide-y divide-border/50">
+        <div className="glass-card overflow-hidden rounded-[2rem] divide-y divide-primary/5">
           {/* Theme Toggle */}
-          <div className="flex items-center justify-between p-5 hover:bg-white/5 transition-colors">
-            <div className="flex items-center gap-4">
-              <div className={`p-3 rounded-full ${theme === 'dark' ? 'bg-indigo-500/10 text-indigo-400' : 'bg-amber-500/10 text-amber-600'}`}>
-                 {theme === 'light' ? <Sun className="h-6 w-6" /> : <Moon className="h-6 w-6" />}
+          <div className="flex items-center justify-between p-6">
+            <div className="flex items-center gap-5">
+              <div className={`h-14 w-14 flex items-center justify-center rounded-2xl transition-all shadow-inner border border-primary/5 ${theme === 'dark' ? 'bg-indigo-500/10 text-indigo-400' : 'bg-amber-500/10 text-amber-600'}`}>
+                 {theme === 'light' ? <Sun className="h-6 w-6" strokeWidth={2.5} /> : <Moon className="h-6 w-6" strokeWidth={2.5} />}
               </div>
               <div>
-                  <span className="block text-base font-bold text-foreground">
+                  <span className="block text-lg font-bold text-foreground leading-tight">
                     {t('settings.theme')}
                   </span>
-                  <span className="text-xs text-muted-foreground font-medium">
+                  <span className="text-xs text-muted-foreground font-medium opacity-60">
                     {theme === 'light' ? t('settings.lightMode') : t('settings.darkMode')}
                   </span>
               </div>
             </div>
             
-            <div className="flex bg-secondary p-1 rounded-xl border border-border/50 relative isolate">
+            <div className="flex bg-secondary/40 p-1.5 rounded-2xl border border-primary/5 relative isolate shadow-inner">
               <button
                 onClick={() => setTheme('light')}
-                className={`relative z-10 p-2 rounded-lg transition-all duration-300 ${
-                  theme === 'light' ? 'text-amber-600' : 'text-muted-foreground hover:text-foreground'
+                className={`relative z-10 h-11 w-11 flex items-center justify-center rounded-xl transition-all duration-300 ${
+                  theme === 'light' ? 'text-amber-600' : 'text-muted-foreground/40 hover:text-foreground'
                 }`}
               >
                 <Sun size={20} strokeWidth={2.5} />
               </button>
               <button
                 onClick={() => setTheme('dark')}
-                className={`relative z-10 p-2 rounded-lg transition-all duration-300 ${
-                  theme === 'dark' ? 'text-indigo-400' : 'text-muted-foreground hover:text-foreground'
+                className={`relative z-10 h-11 w-11 flex items-center justify-center rounded-xl transition-all duration-300 ${
+                  theme === 'dark' ? 'text-indigo-400' : 'text-muted-foreground/40 hover:text-foreground'
                 }`}
               >
                 <Moon size={20} strokeWidth={2.5} />
               </button>
               {/* Active Pill */}
               <div 
-                className={`absolute inset-y-1 w-[calc(50%-4px)] bg-background shadow-sm rounded-lg transition-all duration-500 ease-spring ${
-                  theme === 'dark' ? 'translate-x-full left-1' : 'left-1'
+                className={`absolute inset-y-1.5 w-[calc(50%-6px)] h-[calc(100%-12px)] bg-background shadow-lg rounded-xl transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] border border-primary/10 ${
+                  theme === 'dark' ? 'translate-x-full left-1.5' : 'left-1.5'
                 }`}
               />
             </div>
           </div>
 
           {/* Language Toggle */}
-          <div className="flex items-center justify-between p-5 hover:bg-white/5 transition-colors">
-            <div className="flex items-center gap-4">
-              <div className="p-3 rounded-full bg-emerald-500/10 text-emerald-500">
-                 <Globe className="h-6 w-6" />
+          <div className="flex items-center justify-between p-6">
+            <div className="flex items-center gap-5">
+              <div className="h-14 w-14 flex items-center justify-center rounded-2xl bg-emerald-500/10 text-emerald-500 shadow-inner border border-primary/5">
+                 <Globe className="h-6 w-6" strokeWidth={2.5} />
               </div>
-              <span className="text-base font-bold text-foreground">
+              <span className="text-lg font-bold text-foreground">
                 {t('settings.language')}
               </span>
             </div>
-            <div className="flex gap-2">
+            <div className="flex bg-secondary/40 p-1.5 rounded-2xl border border-primary/5 shadow-inner">
               <button
                 onClick={() => setLocale('en')}
-                className={`px-4 py-2 text-sm font-bold rounded-xl transition-all border ${
+                className={`h-11 px-5 text-xs font-bold rounded-xl transition-all ${
                   locale === 'en'
-                    ? 'bg-primary/10 border-primary/20 text-primary'
-                    : 'bg-transparent border-transparent text-muted-foreground hover:bg-secondary'
+                    ? 'bg-background text-primary shadow-lg border border-primary/10'
+                    : 'text-muted-foreground/40 hover:text-foreground'
                 }`}
               >
                 EN
               </button>
               <button
                 onClick={() => setLocale('th')}
-                className={`px-4 py-2 text-sm font-bold rounded-xl transition-all border ${
+                className={`h-11 px-5 text-xs font-bold rounded-xl transition-all ${
                   locale === 'th'
-                    ? 'bg-primary/10 border-primary/20 text-primary'
-                    : 'bg-transparent border-transparent text-muted-foreground hover:bg-secondary'
+                    ? 'bg-background text-primary shadow-lg border border-primary/10'
+                    : 'text-muted-foreground/40 hover:text-foreground'
                 }`}
               >
                 TH
@@ -171,29 +171,29 @@ export default function SettingsPage() {
 
       {/* Security Island */}
       <section className="space-y-4">
-        <h2 className="text-xs font-bold text-muted-foreground uppercase tracking-widest px-1">
+        <h2 className="text-[10px] font-bold text-muted-foreground/50 uppercase tracking-[0.2em] px-2">
           Security
         </h2>
-        <div className="glass-panel p-5 rounded-3xl space-y-4">
-            <div className="flex items-start gap-4">
-                <div className="p-3 bg-purple-500/10 rounded-full text-purple-500">
-                    <Fingerprint className="h-6 w-6" />
+        <div className="glass-card p-6 rounded-[2rem] space-y-6">
+            <div className="flex items-start gap-5">
+                <div className="h-14 w-14 flex items-center justify-center rounded-2xl bg-purple-500/10 text-purple-500 shadow-inner border border-primary/5 shrink-0">
+                    <Fingerprint className="h-6 w-6" strokeWidth={2.5} />
                 </div>
-                <div className="flex-1 space-y-1">
-                    <p className="text-base font-bold text-foreground">Passkeys</p>
-                    <p className="text-sm text-muted-foreground leading-relaxed">
-                        Secure your account with biometric authentication (FaceID, TouchID).
+                <div className="flex-1 space-y-1 pt-1">
+                    <p className="text-lg font-bold text-foreground leading-tight">Passkeys</p>
+                    <p className="text-sm text-muted-foreground font-medium opacity-60 leading-relaxed">
+                        Secure your account with FaceID or TouchID.
                     </p>
                 </div>
             </div>
             
             {passkeyMsg && (
-                <div className={`p-4 rounded-xl text-sm font-bold flex items-center gap-3 animate-in slide-in-from-top-2 ${
+                <div className={`p-5 rounded-2xl text-sm font-bold flex items-center gap-4 animate-in slide-in-from-top-2 duration-500 border ${
                     passkeyMsg.type === 'success' 
-                        ? 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20' 
-                        : 'bg-destructive/10 text-destructive border border-destructive/20'
+                        ? 'bg-emerald-500/5 text-emerald-500 border-emerald-500/10' 
+                        : 'bg-red-500/5 text-red-500 border-red-500/10'
                 }`}>
-                    <ShieldCheck className="h-5 w-5 shrink-0" />
+                    <ShieldCheck className="h-5 w-5 shrink-0" strokeWidth={2.5} />
                     {passkeyMsg.text}
                 </div>
             )}
@@ -201,14 +201,14 @@ export default function SettingsPage() {
             <button
                 onClick={handleAddPasskey}
                 disabled={passkeyLoading}
-                className="w-full btn-primary-glow py-4 rounded-xl font-bold flex items-center justify-center gap-2 group"
+                className="w-full h-15 bg-primary text-white font-bold rounded-2xl shadow-lg login-glow hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-70 disabled:scale-100 flex items-center justify-center gap-3 group"
             >
                 {passkeyLoading ? (
-                    'Processing...' 
+                    <div className="h-5 w-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div> 
                 ) : (
                     <>
                         Add New Passkey
-                        <ChevronRight className="h-4 w-4 opacity-50 group-hover:translate-x-1 transition-transform" />
+                        <ChevronRight className="h-5 w-5 opacity-50 group-hover:translate-x-1 transition-transform" />
                     </>
                 )}
             </button>
@@ -217,34 +217,34 @@ export default function SettingsPage() {
 
       {/* Account Island */}
       <section className="space-y-4">
-        <h2 className="text-xs font-bold text-muted-foreground uppercase tracking-widest px-1">
+        <h2 className="text-[10px] font-bold text-muted-foreground/50 uppercase tracking-[0.2em] px-2">
           {t('settings.account')}
         </h2>
-        <div className="glass-panel overflow-hidden rounded-3xl divide-y divide-border/50">
+        <div className="glass-card overflow-hidden rounded-[2rem] divide-y divide-primary/5">
           {/* Logout */}
           <button
             onClick={handleLogout}
             disabled={isLoggingOut}
-            className="w-full flex items-center gap-4 p-5 text-left hover:bg-white/5 transition-colors disabled:opacity-50"
+            className="w-full flex items-center gap-5 p-6 text-left hover:bg-white/5 transition-all disabled:opacity-50 active:scale-[0.98]"
           >
-            <div className="p-3 rounded-full bg-secondary text-muted-foreground">
-                <LogOut className="h-6 w-6" />
+            <div className="h-14 w-14 flex items-center justify-center rounded-2xl bg-secondary/40 text-muted-foreground shadow-inner border border-primary/5">
+                <LogOut className="h-6 w-6" strokeWidth={2.5} />
             </div>
-            <span className="flex-1 text-base font-bold text-foreground">
+            <span className="flex-1 text-lg font-bold text-foreground">
               {isLoggingOut ? t('app.processing') : t('app.logout')}
             </span>
-            {isLoggingOut && <div className="ml-auto w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin" />}
+            {isLoggingOut && <div className="h-5 w-5 border-2 border-primary border-t-transparent rounded-full animate-spin" />}
           </button>
 
           {/* Delete Account */}
           <button
             onClick={() => setShowDeleteModal(true)}
-            className="w-full flex items-center gap-4 p-5 text-left hover:bg-destructive/5 transition-colors group"
+            className="w-full flex items-center gap-5 p-6 text-left hover:bg-red-500/5 transition-all group active:scale-[0.98]"
           >
-            <div className="p-3 rounded-full bg-destructive/10 text-destructive group-hover:scale-110 transition-transform">
-                <Trash2 className="h-6 w-6" />
+            <div className="h-14 w-14 flex items-center justify-center rounded-2xl bg-red-500/10 text-red-500 group-hover:scale-110 transition-transform shadow-inner border border-red-500/5">
+                <Trash2 className="h-6 w-6" strokeWidth={2.5} />
             </div>
-            <span className="text-base font-bold text-destructive group-hover:translate-x-1 transition-transform">
+            <span className="text-lg font-bold text-red-500 group-hover:translate-x-1 transition-transform">
               {t('settings.deleteAccount')}
             </span>
           </button>
@@ -252,70 +252,69 @@ export default function SettingsPage() {
       </section>
       
       {/* Version Footer */}
-      <div className="text-center pt-8">
-        <p className="text-xs font-mono font-bold text-muted-foreground/30 uppercase tracking-widest">
+      <div className="text-center pt-4 opacity-30">
+        <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-[0.4em]">
             Restock v{process.env.NEXT_PUBLIC_APP_VERSION || '1.0.0'}
         </p>
       </div>
 
       {/* Delete Account Modal */}
       {showDeleteModal && (
-        <div className="fixed inset-0 z-100 flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-background/80 backdrop-blur-xl animate-in fade-in" onClick={() => setShowDeleteModal(false)} />
+        <div className="fixed inset-0 z-100 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300">
+          <div className="absolute inset-0" onClick={() => setShowDeleteModal(false)} />
           
-          <div className="relative w-full max-w-sm glass-card p-1 rounded-[2rem] animate-in zoom-in-95 duration-300 shadow-2xl">
-            <div className="bg-background/80 backdrop-blur-lg rounded-[1.8rem] p-6 space-y-6 border border-white/10">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-xl font-bold text-destructive">
-                    {t('settings.confirmDeleteTitle')}
-                  </h3>
-                  <button
-                    onClick={() => {
-                      setShowDeleteModal(false);
-                      setDeleteConfirmText('');
-                    }}
-                    className="p-2 hover:bg-secondary rounded-full transition-colors"
-                  >
-                    <X className="h-5 w-5 text-muted-foreground" />
-                  </button>
+          <div className="relative glass w-full max-w-md rounded-t-[2.5rem] sm:rounded-[2.5rem] shadow-2xl animate-in slide-in-from-bottom-full sm:zoom-in-95 duration-500 border border-primary/10 overflow-hidden">
+             {/* Drag Handle for Mobile */}
+            <div className="sm:hidden w-12 h-1.5 bg-primary/20 rounded-full mx-auto mt-4 mb-2"></div>
+
+            <div className="p-8 pb-4 flex flex-col items-center text-center space-y-6">
+                <div className="h-20 w-20 bg-red-500/10 rounded-[2rem] flex items-center justify-center mb-2 shadow-inner border border-red-500/10">
+                    <Trash2 className="text-red-500" size={36} />
                 </div>
-                
-                <div className="space-y-4">
+
+                <div className="space-y-3">
+                    <h3 className="text-2xl font-bold text-foreground">
+                      {t('settings.confirmDeleteTitle')}
+                    </h3>
                     <p className="text-muted-foreground font-medium leading-relaxed">
                       {t('settings.confirmDeleteDesc')}
                     </p>
-                    
-                    <div className="space-y-2">
-                        <label className="text-xs font-bold text-muted-foreground uppercase opacity-70">{t('settings.typeToDelete')}</label>
-                        <input
-                          type="text"
-                          value={deleteConfirmText}
-                          onChange={(e) => setDeleteConfirmText(e.target.value)}
-                          placeholder={t('settings.deletePlaceholder')}
-                          className="w-full px-4 py-3 border border-border bg-secondary/50 rounded-xl text-foreground font-bold focus:ring-2 focus:ring-destructive/50 focus:border-destructive outline-none transition-all placeholder:font-normal"
-                        />
-                    </div>
                 </div>
-
-                <div className="flex gap-3 pt-2">
-                  <button
-                    onClick={() => {
-                      setShowDeleteModal(false);
-                      setDeleteConfirmText('');
-                    }}
-                    className="flex-1 px-4 py-3 rounded-xl font-bold text-muted-foreground hover:bg-secondary transition-colors"
-                  >
-                    {t('settings.cancel')}
-                  </button>
-                  <button
-                    onClick={handleDeleteAccount}
-                    disabled={deleteConfirmText !== 'DELETE' || isDeleting}
-                    className="flex-1 px-4 py-3 bg-destructive text-destructive-foreground rounded-xl font-bold hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-destructive/20"
-                  >
-                    {isDeleting ? t('settings.deleting') : t('settings.confirm')}
-                  </button>
+                
+                <div className="w-full space-y-2">
+                    <label className="text-[10px] font-bold text-primary uppercase tracking-[0.2em] ml-1 block text-left">{t('settings.typeToDelete')}</label>
+                    <input
+                      type="text"
+                      autoFocus
+                      value={deleteConfirmText}
+                      onChange={(e) => setDeleteConfirmText(e.target.value)}
+                      placeholder={t('settings.deletePlaceholder')}
+                      className="w-full h-14 px-5 bg-secondary/30 border border-primary/5 focus:border-red-500/30 focus:bg-secondary/50 focus:ring-4 focus:ring-red-500/5 rounded-2xl transition-all text-foreground font-bold text-center"
+                    />
                 </div>
             </div>
+
+            <div className="p-6 grid grid-cols-2 gap-4">
+              <button
+                onClick={() => {
+                  setShowDeleteModal(false);
+                  setDeleteConfirmText('');
+                }}
+                className="h-14 bg-secondary/30 text-foreground font-bold rounded-2xl hover:bg-secondary/50 transition-all active:scale-95 disabled:opacity-50 border border-primary/5"
+              >
+                {t('settings.cancel')}
+              </button>
+              <button
+                onClick={handleDeleteAccount}
+                disabled={deleteConfirmText !== 'DELETE' || isDeleting}
+                className="h-14 bg-red-500 text-white font-bold rounded-2xl hover:bg-red-600 shadow-lg shadow-red-500/20 active:scale-95 transition-all disabled:opacity-70 flex items-center justify-center gap-2"
+              >
+                {isDeleting ? (
+                    <div className="h-5 w-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div> 
+                ) : t('settings.confirm')}
+              </button>
+            </div>
+            <div className="h-[calc(1.5rem+env(safe-area-inset-bottom))] sm:hidden"></div>
           </div>
         </div>
       )}

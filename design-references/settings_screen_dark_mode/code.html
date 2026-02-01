@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Settings Screen - Pantry Pro</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#7f13ec",
+                        "background-light": "#f7f6f8",
+                        "background-dark": "#0B0B0B",
+                        "card-dark": "#181818",
+                        "destructive": "#ff4d4d",
+                    },
+                    fontFamily: {
+                        "display": ["Plus Jakarta Sans", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark text-gray-900 dark:text-white min-h-screen pb-24">
+<!-- Top App Bar -->
+<div class="sticky top-0 z-50 flex items-center bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md p-4 pb-2 justify-between">
+<div class="text-gray-900 dark:text-white flex size-12 shrink-0 items-center justify-center cursor-pointer">
+<span class="material-symbols-outlined">arrow_back_ios_new</span>
+</div>
+<h2 class="text-gray-900 dark:text-white text-lg font-bold leading-tight tracking-[-0.015em] flex-1 text-center pr-12">Settings</h2>
+</div>
+<div class="max-w-md mx-auto px-4">
+<!-- Profile Header -->
+<div class="flex py-6 @container">
+<div class="flex w-full flex-col gap-4 @[520px]:flex-row @[520px]:justify-between @[520px]:items-center">
+<div class="flex gap-4 items-center">
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full h-16 w-16 border-2 border-primary" data-alt="User profile avatar showing a smiling woman" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAx4TXXv8apc8zFrZMaZzCpYkH2iIh9ob6MocD4UcfIXNGW2Wx25Y0dJ7QW0AIuBf97q9k3wYOGyReAmS9fHo0gTZVAQ6IasYTuzYAe1_VJt_eX0-A-Wevlmu4Zx0fgysvoiGjcRL0WL08HdxwHXWlTU95xXEKwdVj5-GXPwVEwYnWHecqJFBTSFI8jmVaoBalE5Q1EYBdsv1A_6UUh_3igyiez0z32KP4dvgzo2DzCIOWK1M-2ZJSZqWn7ZlHMQHRyePv3CxsDFgPx");'>
+</div>
+<div class="flex flex-col">
+<p class="text-gray-900 dark:text-white text-xl font-bold leading-tight tracking-[-0.015em]">Alex Thompson</p>
+<p class="text-gray-500 dark:text-[#ad92c9] text-sm font-normal leading-normal">alex.t@example.com</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Account Section -->
+<div class="mb-6">
+<h3 class="text-gray-500 dark:text-gray-400 text-xs font-bold uppercase tracking-wider px-1 pb-3">Account Security</h3>
+<div class="bg-white dark:bg-card-dark rounded-xl overflow-hidden shadow-sm">
+<!-- List Item -->
+<div class="flex items-center gap-4 px-4 py-4 justify-between border-b border-gray-100 dark:border-white/5 cursor-pointer hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
+<div class="flex items-center gap-3">
+<div class="text-white flex items-center justify-center rounded-lg bg-primary/20 text-primary shrink-0 size-10">
+<span class="material-symbols-outlined">person</span>
+</div>
+<p class="text-gray-900 dark:text-white text-base font-medium">Profile Information</p>
+</div>
+<span class="material-symbols-outlined text-gray-400">chevron_right</span>
+</div>
+<!-- List Item -->
+<div class="flex items-center gap-4 px-4 py-4 justify-between border-b border-gray-100 dark:border-white/5 cursor-pointer hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
+<div class="flex items-center gap-3">
+<div class="text-white flex items-center justify-center rounded-lg bg-primary/20 text-primary shrink-0 size-10">
+<span class="material-symbols-outlined">shield_lock</span>
+</div>
+<p class="text-gray-900 dark:text-white text-base font-medium">Password &amp; Security</p>
+</div>
+<span class="material-symbols-outlined text-gray-400">chevron_right</span>
+</div>
+</div>
+<!-- Primary Action Button -->
+<button class="w-full mt-4 flex items-center justify-center gap-2 bg-primary hover:bg-primary/90 text-white font-bold py-4 rounded-xl transition-all active:scale-[0.98]">
+<span class="material-symbols-outlined">key</span>
+                Add New Passkey
+            </button>
+</div>
+<!-- Pantry Preferences -->
+<div class="mb-6">
+<h3 class="text-gray-500 dark:text-gray-400 text-xs font-bold uppercase tracking-wider px-1 pb-3">Pantry Management</h3>
+<div class="bg-white dark:bg-card-dark rounded-xl overflow-hidden shadow-sm">
+<!-- Toggle Item -->
+<div class="flex items-center gap-4 px-4 py-4 justify-between border-b border-gray-100 dark:border-white/5">
+<div class="flex items-center gap-3">
+<div class="text-white flex items-center justify-center rounded-lg bg-primary/20 text-primary shrink-0 size-10">
+<span class="material-symbols-outlined">notifications_active</span>
+</div>
+<div>
+<p class="text-gray-900 dark:text-white text-base font-medium">Low Stock Alerts</p>
+<p class="text-gray-500 text-xs">Notify when items are below 20%</p>
+</div>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-11 h-6 bg-gray-200 peer-focus:outline-none dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-primary"></div>
+</label>
+</div>
+<!-- List Item -->
+<div class="flex items-center gap-4 px-4 py-4 justify-between border-b border-gray-100 dark:border-white/5 cursor-pointer hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
+<div class="flex items-center gap-3">
+<div class="text-white flex items-center justify-center rounded-lg bg-primary/20 text-primary shrink-0 size-10">
+<span class="material-symbols-outlined">straighten</span>
+</div>
+<p class="text-gray-900 dark:text-white text-base font-medium">Measurement Units</p>
+</div>
+<div class="flex items-center gap-1">
+<span class="text-sm text-gray-400">Metric (kg/L)</span>
+<span class="material-symbols-outlined text-gray-400">chevron_right</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Danger Zone -->
+<div class="mb-8">
+<h3 class="text-gray-500 dark:text-gray-400 text-xs font-bold uppercase tracking-wider px-1 pb-3">Danger Zone</h3>
+<div class="bg-white dark:bg-card-dark rounded-xl overflow-hidden shadow-sm">
+<div class="flex items-center gap-4 px-4 py-4 justify-between cursor-pointer hover:bg-destructive/10 transition-colors">
+<div class="flex items-center gap-3">
+<div class="text-white flex items-center justify-center rounded-lg bg-destructive/20 text-destructive shrink-0 size-10">
+<span class="material-symbols-outlined">delete_forever</span>
+</div>
+<p class="text-destructive text-base font-medium">Delete Account</p>
+</div>
+<span class="material-symbols-outlined text-destructive/50">chevron_right</span>
+</div>
+</div>
+<p class="text-gray-500 text-[11px] text-center mt-4">Pantry Pro v2.4.1 (2024)</p>
+</div>
+</div>
+<!-- Bottom Navigation Bar -->
+<div class="fixed bottom-0 left-0 right-0 bg-white/90 dark:bg-card-dark/95 backdrop-blur-lg border-t border-gray-200 dark:border-white/10 px-6 py-3 flex justify-between items-center z-50">
+<div class="flex flex-col items-center gap-1 text-gray-400">
+<span class="material-symbols-outlined">home</span>
+<span class="text-[10px] font-medium">Home</span>
+</div>
+<div class="flex flex-col items-center gap-1 text-gray-400">
+<span class="material-symbols-outlined">kitchen</span>
+<span class="text-[10px] font-medium">Pantry</span>
+</div>
+<div class="flex flex-col items-center gap-1 text-gray-400">
+<span class="material-symbols-outlined">shopping_cart</span>
+<span class="text-[10px] font-medium">List</span>
+</div>
+<div class="flex flex-col items-center gap-1 text-primary">
+<span class="material-symbols-outlined fill-[1]">settings</span>
+<span class="text-[10px] font-bold">Settings</span>
+</div>
+</div>
+</body></html>

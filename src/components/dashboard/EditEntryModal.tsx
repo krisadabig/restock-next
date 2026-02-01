@@ -70,21 +70,25 @@ export default function EditEntryModal({
 
             {/* Modal */}
             {/* Modal */}
-            <div className="relative w-full max-w-md bg-white dark:bg-gray-900 rounded-t-2xl rounded-b-none sm:rounded-2xl shadow-xl transform transition-transform animate-in slide-in-from-bottom-full sm:slide-in-from-bottom-10 z-101">
-                <div className="flex items-center justify-between p-4 border-b border-gray-100 dark:border-gray-800">
-                    <h2 className="text-lg font-bold text-gray-900 dark:text-white">{t('settings.editEntry')}</h2>
+            {/* Modal */}
+            <div className="relative w-full max-w-md glass rounded-t-[2.5rem] sm:rounded-[2.5rem] shadow-2xl transform transition-all animate-in slide-in-from-bottom-full sm:slide-in-from-bottom-10 z-101 border border-border">
+                {/* Drag Handle for Mobile */}
+                <div className="sm:hidden w-12 h-1.5 bg-primary/20 rounded-full mx-auto mt-4 mb-2"></div>
+
+                <div className="flex items-center justify-between p-6 pb-2">
+                    <h2 className="text-2xl font-bold text-foreground">{t('settings.editEntry')}</h2>
                     <button 
                         onClick={onClose}
-                        className="h-11 w-11 flex items-center justify-center text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors"
+                        className="h-11 w-11 flex items-center justify-center text-muted-foreground hover:bg-primary/10 rounded-full transition-all active:scale-90"
                     >
-                        <X size={22} />
+                        <X size={24} />
                     </button>
                 </div>
 
-                <form onSubmit={handleSubmit} className="p-4 space-y-4">
+                <form onSubmit={handleSubmit} className="p-6 pt-4 space-y-6">
                     <div className="space-y-2">
-                        <label className="text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center gap-2">
-                            <Tag size={16} /> {t('app.itemName')}
+                        <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-[0.2em] ml-1 flex items-center gap-2">
+                            <Tag size={12} /> {t('app.itemName')}
                         </label>
                         <input 
                             name="item"
@@ -92,17 +96,17 @@ export default function EditEntryModal({
                             required
                             defaultValue={entry.item}
                             placeholder={t('app.placeholderItem')}
-                            className="w-full p-3 bg-gray-50 dark:bg-gray-800 border-0 rounded-xl focus:ring-2 focus:ring-indigo-500 transition-all dark:text-white"
+                            className="input-premium"
                         />
                         <datalist id="item-suggestions-edit">
                             {suggestions.map(s => <option key={s} value={s} />)}
                         </datalist>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-2 gap-5">
                         <div className="space-y-2">
-                            <label className="text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center gap-2">
-                                <DollarSign size={16} /> {t('app.price')}
+                            <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-[0.2em] ml-1 flex items-center gap-2">
+                                <DollarSign size={12} /> {t('app.price')}
                             </label>
                             <input 
                                 name="price"
@@ -112,39 +116,39 @@ export default function EditEntryModal({
                                 step="0.01"
                                 defaultValue={entry.price}
                                 placeholder="0.00"
-                                className="w-full p-3 bg-gray-50 dark:bg-gray-800 border-0 rounded-xl focus:ring-2 focus:ring-indigo-500 transition-all dark:text-white"
+                                className="input-premium"
                             />
                         </div>
 
                         <div className="space-y-2">
-                            <label className="text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center gap-2">
-                                <Calendar size={16} /> {t('app.date')}
+                            <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-[0.2em] ml-1 flex items-center gap-2">
+                                <Calendar size={12} /> {t('app.date')}
                             </label>
                             <input 
                                 name="date"
                                 type="date"
                                 required
                                 defaultValue={entry.date}
-                                className="w-full p-3 bg-gray-50 dark:bg-gray-800 border-0 rounded-xl focus:ring-2 focus:ring-indigo-500 transition-all dark:text-white"
+                                className="input-premium"
                             />
                         </div>
                     </div>
 
                     <div className="space-y-2">
-                        <label className="text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center gap-2">
-                            <FileText size={16} /> {t('app.noteOptional')}
+                        <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-[0.2em] ml-1 flex items-center gap-2">
+                            <FileText size={12} /> {t('app.noteOptional')}
                         </label>
                         <textarea 
                             name="note"
-                            rows={3}
+                            rows={2}
                             defaultValue={entry.note || ''}
                             placeholder={t('app.placeholderNote')}
-                            className="w-full p-3 bg-gray-50 dark:bg-gray-800 border-0 rounded-xl focus:ring-2 focus:ring-indigo-500 transition-all dark:text-white resize-none"
+                            className="input-premium resize-none"
                         />
                     </div>
 
                     {error && (
-                        <div className="p-3 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 text-sm rounded-lg text-center">
+                        <div className="p-4 bg-red-500/10 text-red-500 text-sm font-bold rounded-2xl text-center border border-red-500/20 animate-in fade-in zoom-in-95 duration-300">
                             {error}
                         </div>
                     )}
@@ -152,11 +156,13 @@ export default function EditEntryModal({
                     <button
                         type="submit"
                         disabled={loading}
-                        className="w-full py-3.5 bg-black dark:bg-white text-white dark:text-black font-bold rounded-xl hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-70 disabled:scale-100"
+                        className="w-full h-14 bg-primary text-white font-bold rounded-2xl shadow-lg login-glow hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-70 disabled:scale-100 flex items-center justify-center gap-2"
                     >
-                        {loading ? t('app.processing') : t('app.saveChanges')}
+                        {loading ? (
+                            <div className="h-5 w-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                        ) : t('app.saveChanges')}
                     </button>
-                    <div className="pb-[calc(1rem+env(safe-area-inset-bottom))] sm:hidden"></div> {/* Safe area spacer for mobile */}
+                    <div className="pb-[calc(1.5rem+env(safe-area-inset-bottom))] sm:hidden"></div>
                 </form>
             </div>
         </div>,

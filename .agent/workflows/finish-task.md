@@ -1,3 +1,6 @@
+---
+description: This workflow merges verification, governance checks, and git operations
+---
 
 # Finish Task Workflow
 

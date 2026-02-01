@@ -19,6 +19,12 @@ Establish a mandatory, plan-driven commit workflow for AI agents to ensure expli
 - **Workflow Upgrade**: Stricter `finish-task` protocol codified.
 
 ---
+## [2026-02-01] Session: Contrast Enhancement & Deep Glass Audit
+- **Stop**: Manually clicking around in a browser subagent to verify visual changes. It's flaky (`aria-label` timeouts, "New here?" button issues) and slow.
+- **Start**: Writing specific Playwright E2E tests (`contrast.spec.ts`) for UI tasks. It forces us to define exact selectors (`input-premium`, `text-muted-foreground`) and provides deterministic pass/fail results for accessibility and styling.
+- **Keep**: The "Deep Glass" design system's single source of truth in `globals.css` (`:root` tokens). It made the contrast audit much easier by just tweaking `--muted-foreground`.
+
+---
 ## [2026-02-01] Session: Establish Safety Protocols
 
 ### Goal
