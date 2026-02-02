@@ -71,30 +71,24 @@ Failure to run the verification script constitutes a violation of project govern
 
 ## 🔄 Session Handoff
 
-**Current Status**: [COMPLETED] "Operationalize Retrospective"
-**Branch**: `feature/enhance-agent-configuration`
+**Current Status**: [IN_PROGRESS] "Revamp Light Theme"
+**Branch**: `feature/revamp-light-theme`
 
 ### 📌 Recent Achievements
-1.  **Workflow Upgrade**:
-    -   Merged `git-flow` + `finish-task` into a single interactive `bun scripts/finish-task.ts`.
-    -   Added "Smart Verification" to prompt checks based on changed files.
-    -   Created `bun scripts/implement-retrospective.ts` with **Time Travel** (Session Selection).
-2.  **Operationalized Lessons**:
-    -   Backfilled improvements for Playwright (Exact Matches), Tailwind (v4 Syntax), and Database (Drizzle Fallbacks).
-3.  **Safety Protocols**:
-    -   Implemented 'Halt-on-Commit' rule to prevent authorized agent commits.
-    -   Hardened `finish-task.ts` with adversarial warnings.
-4.  **Skill & Config Cleanup**:
-    -   Removed unused skills.
-    -   Adopted `codebase-analysis`.
+1.  **Light Theme Architecture**:
+    -   Refactored `globals.css` to split tokens: `:root` (Daylight Glass) and `.dark` (Deep Glass).
+    -   Abstracted `.glass` and `.input-premium` utilities to use CSS variables for seamless switching.
+    -   Fixed Tailwind 4 syntax warnings for dynamic variables (`bg-(--var)`).
+2.  **Testing Strategy**:
+    -   Enabled E2E Smoke Tests in `finish-task` workflow.
+    -   Updated `contrast.spec.ts` with a dedicated "Light Mode" verification testcase.
+    -   Verified 18/18 smoke tests pass (including new light mode checks).
 
 ### ⚠️ Known Issues / Blockers
-- None. Governance scripts are verified and passing.
+- **Browser Subagent Flakiness**: Automated screenshot capture for "Light Mode Verification" was cancelled due to login automation issues. Manual or robust script-based capture is needed to finish verification.
 
 ### ⏭️ Immediate Next Steps
-1.  **Merge**: Create PR for `feature/enhance-agent-configuration` -> `develop`.
-2.  **Resume Feature Work**: Pick up the next task from the backlog (likely "Auth" provided the previous context).
-3.  **Use New Tools**:
-    -   Run `bun scripts/start-task.ts "Task Name"` (now gives recommendations).
-    -   Run `bun scripts/implement-retrospective.ts` at start of next session to review potential improvements.
+1.  **Verification**: Capture Light Mode screenshots (Login, Dashboard, Add Entry) to visually confirm the "Daylight Glass" aesthetic.
+2.  **Merge**: Complete `finish-task` once screenshots are verifying the UI.
+3.  **Auth (Next Task)**: Proceed to "Auth Migration" or "Supabase Auth" tasks as planned in backlog.
 

@@ -19,6 +19,12 @@ Establish a mandatory, plan-driven commit workflow for AI agents to ensure expli
 - **Workflow Upgrade**: Stricter `finish-task` protocol codified.
 
 ---
+## [2026-02-02] Session: Revamp Light Theme (Part 1)
+- **Stop**: Hardcoding theme values in utilities (e.g., `.glass { bg-[#000] }`). It makes multi-theme support painful.
+- **Start**: Using CSS variables for *everything* semantic (`--glass-bg`, `--input-bg`). It allows the theme to be perfectly inverted just by changing the variables in `.dark` vs `:root`.
+- **Keep**: The "Split Scope" strategy (`:root` = Light, `.dark` = Dark) worked perfectly with Tailwind 4's `@custom-variant dark turned on`.
+
+---
 ## [2026-02-01] Session: Contrast Enhancement & Deep Glass Audit
 - **Stop**: Manually clicking around in a browser subagent to verify visual changes. It's flaky (`aria-label` timeouts, "New here?" button issues) and slow.
 - **Start**: Writing specific Playwright E2E tests (`contrast.spec.ts`) for UI tasks. It forces us to define exact selectors (`input-premium`, `text-muted-foreground`) and provides deterministic pass/fail results for accessibility and styling.

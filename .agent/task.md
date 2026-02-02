@@ -1,10 +1,10 @@
 # Phase 3: Feature Migration
 
 - [x] Landing Page Migrated <!-- id: 0 -->
-    - [x] Create `HeroSection` component <!-- id: 1 -->
-    - [x] Create `FeatureSection` component <!-- id: 2 -->
-    - [x] Create `InstallAppSection` component <!-- id: 3 -->
-    - [x] Create `Footer` component <!-- id: 4 -->
+    - [/] **Revamp Light Theme** <!-- id: 1 -->
+    - [x] Refactor `globals.css` (Split :root/Light and .dark) <!-- id: 2 -->
+    - [x] Abstract `.glass` utilities to use variables <!-- id: 3 -->
+    - [/] Verify Light Mode Contrast & Screenshots <!-- id: 4 -->
     - [x] Assemble `src/app/page.tsx` <!-- id: 5 -->
     - [x] Add animations (Framer Motion or CSS) to match Svelte transitions <!-- id: 6 -->
     - [x] Verify responsive design <!-- id: 7 -->

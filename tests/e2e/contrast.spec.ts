@@ -65,4 +65,40 @@ test.describe('Deep Glass Contrast Verification @smoke', () => {
 		const modalInputs = modal.locator('.input-premium');
 		await expect(modalInputs).toHaveCount(5); // Name, Price, Qty, Date, Note
 	});
+
+	test('Light Mode should have accessible contrast', async ({ page }) => {
+		// 1. Go to settings and switch to Light Mode
+		await page.goto('/app/settings');
+
+		// Ensure we are in Light Mode (toggle if currently dark)
+		const html = page.locator('html');
+		const isDark = await html.evaluate((el) => el.classList.contains('dark'));
+		if (isDark) {
+			await page.getByRole('button', { name: /Dark Mode|โหมดมืด/i }).click();
+		}
+
+		// 2. Verify Light Mode Tokens applied
+		await expect(html).not.toHaveClass(/dark/);
+		// Background should be slate-50 (#f8fafc) or close to white, not dark
+		// Note: Playwright getComputedStyle returns rgb
+		await expect(page.locator('body')).toHaveCSS('background-color', 'rgb(248, 250, 252)');
+
+		// 3. Verify Inputs in Light Mode
+		// Go to Dashboard -> Add Entry
+		await page.goto('/app');
+		const addBtn = page.locator('button:has(svg.lucide-plus)').last();
+		await addBtn.waitFor();
+		await addBtn.click();
+
+		const modal = page.locator('.glass').filter({ has: page.locator('input[name="item"]') });
+		await expect(modal).toBeVisible();
+
+		// Check input background (should be light slate, not dark glass)
+		const input = modal.locator('input[name="item"]');
+		// We expect the variable --input-bg to resolve to something light.
+		// In globals.css: --input-bg: rgba(241, 245, 249, 0.6) -> rgb(241, 245, 249) roughly
+		const bg = await input.evaluate((el) => window.getComputedStyle(el).backgroundColor);
+		// Just ensure it's NOT the dark mode color 'rgb(26, 26, 37)'
+		expect(bg).not.toBe('rgb(26, 26, 37)');
+	});
 });

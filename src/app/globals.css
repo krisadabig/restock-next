@@ -3,31 +3,47 @@
 @plugin "@tailwindcss/typography";
 @plugin "tailwindcss-animate";
 :root {
-    /* Premium Deep Dark Aesthetic - Single Source of Truth */
-    --background: #0d0d12;
-    --foreground: #ffffff;
-    /* Card: Slightly lighter than background for depth */
-    --card: #15151e;
-    --card-foreground: #ffffff;
-    --popover: #0d0d12;
-    --popover-foreground: #ffffff;
-    /* Primary: Deep Electric Purple */
+    /* "Daylight Glass" - Light Mode Defaults */
+    --background: #f8fafc;
+    /* Slate 50 */
+    --foreground: #0f172a;
+    /* Slate 900 */
+    /* Card: White with shadow for depth in light mode */
+    --card: #ffffff;
+    --card-foreground: #0f172a;
+    --popover: #ffffff;
+    --popover-foreground: #0f172a;
+    /* Primary: Deep Electric Purple (Maintains brand identity) */
     --primary: #7f13ec;
     --primary-foreground: #ffffff;
-    /* Secondary: Muted cool gray-purple for inputs/elements */
-    --secondary: #1a1a25;
-    --secondary-foreground: #d8b4fe;
-    --muted: #1a1a25;
-    --muted-foreground: #d8b4fe;
-    --accent: #261933;
-    --accent-foreground: #ffffff;
-    --destructive: #ff4d4d;
+    /* Secondary: Muted Slate */
+    --secondary: #f1f5f9;
+    /* Slate 100 */
+    --secondary-foreground: #475569;
+    /* Slate 600 */
+    --muted: #f1f5f9;
+    --muted-foreground: #64748b;
+    /* Slate 500 */
+    --accent: #f8fafc;
+    --accent-foreground: #0f172a;
+    --destructive: #ef4444;
     --destructive-foreground: #ffffff;
-    /* Global Border: Very subtle glass border */
-    --border: rgba(255, 255, 255, 0.08);
-    --input: #1a1a25;
+    /* Global Border: Subtle slate border */
+    --border: #e2e8f0;
+    /* Slate 200 */
+    --input: #f1f5f9;
     --ring: #7f13ec;
     --radius: 1rem;
+    /* Semantic Glass Variables - Light Mode */
+    --glass-bg: rgba(255, 255, 255, 0.7);
+    --glass-border: rgba(255, 255, 255, 0.5);
+    --glass-card-bg: rgba(255, 255, 255, 0.6);
+    --glass-card-hover: rgba(255, 255, 255, 0.9);
+    --glass-card-border: rgba(226, 232, 240, 0.6);
+    /* Slate 200/60 */
+    --input-bg: rgba(241, 245, 249, 0.6);
+    /* Slate 100/60 */
+    --input-border: rgba(226, 232, 240, 0.8);
 }
 
 @theme inline {
@@ -58,9 +74,36 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 .dark {
-    /* Inherit from root to avoid duplication/mismatch */
+    /* "Deep Glass" - Dark Mode Overrides */
     --background: #0d0d12;
     --foreground: #ffffff;
+    --card: #15151e;
+    --card-foreground: #ffffff;
+    --popover: #0d0d12;
+    --popover-foreground: #ffffff;
+    --primary: #7f13ec;
+    --primary-foreground: #ffffff;
+    --secondary: #1a1a25;
+    --secondary-foreground: #d8b4fe;
+    /* Lavender */
+    --muted: #1a1a25;
+    --muted-foreground: #d8b4fe;
+    --accent: #261933;
+    --accent-foreground: #ffffff;
+    --destructive: #ff4d4d;
+    --destructive-foreground: #ffffff;
+    --border: rgba(255, 255, 255, 0.08);
+    /* White glass border */
+    --input: #1a1a25;
+    --ring: #7f13ec;
+    /* Semantic Glass Variables - Dark Mode */
+    --glass-bg: rgba(13, 13, 18, 0.8);
+    --glass-border: rgba(255, 255, 255, 0.08);
+    --glass-card-bg: rgba(21, 21, 30, 0.6);
+    --glass-card-hover: rgba(21, 21, 30, 0.8);
+    --glass-card-border: rgba(255, 255, 255, 0.05);
+    --input-bg: rgba(26, 26, 37, 0.5);
+    --input-border: rgba(255, 255, 255, 0.05);
 }
 
 body {
@@ -73,29 +116,31 @@ body {
 }
 
 
-/* Glassmorphism & Effects - The "Deep Glass" System */
+/* Glassmorphism & Effects - Unified System */
 
 @utility glass {
     /* Main surface glass (Headers, Modals) */
-    @apply bg-[#0d0d12]/80 backdrop-blur-xl;
+    @apply bg-(--glass-bg) backdrop-blur-xl border border-(--glass-border);
 }
 
 @utility glass-card {
     /* Interactive cards (Dashboard Entries, Feature Cards) */
-    @apply bg-[#15151e]/60 backdrop-blur-md border border-white/5 shadow-xl transition-all duration-300;
+    @apply bg-(--glass-card-bg) backdrop-blur-md border border-(--glass-card-border) shadow-xl transition-all duration-300;
     &:hover {
-        @apply bg-[#15151e]/80 border-primary/20 shadow-2xl;
+        @apply bg-(--glass-card-hover) border-primary/20 shadow-2xl;
     }
 }
 
 @utility input-premium {
     /* Standardized Input Styling */
-    @apply block w-full px-5 py-4 rounded-2xl bg-[#1a1a25]/50 border border-white/5 text-foreground font-bold outline-none transition-all duration-300;
+    @apply block w-full px-5 py-4 rounded-2xl bg-(--input-bg) border border-(--input-border) text-foreground font-bold outline-none transition-all duration-300;
     &::placeholder {
         @apply text-muted-foreground/40;
     }
     &:focus {
-        @apply bg-[#1a1a25]/80 border-primary/40 ring-4 ring-primary/10;
+        @apply border-primary/40 ring-4 ring-primary/10;
+        /* In light mode, ensure background doesn't get too dark on focus, keep it subtle */
+        @apply bg-(--input-bg);
     }
 }
 
