@@ -1,4 +1,4 @@
-import { Search, Calendar, ChevronDown } from 'lucide-react';
+import { Search, Calendar } from 'lucide-react';
 import { useTranslation } from '@/lib/i18n';
 
 interface DashboardFiltersProps {
@@ -45,7 +45,6 @@ export default function DashboardFilters({
                         </option>
                     ))}
                 </select>
-                <ChevronDown className="absolute right-5 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" size={18} />
             </div>
         </div>
     );

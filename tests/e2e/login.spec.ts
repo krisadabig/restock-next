@@ -46,7 +46,7 @@ test.describe('Login Page', { tag: '@smoke' }, () => {
 		await page.getByRole('button', { name: 'Log In' }).click();
 
 		// Should show error message
-		await expect(page.locator('.text-red-400')).toBeVisible();
+		await expect(page.locator('.text-red-500')).toBeVisible();
 	});
 
 	test('should show passkey login option', async ({ page }) => {

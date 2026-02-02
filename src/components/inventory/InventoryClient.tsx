@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useMemo } from 'react';
+import { useTranslation } from '@/lib/i18n';
 import { Search, Package, CloudOff } from 'lucide-react';
 import InventoryCard from './InventoryCard';
 import { useOffline } from '@/components/providers/OfflineContext';
@@ -16,6 +17,7 @@ interface InventoryItem {
 }
 
 export default function InventoryClient({ inventory }: { inventory: InventoryItem[] }) {
+    const { t } = useTranslation();
     const { isOnline } = useOffline();
     const [searchQuery, setSearchQuery] = useState('');
 
@@ -31,10 +33,10 @@ export default function InventoryClient({ inventory }: { inventory: InventoryIte
             <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-xl border-b border-border/50 px-6 py-4 flex justify-between items-center transition-all duration-300">
                 <div>
                     <h1 className="text-2xl font-black tracking-tight text-foreground font-heading">
-                        Inventory
+                        {t('app.inventory')}
                     </h1>
                     <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
-                        Manage Stock
+                        {t('app.manageStock')}
                     </p>
                 </div>
                 <div className="flex items-center gap-3">
@@ -55,7 +57,7 @@ export default function InventoryClient({ inventory }: { inventory: InventoryIte
                     <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground group-focus-within:text-primary transition-colors" size={18} />
                     <input 
                         type="text"
-                        placeholder="Search stock..."
+                        placeholder={t('app.searchStock')}
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                         // Input Hygiene: Trim on blur
@@ -71,7 +73,7 @@ export default function InventoryClient({ inventory }: { inventory: InventoryIte
                     <div className="flex flex-col items-center justify-center h-64 text-muted-foreground bg-secondary/20 rounded-3xl border border-dashed border-border">
                         <Package size={48} className="text-muted-foreground/20 mb-4" />
                         <p className="font-medium">
-                            {searchQuery ? 'No items found' : 'Your inventory is empty'}
+                            {searchQuery ? t('app.noResults') : t('app.inventoryEmpty')}
                         </p>
                     </div>
                 ) : (

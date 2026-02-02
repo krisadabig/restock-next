@@ -248,4 +248,17 @@ Implement guardrails to prevent AI agent from bypassing user confirmation on cri
 - **Parallel Execution**: When running visual tests in parallel, segregate reusable accounts (e.g., `visual_tester_light` vs `visual_tester_dark`) to avoid race conditions during the registration fallback.
 
 ### Upgrades Implemented 🚀
-- **Test Coverage**: Expanded visual verification suite to cover 100% of app routes + Signup state.
+
+---
+
+## [2026-02-02] Session: Typography & i18n Audit
+
+### Lessons Learned 🧠
+- **Theme Persistence**: Visual themes can be easily broken by hardcoded classes on root elements. Always audit `layout.tsx` when themes fail to persist or switch.
+- **i18n Gaps**: Visual audits often miss hardcoded text in "edge case" UI like Empty States or Modals. These require specific manual or automated checks (e.g., "Open Modal -> Check Label").
+- **Test Resilience**: Changing UI styles (like error messages) often breaks strict selectors in tests. When refactoring styles, immediately grep for related test selectors to prevent CI failures.
+
+### Upgrades Implemented 🚀
+- **Visual Polish**: Achieved consistent, accessible contrast across Light and Dark modes.
+- **i18n Completeness**: Reached 100% translation coverage for core Dashboard and Inventory flows.
+- **Test Stability**: Hardened `login.spec.ts` against minor style refactors.

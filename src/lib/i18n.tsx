@@ -80,13 +80,33 @@ const translations = {
 			installAndroid: 'Android',
 			installAndroidStep: "Tap 'More' (⋮) and 'Install App'",
 			installDesktop: 'Desktop',
-			installDesktopStep: "Click 'Install' icon in address bar"
+			installDesktopStep: "Click 'Install' icon in address bar",
+			searchPlaceholder: 'Search name, note...',
+			allTime: 'All Time',
+			inventory: 'Inventory',
+			manageStock: 'Manage Stock',
+			searchStock: 'Search stock...',
+			inventoryEmpty: 'Your inventory is empty',
+			noResults: 'No items found',
+			qty: 'Qty',
+			unit: 'Unit',
+			quantity: 'Quantity',
+			avgCost: 'Avg Cost',
+			inStock: 'In Stock',
+			alert: 'Alert',
+			editEntry: 'Edit Entry'
 		},
 		trends: {
 			title: 'Spending Trends',
 			totalSpending: 'Total Spending',
 			topItems: 'Top Items by Cost',
-			cost: 'Cost'
+
+			cost: 'Cost',
+			monthOverMonth: 'Month-over-Month',
+			vsLastMonth: 'vs Last Month',
+			thisMonth: 'this month',
+			smartSavings: 'Smart Savings',
+			savingsTip: "Looks like you're spending most on {item}. Consider buying larger packs to save on unit cost."
 		},
 		settings: {
 			title: 'Settings',
@@ -195,13 +215,31 @@ const translations = {
 			installAndroid: 'Android',
 			installAndroidStep: "กดปุ่ม 'เพิ่มเติม' (⋮) แล้วเลือก 'ติดตั้งแอป'",
 			installDesktop: 'Desktop',
-			installDesktopStep: "คลิกไอคอน 'ติดตั้ง' (Install) บนแถบที่อยู่"
+			installDesktopStep: "คลิกไอคอน 'ติดตั้ง' (Install) บนแถบที่อยู่",
+			searchPlaceholder: 'ค้นหาชื่อสินค้า, บันทึก...',
+			allTime: 'ทั้งหมด',
+			inventory: 'คลังสินค้า',
+			manageStock: 'จัดการสต็อก',
+			searchStock: 'ค้นหาสต็อก...',
+			inventoryEmpty: 'คลังสินค้าว่างเปล่า',
+			noResults: 'ไม่พบรายการ',
+			qty: 'จำนวน',
+			unit: 'หน่วย',
+			quantity: 'ปริมาณ',
+			avgCost: 'เฉลี่ย/หน่วย',
+			inStock: 'คงเหลือ',
+			alert: 'แจ้งเตือน'
 		},
 		trends: {
 			title: 'แนวโน้มการใช้จ่าย',
 			totalSpending: 'ยอดรวมรายเดือน',
 			topItems: 'สินค้าที่ใช้จ่ายสูงสุด',
-			cost: 'ยอดรวม'
+			cost: 'ยอดรวม',
+			monthOverMonth: 'เทียบกับเดือนก่อน',
+			vsLastMonth: 'เทียบเดือนที่แล้ว',
+			thisMonth: 'เดือนนี้',
+			smartSavings: 'เคล็ดลับความคุ้ม',
+			savingsTip: "ดูเหมือนคุณจ่ายค่า {item} เยอะสุด ลองซื้อแพ็คใหญ่ขึ้นอาจช่วยประหยัดต่อหน่วยได้นะ"
 		},
 		settings: {
 			title: 'การตั้งค่า',
@@ -240,7 +278,7 @@ type Locale = 'en' | 'th';
 interface I18nContextType {
 	locale: Locale;
 	setLocale: (l: Locale) => void;
-	t: (key: string) => string;
+	t: (key: string, params?: Record<string, string | number>) => string;
 }
 
 const I18nContext = createContext<I18nContextType | undefined>(undefined);
@@ -248,7 +286,7 @@ const I18nContext = createContext<I18nContextType | undefined>(undefined);
 export function I18nProvider({ children }: { children: ReactNode }) {
 	const [locale, setLocale] = useState<Locale>('th');
 
-	const t = (key: string) => {
+	const t = (key: string, params?: Record<string, string | number>) => {
 		const keys = key.split('.');
 		let result: unknown = translations[locale];
 		for (const k of keys) {
@@ -256,7 +294,13 @@ export function I18nProvider({ children }: { children: ReactNode }) {
                 result = (result as Record<string, unknown>)[k];
             }
 		}
-		return (result as string) || key;
+		let text = (result as string) || key;
+		if (params) {
+			Object.entries(params).forEach(([k, v]) => {
+				text = text.replace(`{${k}}`, String(v));
+			});
+		}
+		return text;
 	};
 
 	return (

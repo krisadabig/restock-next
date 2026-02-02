@@ -89,17 +89,17 @@ export default function TrendsClient({ entries }: { entries: Entry[] }) {
                         <div className="flex justify-between items-center mb-2">
                             <span className="text-slate-500 dark:text-slate-400 font-medium text-sm flex items-center gap-1.5">
                                 <TrendingUp size={14} />
-                                Month-over-Month
+                                {t('trends.monthOverMonth')}
                             </span>
                         </div>
                         <div className="text-3xl font-black tracking-tight text-slate-900 dark:text-white flex items-baseline gap-2">
                             {momChange > 0 ? '+' : ''}{momChange.toFixed(1)}%
                             <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">
-                                vs Last Month
+                                {t('trends.vsLastMonth')}
                             </span>
                         </div>
                         <p className="text-xs font-bold text-slate-400 mt-2 uppercase tracking-widest">
-                            ฿{currentMonthSpending.toLocaleString()} this month
+                            ฿{currentMonthSpending.toLocaleString()} {t('trends.thisMonth')}
                         </p>
                     </div>
                 </div>
@@ -155,9 +155,9 @@ export default function TrendsClient({ entries }: { entries: Entry[] }) {
                     <TrendingUp size={24} />
                 </div>
                 <div>
-                    <h3 className="font-black text-slate-900 dark:text-white mb-1">Smart Savings</h3>
+                    <h3 className="font-black text-slate-900 dark:text-white mb-1">{t('trends.smartSavings')}</h3>
                     <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed font-medium">
-                        Looks like you&apos;re spending most on <span className="text-indigo-500 font-black">{topItems[0]?.name || '...'}</span>. Consider buying larger packs to save on unit cost.
+                        {t('trends.savingsTip', { item: topItems[0]?.name || '...' })}
                     </p>
                 </div>
             </div>

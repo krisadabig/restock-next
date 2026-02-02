@@ -47,9 +47,9 @@ export default function LoginPage() {
         
         {/* Dynamic Background Effects */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
-            <div className="absolute top-[-15%] left-[-15%] w-[60%] h-[60%] bg-primary/20 rounded-full blur-[160px] animate-float opacity-40" />
-            <div className="absolute bottom-[-15%] right-[-15%] w-[60%] h-[60%] bg-primary/10 rounded-full blur-[160px] animate-float opacity-30" style={{ animationDelay: '-4s' }} />
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-linear-to-b from-transparent via-primary/5 to-transparent opacity-50" />
+            <div className="absolute top-[-15%] left-[-15%] w-[60%] h-[60%] bg-primary/20 rounded-full blur-[160px] animate-float opacity-30" />
+            <div className="absolute bottom-[-15%] right-[-15%] w-[60%] h-[60%] bg-primary/10 rounded-full blur-[160px] animate-float opacity-20" style={{ animationDelay: '-4s' }} />
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-linear-to-b from-transparent via-primary/5 to-transparent opacity-30" />
         </div>
 
         <div className="w-full max-w-md relative z-10 space-y-12 animate-in zoom-in-95 fade-in duration-1000">
@@ -95,7 +95,7 @@ export default function LoginPage() {
                                 onClick={() => setMethod('password')}
                                 className={`h-10 px-4 flex items-center justify-center rounded-lg text-xs font-bold transition-all ${method === 'password'
                                     ? 'bg-background text-primary shadow-lg border border-primary/10'
-                                    : 'text-muted-foreground/50 hover:text-foreground'}`}
+                                    : 'text-muted-foreground hover:text-foreground'}`}
                             >
                                 Password
                             </button>
@@ -103,7 +103,7 @@ export default function LoginPage() {
                                 onClick={() => setMethod('passkey')}
                                 className={`h-10 px-4 flex items-center justify-center rounded-lg text-xs font-bold transition-all ${method === 'passkey'
                                     ? 'bg-background text-primary shadow-lg border border-primary/10'
-                                    : 'text-muted-foreground/50 hover:text-foreground'}`}
+                                    : 'text-muted-foreground hover:text-foreground'}`}
                             >
                                 Passkey
                             </button>
@@ -116,7 +116,7 @@ export default function LoginPage() {
                             <form action={isSignup ? signupAction : loginAction} className="space-y-6">
                                 <div className="space-y-4">
                                     <div className="group space-y-1.5 transition-all duration-300">
-                                        <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-[0.2em] ml-2">Username</label>
+                                        <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-[0.2em] ml-2 opacity-80">Username</label>
                                         <input
                                             name="username"
                                             type="text"
@@ -128,8 +128,8 @@ export default function LoginPage() {
                                     
                                     <div className="group space-y-1.5 transition-all duration-300">
                                         <div className="flex justify-between items-center px-2">
-                                            <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-[0.2em]">Password</label>
-                                            {!isSignup && <button type="button" className="text-[10px] font-bold text-primary hover:underline uppercase tracking-widest opacity-80">Forgot?</button>}
+                                            <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-[0.2em] opacity-80">Password</label>
+                                            {!isSignup && <button type="button" className="text-[10px] font-bold text-primary hover:underline uppercase tracking-widest">Forgot?</button>}
                                         </div>
                                         <input
                                             name="password"
@@ -155,7 +155,7 @@ export default function LoginPage() {
                                 </div>
 
                                 {error && (
-                                    <div className="text-center text-xs font-bold text-red-400 bg-red-500/5 p-4 rounded-xl border border-red-500/10 animate-in slide-in-from-top-2">
+                                    <div className="text-center text-xs font-bold text-red-500 bg-red-500/10 p-4 rounded-xl border border-red-500/20 animate-in slide-in-from-top-2">
                                         {error}
                                     </div>
                                 )}
@@ -198,14 +198,14 @@ export default function LoginPage() {
                                              </svg>
                                          </div>
                                          <h3 className="font-bold text-foreground text-xl">Passkey Ready</h3>
-                                         <p className="text-xs text-muted-foreground/60 mt-2 font-medium">
+                                         <p className="text-xs text-muted-foreground/80 mt-2 font-medium">
                                              Biometric security detected.
                                          </p>
                                      </div>
                                  </div>
             
                                  {passkeyError && (
-                                    <div className="text-center text-xs font-bold text-red-400 bg-red-500/5 p-4 rounded-xl border border-red-500/10 animate-in slide-in-from-top-2">
+                                    <div className="text-center text-xs font-bold text-red-500 bg-red-500/10 p-4 rounded-xl border border-red-500/20 animate-in slide-in-from-top-2">
                                         {passkeyError}
                                     </div>
                                  )}
@@ -236,7 +236,7 @@ export default function LoginPage() {
 
                     {/* Footer Toggle */}
                     <div className="pt-4 border-t border-primary/5 flex flex-col items-center">
-                        <p className="text-xs text-muted-foreground/40 font-bold mb-4 uppercase tracking-[0.2em]">
+                        <p className="text-xs text-muted-foreground/70 font-bold mb-4 uppercase tracking-[0.2em]">
                             {isSignup ? "Already tracking?" : "New here?"}
                         </p>
                         <button

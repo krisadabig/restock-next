@@ -43,7 +43,7 @@ export default function PillSelector({ name, options, value, onChange }: PillSel
                             className={`shrink-0 h-11 px-6 rounded-xl text-[10px] font-bold uppercase tracking-[0.2em] transition-all active:scale-95 border ${
                                 isActive
                                     ? 'bg-primary text-white border-primary shadow-lg shadow-primary/30'
-                                    : 'bg-secondary/20 border-primary/5 text-muted-foreground/60 hover:bg-secondary/40 hover:text-foreground'
+                                    : 'bg-secondary/50 border-primary/10 text-muted-foreground hover:bg-secondary/80 hover:text-foreground'
                             }`}
                         >
                             {option}

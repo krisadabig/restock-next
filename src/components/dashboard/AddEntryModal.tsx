@@ -110,7 +110,7 @@ export default function AddEntryModal({ isOpen, onClose }: { isOpen: boolean; on
 
                         <div className="space-y-2 col-span-1">
                             <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-[0.2em] ml-1 flex items-center gap-2">
-                                <Tag size={12} /> Quantity
+                                <Tag size={12} /> {t('app.quantity')}
                             </label>
                             <input 
                                 name="quantity"
@@ -124,7 +124,7 @@ export default function AddEntryModal({ isOpen, onClose }: { isOpen: boolean; on
                         
                         <div className="col-span-2 space-y-2">
                              <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-[0.2em] ml-1 flex items-center gap-2">
-                                <Tag size={12} /> Unit
+                                <Tag size={12} /> {t('app.unit')}
                             </label>
                             <PillSelector 
                                 name="unit"

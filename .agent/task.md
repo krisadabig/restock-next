@@ -186,6 +186,7 @@
     - [ ] Update Modals (Add/Edit Entry, Manage Inventory) to Bottom Sheets <!-- id: ui-modals -->
     - [ ] Polish Settings Page (Premium Lists, Profile Header) <!-- id: ui-settings -->
     - [ ] Verify Mobile Responsiveness & "Thumb Zone" Ergonomics <!-- id: ui-verify -->
+    - [/] Audit & Fix Typography Contrast (Consistent text & Contrast AA) <!-- id: ui-typography-audit -->
 - [x] Application Specification & Spec Workflow <!-- id: 46 -->
     - [x] Create `.agent/spec.md` with tech stack and core logic <!-- id: 47 -->
     - [x] Update `/resume` workflow to include spec check <!-- id: 48 -->
