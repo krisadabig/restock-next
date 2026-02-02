@@ -96,26 +96,29 @@ Failure to run the verification script constitutes a violation of project govern
 | Operationalize Retro | PASS | 2026-01-31T00:30:00 | Upgraded implement-retrospective.ts with Session Selection. Operationalized 4 lessons from history. |
 | **Light Theme Revamp** | PASS | 2026-02-02T17:45:00 | Verified "Daylight Glass" aesthetic on all pages (Login, Dashboard, Trends, Inventory, Settings, Modals). Fixed flaky smoke tests in `contrast.spec.ts`. |
 | **Dark Theme Verification** | PASS | 2026-02-02T19:10:00 | Verified "Deep Glass" aesthetic on all pages using `visual-dark-mode.spec.ts`. Fixed parallel user race conditions. |
+| **Typography & i18n Audit** | PASS | 2026-02-02T22:30:00 | Fixed Theme Persistence, Contrast (Light/Dark), and achieved 100% i18n coverage (Inventory, Modals). All E2E passed. |
 
 ## 🔄 Session Handoff
 
-**Current Status**: [COMPLETED] "Revamp Light Theme"
-**Branch**: `feature/revamp-light-theme`
+**Current Status**: [COMPLETED] "Audit & Fix Typography Contrast"
+**Branch**: `develop` (Merged from `feature/audit-fix-typography-contrast`)
 
 ### 📌 Recent Achievements
-1.  **Light Theme Architecture**:
-    -   Refactored `globals.css` with semantic CSS variables (`--glass-bg`, `--input-bg`).
-    -   Implemented "Daylight Glass" aesthetic with high-contrast tokens.
-    -   Verified WCAG AA compliance for inputs and text.
-2.  **Verification**:
-    -   Created robust visual test suite `tests/e2e/visual-light-mode.spec.ts` capturing 100% of routes.
-    -   Fixed flaky smoke tests in `contrast.spec.ts` by implementing deterministic Signup logic.
-    -   Generated Walkthrough artifact with screenshots.
+1.  **Theme Persistence Fixed**: Removed hardcoded `layout.tsx` classes; themes now switch and persist correctly.
+2.  **Typography & Contrast**:
+    -   Tuned `globals.css` for darker text in Light Mode (Slate-600) and lighter secondary text in Dark Mode (Lavender-200).
+    -   Fixed PillSelector contrast in dark mode.
+    -   Fixed hardcoded white backgrounds in `DashboardLayout`.
+3.  **i18n Completeness**:
+    -   Fully translated **Inventory Page** and **Add Entry Modal** (Quantity, Unit).
+    -   Added ~15 missing keys to dictionary.
+4.  **UI Polish**: Fixed overlapping month filter icons.
 
 ### ⚠️ Known Issues / Blockers
-- None.
+- **Retrospective**: Error styles in tests needed manual patching. Future CSS refactors should check `tests/` for selectors.
 
 ### ⏭️ Immediate Next Steps
-1.  **Auth (Backlog)**: Proceed to "Auth Migration" or "Supabase Auth" tasks if not already done.
-2.  **UI Revamp**: Continue with "Ultimate UI Revamp" items.
+1.  **Redesign Landing Page**: Apply "Deep Glass" aesthetic to the public landing page (Phase 27).
+2.  **Revamp Login/Signup**: Apply final premium polish to Auth pages.
+3.  **UI Redesign**: Move Modals to Bottom Sheets on mobile.
 
