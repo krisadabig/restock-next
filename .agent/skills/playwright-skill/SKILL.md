@@ -467,3 +467,9 @@ Playwright's `getByPlaceholder` is strict. Always copy-paste strings from the so
 
 ### New Guideline
 Elements with complex styling or animations (like custom Pill Selectors) may require `{ force: true }` in tests to bypass strict actionability checks. Use sparingly, but prefer it over flaky tests for custom UI controls.
+
+### New Guideline
+## Visual Verification
+
+### New Guideline
+## Auth Strategy
