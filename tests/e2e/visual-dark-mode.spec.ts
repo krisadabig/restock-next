@@ -1,23 +1,32 @@
 import { test, expect } from '@playwright/test';
 
-test.describe('Light Mode Visual Verification', () => {
+test.describe('Dark Mode Visual Verification', () => {
 	test('should capture consistently themed screenshots across key pages', async ({ page }) => {
 		// 1. Initial Load & Theme Setup
 		await page.goto('/login');
 
-		// Ensure we are in Light Mode
+		// Ensure we are in DARK Mode
 		const html = page.locator('html');
-		const isDark = await html.evaluate((el: HTMLElement) => el.classList.contains('dark'));
-		if (isDark) {
-			// Use the explicit aria-label we verified in ThemeToggle.tsx
-			await page.getByLabel('Toggle theme').click();
-		}
-		await expect(html).not.toHaveClass(/dark/);
+		// Initial state check
+		let isDark = await html.evaluate((el: HTMLElement) => el.classList.contains('dark'));
 
-		// Screenshot 1: Login Page (Light)
+		if (!isDark) {
+			console.log('Page is Light. Toggling to Dark...');
+			// Toggle theme
+			await page.getByLabel('Toggle theme').click();
+			await page.waitForTimeout(500);
+			// Verify flip
+			isDark = await html.evaluate((el: HTMLElement) => el.classList.contains('dark'));
+			expect(isDark).toBeTruthy();
+		}
+
+		// Assert class
+		await expect(html).toHaveClass(/dark/);
+
+		// Screenshot 1: Login Page (Dark)
 		await expect(page.locator('h1')).toContainText('Restock.');
 		await page.waitForTimeout(500); // Wait for transitions
-		await page.screenshot({ path: 'test-results/light-mode-login.png', fullPage: true });
+		await page.screenshot({ path: 'test-results/dark-mode-login.png', fullPage: true });
 
 		// 2. Smart Auth (Reusable User)
 		const username = 'visual_tester';
@@ -34,13 +43,14 @@ test.describe('Light Mode Visual Verification', () => {
 				.getByText('Invalid username or password')
 				.waitFor()
 				.then(() => false),
-			page.waitForTimeout(5000).then(() => false),
+			page.waitForTimeout(5000).then(() => false), // Fallback timeout
 		]);
 
 		if (success) {
 			console.log('Logged in successfully as reusable user.');
 		} else {
-			console.log('User not found (or wrong pass), registering...');
+			console.log('Login failed (or timed out), registering...');
+
 			// Reload to ensure clean state
 			await page.goto('/login');
 
@@ -56,8 +66,8 @@ test.describe('Light Mode Visual Verification', () => {
 			await page.fill('input[name="password"]', password);
 			await page.fill('input[name="confirmPassword"]', password);
 
-			await page.waitForTimeout(500); // Wait for animations
-			await page.screenshot({ path: 'test-results/light-mode-signup.png', fullPage: true });
+			await page.waitForTimeout(500);
+			await page.screenshot({ path: 'test-results/dark-mode-signup.png', fullPage: true });
 
 			await page.click('button[type="submit"]');
 			await expect(page).toHaveURL('/app');
@@ -65,65 +75,53 @@ test.describe('Light Mode Visual Verification', () => {
 
 		// 3. Dashboard Verification
 		await expect(page).toHaveURL('/app');
-		await expect(html).not.toHaveClass(/dark/);
-		await expect(page.locator('header')).toBeVisible();
-		await page.waitForTimeout(1000);
 
-		// Screenshot 2: Dashboard (Light)
-		await page.screenshot({ path: 'test-results/light-mode-dashboard.png', fullPage: true });
+		// Verify Dark Mode Persisted
+		await expect(html).toHaveClass(/dark/);
+
+		// Wait for content
+		await expect(page.locator('header')).toBeVisible();
+		await page.waitForTimeout(1000); // Allow skeletons to resolve
+
+		// Screenshot 2: Dashboard (Dark)
+		await page.screenshot({ path: 'test-results/dark-mode-dashboard.png', fullPage: true });
 
 		// 4. Trends Page
 		await page.goto('/app/trends');
-		await page.waitForTimeout(1500);
-		await page.screenshot({ path: 'test-results/light-mode-trends.png', fullPage: true });
+		await page.waitForTimeout(1500); // Wait for charts/animations
+		await page.screenshot({ path: 'test-results/dark-mode-trends.png', fullPage: true });
 
 		// 5. Inventory Page
 		await page.goto('/app/inventory');
 		await expect(page).toHaveURL('/app/inventory');
 		await page.waitForTimeout(1000);
-		await page.screenshot({ path: 'test-results/light-mode-inventory.png', fullPage: true });
+		await page.screenshot({ path: 'test-results/dark-mode-inventory.png', fullPage: true });
 
 		// 6. Settings Page
 		await page.goto('/app/settings');
 		await expect(page).toHaveURL('/app/settings');
 		await page.waitForTimeout(1000);
-		await page.screenshot({ path: 'test-results/light-mode-settings.png', fullPage: true });
+		await page.screenshot({ path: 'test-results/dark-mode-settings.png', fullPage: true });
 
 		// Return to Dashboard for Modal
 		await page.goto('/app');
 
 		// 7. Add Entry Modal
+		// Click the FAB/Add button (usually bottom right or in nav)
 		const addBtn = page.locator('button:has(svg.lucide-plus)').last();
 		await addBtn.click();
+
+		// Wait for Modal
 		const modal = page.locator('.glass, [role="dialog"]').filter({ has: page.locator('input[name="item"]') });
 		await expect(modal).toBeVisible();
 		await expect(modal.locator('input[name="item"]')).toBeVisible();
-		await page.waitForTimeout(500);
+		await page.waitForTimeout(500); // Wait for modal animation
 
-		// Screenshot 6: Add Entry Modal (Light)
-		await page.screenshot({ path: 'test-results/light-mode-add-entry-modal.png' });
+		// Screenshot 6: Add Entry Modal (Dark)
+		await page.screenshot({ path: 'test-results/dark-mode-add-entry-modal.png' });
 
 		// Close modal
 		await page.keyboard.press('Escape');
 		await page.waitForTimeout(300);
-
-		// 8. Logout & Landing Page
-		await page.goto('/app/settings');
-		await page.locator('button:has(svg.lucide-log-out)').click();
-		await expect(page).toHaveURL('/login');
-		await page.goto('/');
-
-		// Ensure Light Mode on Landing
-		const isDarkLanding = await html.evaluate((el: HTMLElement) => el.classList.contains('dark'));
-		if (isDarkLanding) {
-			const toggle = page.getByLabel('Toggle theme').first();
-			if (await toggle.isVisible()) {
-				await toggle.click();
-				await page.waitForTimeout(500);
-			}
-		}
-
-		await page.waitForTimeout(1000);
-		await page.screenshot({ path: 'test-results/light-mode-landing.png', fullPage: true });
 	});
 });

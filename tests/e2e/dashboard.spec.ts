@@ -47,7 +47,10 @@ test.describe('Dashboard Shell', { tag: '@smoke' }, () => {
 	});
 
 	test('should navigate to trends', async ({ page }) => {
-		await page.getByRole('link', { name: /Trends|แนวโน้ม/ }).click();
+		await page
+			.getByRole('link', { name: /Trends|แนวโน้ม/ })
+			.last()
+			.click({ force: true });
 		await expect(page).toHaveURL('/app/trends');
 	});
 

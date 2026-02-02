@@ -244,6 +244,8 @@ Implement guardrails to prevent AI agent from bypassing user confirmation on cri
 ### Lessons Learned 🧠
 - **Verification Semantics**: When users say "every page", they often mean "every distinct UI state". For example, "Signup" is legally a state of the `/login` route, but conceptually a "page" to the user. Verification plans must explicitly enumerate these states (e.g., "Login - Signup Mode") to avoid gaps.
 - **Visual Gaps**: Automated tests that "fill and submit" forms often skip the visual verification step of the filled form itself. Explicit `page.screenshot` calls *during* the interaction flow are necessary.
+- **Auth Strategy**: For E2E tests with *unique* users (e.g., `user_${timestamp}`), **skip the login attempt** and register directly to eliminate flakiness. "Smart Auth" (Login -> Fail -> Register) should only be used for *fixed/reusable* test accounts.
+- **Parallel Execution**: When running visual tests in parallel, segregate reusable accounts (e.g., `visual_tester_light` vs `visual_tester_dark`) to avoid race conditions during the registration fallback.
 
 ### Upgrades Implemented 🚀
 - **Test Coverage**: Expanded visual verification suite to cover 100% of app routes + Signup state.

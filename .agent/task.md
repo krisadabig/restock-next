@@ -5,6 +5,7 @@
     - [x] Refactor `globals.css` (Split :root/Light and .dark) <!-- id: 2 -->
     - [x] Abstract `.glass` utilities to use variables <!-- id: 3 -->
     - [x] Verify Light Mode Contrast & Screenshots <!-- id: 4 -->
+    - [x] **Verify Dark Mode (Deep Glass) Contrast & Screenshots** <!-- id: 5 -->
     - [x] Assemble `src/app/page.tsx` <!-- id: 5 -->
     - [x] Add animations (Framer Motion or CSS) to match Svelte transitions <!-- id: 6 -->
     - [x] Verify responsive design <!-- id: 7 -->

@@ -72,16 +72,19 @@ test.describe('Deep Glass Contrast Verification @smoke', () => {
 		const timestamp = Date.now();
 		const username = `light_user_${timestamp}`;
 
-		await page.fill('input[name="username"]', username);
-		await page.fill('input[name="password"]', 'password123');
-		// Reliable Switch to Signup (State Check)
+		// 2. Register New User (Unique per run)
+		// Ensure Signup Mode
 		const confirmPass = page.locator('input[name="confirmPassword"]');
 		if (!(await confirmPass.isVisible())) {
 			await page.locator('div.pt-4 button').click();
 		}
 		await expect(confirmPass).toBeVisible();
+
+		await page.fill('input[name="username"]', username);
+		await page.fill('input[name="password"]', 'password123');
 		await page.fill('input[name="confirmPassword"]', 'password123');
 		await page.click('button[type="submit"]');
+
 		await expect(page).toHaveURL('/app');
 
 		// 2. Go to settings and switch to Light Mode
