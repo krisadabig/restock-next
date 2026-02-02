@@ -26,19 +26,19 @@ test.describe('Deep Glass Contrast Verification @smoke', () => {
 		const timestamp = Date.now();
 		const username = `testuser_${timestamp}`;
 
-		// Switch to signup
-		// Switch to signup
-		// Find the container with "New here?" text and click the button inside it
-		const toggleContainer = page.locator('div', { hasText: 'New here?' }).last();
-		await toggleContainer.locator('button').click();
+		// Ensure Signup Mode using state check
+		const confirmPass = page.locator('input[name="confirmPassword"]');
+		if (!(await confirmPass.isVisible())) {
+			await page.locator('div.pt-4 button').click();
+		}
+		await expect(confirmPass).toBeVisible();
 
 		await page.fill('input[name="username"]', username);
 		await page.fill('input[name="password"]', 'password123');
-		await page.fill('input[name="confirmPassword"]', 'password123'); // Added in previous task
+		await page.fill('input[name="confirmPassword"]', 'password123');
 
-		await page.click('button[type="submit"]');
-
-		// 2. Wait for Dashboard
+		// Use robust submit button selector
+		await page.locator('button[type="submit"]').click();
 		await expect(page).toHaveURL('/app');
 
 		// 3. Open Add Entry Modal
@@ -67,7 +67,24 @@ test.describe('Deep Glass Contrast Verification @smoke', () => {
 	});
 
 	test('Light Mode should have accessible contrast', async ({ page }) => {
-		// 1. Go to settings and switch to Light Mode
+		// 1. Login first (Sign up as new user to ensure access)
+		await page.goto('/login');
+		const timestamp = Date.now();
+		const username = `light_user_${timestamp}`;
+
+		await page.fill('input[name="username"]', username);
+		await page.fill('input[name="password"]', 'password123');
+		// Reliable Switch to Signup (State Check)
+		const confirmPass = page.locator('input[name="confirmPassword"]');
+		if (!(await confirmPass.isVisible())) {
+			await page.locator('div.pt-4 button').click();
+		}
+		await expect(confirmPass).toBeVisible();
+		await page.fill('input[name="confirmPassword"]', 'password123');
+		await page.click('button[type="submit"]');
+		await expect(page).toHaveURL('/app');
+
+		// 2. Go to settings and switch to Light Mode
 		await page.goto('/app/settings');
 
 		// Ensure we are in Light Mode (toggle if currently dark)
@@ -86,8 +103,12 @@ test.describe('Deep Glass Contrast Verification @smoke', () => {
 		// 3. Verify Inputs in Light Mode
 		// Go to Dashboard -> Add Entry
 		await page.goto('/app');
+		// Ensure we are on dashboard
+		await expect(page).toHaveURL('/app');
+		await expect(page.locator('header')).toBeVisible();
+
 		const addBtn = page.locator('button:has(svg.lucide-plus)').last();
-		await addBtn.waitFor();
+		// click auto-waits for visibility and actionability
 		await addBtn.click();
 
 		const modal = page.locator('.glass').filter({ has: page.locator('input[name="item"]') });

@@ -238,3 +238,12 @@ Implement guardrails to prevent AI agent from bypassing user confirmation on cri
 
 ### Preventive Measures 🛡️
 - **Self-Correction**: The `finish-task` script now warns users if they try to finish without updating documentation or running tests, physically preventing skipped steps.
+
+## [2026-02-02] Session: Revamp Light Theme (Part 2)
+
+### Lessons Learned 🧠
+- **Verification Semantics**: When users say "every page", they often mean "every distinct UI state". For example, "Signup" is legally a state of the `/login` route, but conceptually a "page" to the user. Verification plans must explicitly enumerate these states (e.g., "Login - Signup Mode") to avoid gaps.
+- **Visual Gaps**: Automated tests that "fill and submit" forms often skip the visual verification step of the filled form itself. Explicit `page.screenshot` calls *during* the interaction flow are necessary.
+
+### Upgrades Implemented 🚀
+- **Test Coverage**: Expanded visual verification suite to cover 100% of app routes + Signup state.
