@@ -97,6 +97,30 @@ export const entries = pgTable('entries', {
   index('idx_entries_household_created').on(t.householdId, t.createdAt),
 ]);
 
+// ── Groups ──────────────────────────────────────────────────────────────────
+
+export const groups = pgTable('groups', {
+  id: serial('id').primaryKey(),
+  householdId: text('household_id')
+    .notNull()
+    .references(() => households.id, { onDelete: 'cascade' }),
+  name: text('name').notNull(),
+  createdAt: timestamp('created_at').defaultNow(),
+}, (t) => [
+  index('idx_groups_household').on(t.householdId),
+]);
+
+export const groupItems = pgTable('group_items', {
+  groupId: integer('group_id')
+    .notNull()
+    .references(() => groups.id, { onDelete: 'cascade' }),
+  itemId: integer('item_id')
+    .notNull()
+    .references(() => items.id, { onDelete: 'cascade' }),
+}, (t) => [
+  unique().on(t.groupId, t.itemId),
+]);
+
 // ── Type exports ────────────────────────────────────────────────────────────
 
 export type User = typeof users.$inferSelect;
@@ -105,6 +129,9 @@ export type HouseholdMember = typeof householdMembers.$inferSelect;
 export type Category = typeof categories.$inferSelect;
 export type Item = typeof items.$inferSelect;
 export type Entry = typeof entries.$inferSelect;
+export type Group = typeof groups.$inferSelect;
+export type GroupItem = typeof groupItems.$inferSelect;
 export type NewEntry = typeof entries.$inferInsert;
 export type NewItem = typeof items.$inferInsert;
 export type NewCategory = typeof categories.$inferInsert;
+export type NewGroup = typeof groups.$inferInsert;

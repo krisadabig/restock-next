@@ -33,15 +33,19 @@ Next.js 16 · TypeScript · Tailwind CSS 4 · Drizzle ORM · PostgreSQL (Supabas
 
 ## Local Development
 ```bash
-bun run docker:up        # start local postgres (dev + test DBs)
-bun run db:push          # apply schema to local dev DB
-bun run db:push:test     # apply schema to test DB
-bun dev                  # start Next.js dev server
+bun run docker:up          # start local postgres (dev + test DBs)
+bun run db:generate        # generate SQL migration file from schema changes
+bun run db:migrate         # apply migrations to local dev DB
+bun run db:migrate:test    # apply migrations to local test DB
+bun run db:migrate:prod    # apply migrations to production DB (uses DATABASE_URL env)
+bun dev                    # start Next.js dev server
 
-bun run test:unit        # unit tests (no DB needed)
-bun run test:integration # integration tests (requires docker:up)
-bun run test:all         # both
+bun run test:unit          # unit tests (no DB needed)
+bun run test:integration   # integration tests (requires docker:up)
+bun run test:all           # both
 ```
+
+**Schema change workflow**: edit `src/lib/db/schema.ts` → `bun run db:generate` → commit the generated `.sql` file → `bun run db:migrate` (local) / `bun run db:migrate:prod` (production). Never use `drizzle-kit push` — it introspects the live DB and is unreliable.
 
 ## Database
 - Local dev: `postgres://postgres:postgres@localhost:5432/restock` (docker-compose)

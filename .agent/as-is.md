@@ -112,6 +112,23 @@ Indexes: `idx_items_household(household_id)`, `idx_items_category(category_id)`
 
 Indexes: `idx_entries_item_id`, `idx_entries_household_date`, `idx_entries_household_created`
 
+### `groups`
+| Column | Type | Notes |
+|---|---|---|
+| `id` | `serial` PK | |
+| `household_id` | `text` FK→households | cascade delete |
+| `name` | `text` NOT NULL | |
+| `created_at` | `timestamp` | defaultNow |
+
+Index: `idx_groups_household(household_id)`
+
+### `group_items`
+| Column | Type | Notes |
+|---|---|---|
+| `group_id` | `integer` FK→groups | cascade delete |
+| `item_id` | `integer` FK→items | cascade delete |
+| — | UNIQUE | `(group_id, item_id)` |
+
 ---
 
 ## 3. Server Actions

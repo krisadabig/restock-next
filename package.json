@@ -19,7 +19,6 @@
     "db:migrate": "DATABASE_URL=postgres://postgres:postgres@localhost:5432/restock drizzle-kit migrate",
     "db:migrate:test": "DATABASE_URL=postgres://postgres:postgres@localhost:5432/restock_test drizzle-kit migrate",
     "db:migrate:prod": "drizzle-kit migrate",
-    "db:push": "drizzle-kit push",
     "docker:up": "docker compose up -d",
     "docker:down": "docker compose down",
     "docker:reset": "docker compose down -v && docker compose up -d"
