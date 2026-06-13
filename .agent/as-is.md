@@ -166,6 +166,17 @@ Record-level authorization: actions that accept an ID re-fetch the record and co
 
 **Note on consume entries:** `addEntry` strips `price` and `store` to `null` when `type === 'consume'`, regardless of what was passed.
 
+### Group
+| Action | Signature | Returns | Side effects |
+|---|---|---|---|
+| `addGroup` | `(raw: { name })` | `Group` | `revalidatePath('/app/settings')` |
+| `renameGroup` | `(id, raw: { name })` | `Group` | `revalidatePath('/app/settings')` |
+| `deleteGroup` | `(id)` | `void` | revalidates `/app/settings` + `/app` |
+| `getGroups` | `()` | `Group[]` | — |
+| `assignItemToGroup` | `(groupId, itemId)` | `void` | `revalidatePath('/app')` |
+| `removeItemFromGroup` | `(groupId, itemId)` | `void` | `revalidatePath('/app')` |
+| `getGroupItems` | `(groupId)` | `Item[]` | — |
+
 ### Query (read-only)
 | Action | Signature | Returns |
 |---|---|---|

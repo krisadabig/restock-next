@@ -358,6 +358,54 @@ export async function getRecentPurchases(db: Db, householdId: string, limit = 20
     .limit(limit);
 }
 
+// ── Groups ──────────────────────────────────────────────────────────────────
+
+export async function insertGroup(db: Db, data: { householdId: string; name: string }) {
+  const [group] = await db.insert(schema.groups).values(data).returning();
+  return group;
+}
+
+export async function updateGroupName(db: Db, id: number, name: string) {
+  const [group] = await db
+    .update(schema.groups)
+    .set({ name })
+    .where(eq(schema.groups.id, id))
+    .returning();
+  return group;
+}
+
+export async function deleteGroupRecord(db: Db, id: number) {
+  await db.delete(schema.groups).where(eq(schema.groups.id, id));
+}
+
+export async function getGroups(db: Db, householdId: string) {
+  return db
+    .select()
+    .from(schema.groups)
+    .where(eq(schema.groups.householdId, householdId))
+    .orderBy(schema.groups.name);
+}
+
+export async function insertGroupItem(db: Db, data: { groupId: number; itemId: number }) {
+  await db.insert(schema.groupItems).values(data).onConflictDoNothing();
+}
+
+export async function deleteGroupItem(db: Db, groupId: number, itemId: number) {
+  await db
+    .delete(schema.groupItems)
+    .where(and(eq(schema.groupItems.groupId, groupId), eq(schema.groupItems.itemId, itemId)));
+}
+
+export async function getGroupItems(db: Db, groupId: number) {
+  return db
+    .select({ item: schema.items })
+    .from(schema.groupItems)
+    .innerJoin(schema.items, eq(schema.groupItems.itemId, schema.items.id))
+    .where(eq(schema.groupItems.groupId, groupId))
+    .orderBy(schema.items.name)
+    .then((rows) => rows.map((r) => r.item));
+}
+
 // ── Household ────────────────────────────────────────────────────────────────
 
 export async function getHouseholdForUser(db: Db, userId: string) {

@@ -8,7 +8,7 @@ import { z } from 'zod';
 import * as queries from '@/lib/queries';
 import { ENTRY_TYPE, DEFAULTS } from '@/lib/constants';
 
-export type { Entry, Item, Category, Household } from '@/lib/db/schema';
+export type { Entry, Item, Category, Household, Group } from '@/lib/db/schema';
 
 // ── Auth helper ─────────────────────────────────────────────────────────────
 
@@ -178,6 +178,74 @@ export async function deleteEntry(entryId: number) {
     log.error('entry.delete.failed', { error: (e as Error).message, entryId, userId });
     throw e;
   }
+}
+
+// ── Group actions ────────────────────────────────────────────────────────────
+
+const groupSchema = z.object({ name: z.string().min(1) });
+
+export async function addGroup(raw: { name: string }) {
+  const { householdId } = await requireSession();
+  const data = groupSchema.parse(raw);
+  const group = await queries.insertGroup(db, { householdId, ...data });
+  log.info('group.add', { groupId: group.id, householdId });
+  revalidatePath('/app/settings');
+  return group;
+}
+
+export async function renameGroup(id: number, raw: { name: string }) {
+  const { householdId } = await requireSession();
+  const existing = await db.query.groups.findFirst({ where: (g, { eq }) => eq(g.id, id) });
+  if (!existing || existing.householdId !== householdId) throw new Error('Not found');
+  const data = groupSchema.parse(raw);
+  const group = await queries.updateGroupName(db, id, data.name);
+  log.info('group.rename', { groupId: id, householdId });
+  revalidatePath('/app/settings');
+  return group;
+}
+
+export async function deleteGroup(id: number) {
+  const { householdId } = await requireSession();
+  const existing = await db.query.groups.findFirst({ where: (g, { eq }) => eq(g.id, id) });
+  if (!existing || existing.householdId !== householdId) throw new Error('Not found');
+  await queries.deleteGroupRecord(db, id);
+  log.warn('group.delete', { groupId: id, householdId });
+  revalidatePath('/app/settings');
+  revalidatePath('/app');
+}
+
+export async function getGroups() {
+  const { householdId } = await requireSession();
+  return queries.getGroups(db, householdId);
+}
+
+export async function assignItemToGroup(groupId: number, itemId: number) {
+  const { householdId } = await requireSession();
+  const [group, item] = await Promise.all([
+    db.query.groups.findFirst({ where: (g, { eq }) => eq(g.id, groupId) }),
+    db.query.items.findFirst({ where: (i, { eq }) => eq(i.id, itemId) }),
+  ]);
+  if (!group || group.householdId !== householdId) throw new Error('Not found');
+  if (!item || item.householdId !== householdId) throw new Error('Not found');
+  await queries.insertGroupItem(db, { groupId, itemId });
+  log.info('group.item.assign', { groupId, itemId, householdId });
+  revalidatePath('/app');
+}
+
+export async function removeItemFromGroup(groupId: number, itemId: number) {
+  const { householdId } = await requireSession();
+  const group = await db.query.groups.findFirst({ where: (g, { eq }) => eq(g.id, groupId) });
+  if (!group || group.householdId !== householdId) throw new Error('Not found');
+  await queries.deleteGroupItem(db, groupId, itemId);
+  log.info('group.item.remove', { groupId, itemId, householdId });
+  revalidatePath('/app');
+}
+
+export async function getGroupItems(groupId: number) {
+  const { householdId } = await requireSession();
+  const group = await db.query.groups.findFirst({ where: (g, { eq }) => eq(g.id, groupId) });
+  if (!group || group.householdId !== householdId) throw new Error('Not found');
+  return queries.getGroupItems(db, groupId);
 }
 
 // ── Query actions ────────────────────────────────────────────────────────────

@@ -266,7 +266,7 @@ Sub-tasks:
 | Status | Task | Key Files |
 |---|---|---|
 | ✅ | **Group entity — schema + migration** | `src/lib/db/schema.ts` |
-| 🔲 | **Group CRUD server actions** | `src/app/app/actions.ts` |
+| ✅ | **Group CRUD server actions** | `src/app/app/actions.ts` |
 | 🔲 | **Group assignment — items & categories** | `src/app/app/actions.ts`, `src/lib/db/schema.ts` |
 | 🔲 | **Group-scoped views/filters in UI** | `src/components/stock/StockClient.tsx` |
 | 🔲 | **Group membership management UI** | `src/app/app/settings/SettingsClient.tsx` |
