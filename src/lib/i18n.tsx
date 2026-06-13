@@ -125,6 +125,7 @@ export const translations = {
 			filterLow: 'Low',
 			filterAlphabetical: 'A–Z',
 			filterRecent: 'Recent',
+			filterAllGroups: 'All groups',
 			noPurchasesYet: 'No purchases yet',
 			stockEmpty: 'Nothing logged yet. Tap + to add your first item.',
 			uncategorized: 'Uncategorized',
@@ -203,6 +204,14 @@ export const translations = {
 			noCategories: 'No categories yet.',
 			noStores: 'No stores logged yet.',
 			youLabel: 'you',
+			groups: 'Groups',
+			noGroups: 'No groups yet.',
+			addGroup: '+ Add group',
+			groupNamePlaceholder: 'Group name',
+			renameGroup: 'Rename',
+			deleteGroup: 'Delete',
+			confirmDeleteGroup: 'Confirm delete',
+			saving: 'Saving...',
 		}
 	},
 	th: {
@@ -326,6 +335,7 @@ export const translations = {
 			filterLow: 'ใกล้หมด',
 			filterAlphabetical: 'ก-ฮ',
 			filterRecent: 'ล่าสุด',
+			filterAllGroups: 'ทุกกลุ่ม',
 			noPurchasesYet: 'ยังไม่มีการซื้อ',
 			stockEmpty: 'ยังไม่มีรายการ กด + เพื่อเพิ่มสินค้าแรก',
 			uncategorized: 'ไม่มีหมวดหมู่',
@@ -404,6 +414,14 @@ export const translations = {
 			noCategories: 'ยังไม่มีหมวดหมู่',
 			noStores: 'ยังไม่มีร้านค้าที่บันทึก',
 			youLabel: 'คุณ',
+			groups: 'กลุ่ม',
+			noGroups: 'ยังไม่มีกลุ่ม',
+			addGroup: '+ เพิ่มกลุ่ม',
+			groupNamePlaceholder: 'ชื่อกลุ่ม',
+			renameGroup: 'เปลี่ยนชื่อ',
+			deleteGroup: 'ลบ',
+			confirmDeleteGroup: 'ยืนยันการลบ',
+			saving: 'กำลังบันทึก...',
 		}
 	}
 };

@@ -19,7 +19,7 @@
 | `/app/item/[id]` | `src/app/app/item/[id]/page.tsx` | `ItemDetailClient` | Session + householdId ownership | item, category, allEntries, purchaseHistory |
 | `/app/category/[id]` | `src/app/app/category/[id]/page.tsx` | `CategoryClient` | Session + householdId ownership | category, items, purchaseEntries, monthlySpend |
 | `/app/price` | `src/app/app/price/page.tsx` | `PriceClient` | Session | spend by range, categorySpend, recentPurchases, storeSpend |
-| `/app/settings` | `src/app/app/settings/page.tsx` | `SettingsClient` | Session | None (reads from client context) |
+| `/app/settings` | `src/app/app/settings/page.tsx` | `SettingsClient` | Session | members, categories, stores, groups (with items), allItems |
 | `/api/auth` | `src/app/api/auth/route.ts` | — | None | Handles login / register / passkey |
 
 **Deprecated routes still present (redirect only):**
@@ -285,8 +285,11 @@ interface Props {
     category: Category | null;
     items: Array<{ item: Item; lastEntry: Entry | null }>;
   }>;
+  groups?: Array<{ id: number; name: string; itemIds: number[] }>; // omit when no groups exist
 }
 // Internally uses useHousehold() to derive partnerActivityItems, partnerTags, recentItems.
+// Renders group filter chip strip (data-testid="group-filter-strip") when groups prop is present.
+// Group filter composes with existing status/sort filters.
 ```
 
 ```ts
@@ -421,6 +424,18 @@ interface Props {
   onConfirm: () => void;
   onCancel: () => void;
 }
+
+// src/app/app/settings/SettingsClient.tsx
+interface Props {
+  currentUserId: string;
+  members: Array<{ userId: string; username: string }>;
+  categories: Category[];
+  stores: string[];
+  groups: Array<{ id: number; name: string; items: Array<{ id: number; name: string }> }>;
+  allItems: Array<{ id: number; name: string }>; // full household item list for future assignment UI
+}
+// Groups section: create/rename/delete groups with inline confirm.
+// Calls addGroup/renameGroup/deleteGroup server actions, then router.refresh().
 ```
 
 ---

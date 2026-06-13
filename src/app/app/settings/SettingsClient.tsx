@@ -3,9 +3,10 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslation } from '@/lib/i18n';
-import { Moon, Sun, Globe, LogOut, Trash2, Fingerprint, ShieldCheck, ChevronRight, Users, Store, Tag } from 'lucide-react';
+import { Moon, Sun, Globe, LogOut, Trash2, Fingerprint, ShieldCheck, ChevronRight, Users, Store, Tag, Layers, Pencil, X, Check } from 'lucide-react';
 import { logout } from '@/app/auth/actions';
 import { registerPasskey } from '@/lib/auth';
+import { addGroup, renameGroup, deleteGroup } from '@/app/app/actions';
 import { useTheme } from 'next-themes';
 import type { Category } from '@/lib/db/schema';
 
@@ -14,14 +15,27 @@ interface Member {
   username: string;
 }
 
+interface GroupItem {
+  id: number;
+  name: string;
+}
+
+interface GroupWithItems {
+  id: number;
+  name: string;
+  items: GroupItem[];
+}
+
 interface Props {
   currentUserId: string;
   members: Member[];
   categories: Category[];
   stores: string[];
+  groups: GroupWithItems[];
+  allItems: GroupItem[];
 }
 
-export default function SettingsClient({ currentUserId, members, categories, stores }: Props) {
+export default function SettingsClient({ currentUserId, members, categories, stores, groups, allItems }: Props) {
   const router = useRouter();
   const { t, locale, setLocale } = useTranslation();
   const { theme, setTheme } = useTheme();
@@ -32,6 +46,16 @@ export default function SettingsClient({ currentUserId, members, categories, sto
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [passkeyLoading, setPasskeyLoading] = useState(false);
   const [passkeyMsg, setPasskeyMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+
+  // Group management state
+  const [showAddGroup, setShowAddGroup] = useState(false);
+  const [newGroupName, setNewGroupName] = useState('');
+  const [renamingGroupId, setRenamingGroupId] = useState<number | null>(null);
+  const [renameText, setRenameText] = useState('');
+  const [deletingGroupId, setDeletingGroupId] = useState<number | null>(null);
+  const [groupSaving, setGroupSaving] = useState(false);
+
+  void allItems;
 
   // suppress the router import warning
   void router;
@@ -66,6 +90,46 @@ export default function SettingsClient({ currentUserId, members, categories, sto
     } catch (error) {
       console.error('Failed to delete account:', error);
       setIsDeleting(false);
+    }
+  };
+
+  const handleAddGroup = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const name = newGroupName.trim();
+    if (!name) return;
+    setGroupSaving(true);
+    try {
+      await addGroup({ name });
+      setNewGroupName('');
+      setShowAddGroup(false);
+      router.refresh();
+    } finally {
+      setGroupSaving(false);
+    }
+  };
+
+  const handleRenameGroup = async (e: React.FormEvent, id: number) => {
+    e.preventDefault();
+    const name = renameText.trim();
+    if (!name) return;
+    setGroupSaving(true);
+    try {
+      await renameGroup(id, { name });
+      setRenamingGroupId(null);
+      router.refresh();
+    } finally {
+      setGroupSaving(false);
+    }
+  };
+
+  const handleDeleteGroup = async (id: number) => {
+    setGroupSaving(true);
+    try {
+      await deleteGroup(id);
+      setDeletingGroupId(null);
+      router.refresh();
+    } finally {
+      setGroupSaving(false);
     }
   };
 
@@ -164,6 +228,135 @@ export default function SettingsClient({ currentUserId, members, categories, sto
             ))
           )}
         </div>
+      </section>
+
+      {/* Groups */}
+      <section className="space-y-4">
+        <h2 className="text-[10px] font-bold text-muted-foreground/50 uppercase tracking-[0.2em] px-2 flex items-center gap-2">
+          <Layers size={12} />
+          {t('settings.groups')}
+        </h2>
+        <div className="glass-card overflow-hidden rounded-[2rem] divide-y divide-primary/5">
+          {groups.length === 0 ? (
+            <p data-testid="no-groups" className="px-5 py-4 text-sm text-muted-foreground">
+              {t('settings.noGroups')}
+            </p>
+          ) : (
+            groups.map((group) => (
+              <div key={group.id} data-testid={`group-row-${group.id}`} className="p-5 space-y-2">
+                {renamingGroupId === group.id ? (
+                  <form
+                    data-testid={`rename-group-form-${group.id}`}
+                    onSubmit={(e) => handleRenameGroup(e, group.id)}
+                    className="flex gap-2"
+                  >
+                    <input
+                      data-testid={`rename-group-input-${group.id}`}
+                      value={renameText}
+                      onChange={(e) => setRenameText(e.target.value)}
+                      className="input-premium h-9 text-sm flex-1"
+                      autoFocus
+                    />
+                    <button type="submit" disabled={groupSaving} className="h-9 px-3 bg-primary text-white rounded-xl text-xs font-bold">
+                      <Check size={14} />
+                    </button>
+                    <button type="button" onClick={() => setRenamingGroupId(null)} className="h-9 px-3 bg-secondary/40 rounded-xl text-xs">
+                      <X size={14} />
+                    </button>
+                  </form>
+                ) : (
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-semibold text-foreground">{group.name}</span>
+                    <div className="flex gap-2">
+                      {deletingGroupId === group.id ? (
+                        <>
+                          <button
+                            data-testid={`confirm-delete-group-${group.id}`}
+                            onClick={() => handleDeleteGroup(group.id)}
+                            disabled={groupSaving}
+                            className="h-8 px-3 bg-red-500 text-white rounded-xl text-[10px] font-bold"
+                          >
+                            {t('settings.confirmDeleteGroup')}
+                          </button>
+                          <button
+                            onClick={() => setDeletingGroupId(null)}
+                            className="h-8 px-3 bg-secondary/40 rounded-xl text-[10px]"
+                          >
+                            {t('settings.cancel')}
+                          </button>
+                        </>
+                      ) : (
+                        <>
+                          <button
+                            data-testid={`rename-group-${group.id}`}
+                            onClick={() => { setRenamingGroupId(group.id); setRenameText(group.name); }}
+                            className="h-8 px-3 bg-secondary/40 rounded-xl text-[10px] font-bold text-muted-foreground hover:text-foreground transition-colors"
+                          >
+                            <Pencil size={12} />
+                          </button>
+                          <button
+                            data-testid={`delete-group-${group.id}`}
+                            onClick={() => setDeletingGroupId(group.id)}
+                            className="h-8 px-3 bg-secondary/40 rounded-xl text-[10px] font-bold text-red-500/70 hover:text-red-500 transition-colors"
+                          >
+                            <Trash2 size={12} />
+                          </button>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* Assigned items */}
+                <div data-testid={`group-items-${group.id}`} className="flex flex-wrap gap-1.5">
+                  {group.items.map((item) => (
+                    <span
+                      key={item.id}
+                      className="inline-flex items-center h-6 px-2.5 rounded-full bg-primary/10 text-primary text-[10px] font-bold"
+                    >
+                      {item.name}
+                    </span>
+                  ))}
+                  {group.items.length === 0 && (
+                    <span className="text-[10px] text-muted-foreground/50">No items assigned</span>
+                  )}
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+
+        {/* Add group */}
+        {showAddGroup ? (
+          <form
+            data-testid="add-group-form"
+            onSubmit={handleAddGroup}
+            className="flex gap-2"
+          >
+            <input
+              data-testid="add-group-input"
+              value={newGroupName}
+              onChange={(e) => setNewGroupName(e.target.value)}
+              placeholder={t('settings.groupNamePlaceholder')}
+              className="input-premium h-11 text-sm flex-1"
+              autoFocus
+            />
+            <button type="submit" disabled={groupSaving} className="h-11 px-4 bg-primary text-white rounded-2xl text-sm font-bold">
+              {groupSaving ? t('settings.saving') : t('app.save')}
+            </button>
+            <button type="button" onClick={() => { setShowAddGroup(false); setNewGroupName(''); }} className="h-11 px-4 bg-secondary/40 rounded-2xl text-sm">
+              {t('settings.cancel')}
+            </button>
+          </form>
+        ) : (
+          <button
+            data-testid="add-group-btn"
+            onClick={() => setShowAddGroup(true)}
+            className="w-full h-11 bg-secondary/30 border border-dashed border-primary/20 rounded-2xl text-sm font-bold text-muted-foreground hover:text-foreground hover:border-primary/40 transition-all"
+          >
+            {t('settings.addGroup')}
+          </button>
+        )}
       </section>
 
       {/* Appearance */}

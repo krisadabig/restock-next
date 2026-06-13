@@ -1,5 +1,5 @@
 import { Suspense } from 'react';
-import { getHouseholdItems } from '@/app/app/actions';
+import { getHouseholdItems, getGroups, getGroupItems } from '@/app/app/actions';
 import StockClient from '@/components/stock/StockClient';
 import { SkeletonList } from '@/components/SkeletonList';
 import type { Item, Category, Entry } from '@/lib/db/schema';
@@ -8,7 +8,10 @@ interface StockEntry { item: Item; lastEntry: Entry | null }
 interface CategoryData { category: Category | null; items: StockEntry[] }
 
 async function StockContent() {
-  const raw = await getHouseholdItems();
+  const [raw, groups] = await Promise.all([
+    getHouseholdItems(),
+    getGroups(),
+  ]);
 
   // Group by category server-side
   const grouped = new Map<string, CategoryData>();
@@ -23,7 +26,22 @@ async function StockContent() {
 
   const itemsByCategory = Array.from(grouped.values());
 
-  return <StockClient itemsByCategory={itemsByCategory} />;
+  // Resolve item IDs for each group in parallel
+  const groupsWithItems = groups.length > 0
+    ? await Promise.all(
+        groups.map(async (g) => {
+          const items = await getGroupItems(g.id);
+          return { id: g.id, name: g.name, itemIds: items.map((i) => i.id) };
+        }),
+      )
+    : [];
+
+  return (
+    <StockClient
+      itemsByCategory={itemsByCategory}
+      groups={groupsWithItems.length > 0 ? groupsWithItems : undefined}
+    />
+  );
 }
 
 export default function StockPage() {

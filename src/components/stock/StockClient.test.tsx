@@ -105,3 +105,64 @@ describe('StockClient', () => {
     expect(screen.queryByText('Downy 1L')).toBeNull();
   });
 });
+
+describe('StockClient — group filter', () => {
+  const data = [{
+    category: cat,
+    items: [
+      { item: makeItem({ id: 1, name: 'Downy 1L' }),     lastEntry: null },
+      { item: makeItem({ id: 2, name: 'Comfort 750ml' }), lastEntry: null },
+      { item: makeItem({ id: 3, name: 'Snuggle 1.5L' }), lastEntry: null },
+    ],
+  }];
+
+  const groups = [
+    { id: 10, name: 'Fridge', itemIds: [1, 3] },
+    { id: 11, name: 'Pantry', itemIds: [2] },
+  ];
+
+  it('does not render group strip when no groups are provided', () => {
+    wrap(<StockClient itemsByCategory={data} />);
+    expect(screen.queryByTestId('group-filter-strip')).toBeNull();
+  });
+
+  it('renders a group chip for each group', () => {
+    wrap(<StockClient itemsByCategory={data} groups={groups} />);
+    expect(screen.getByTestId('group-filter-strip')).toBeDefined();
+    expect(screen.getByText('Fridge')).toBeDefined();
+    expect(screen.getByText('Pantry')).toBeDefined();
+  });
+
+  it('shows all items when no group is selected', () => {
+    wrap(<StockClient itemsByCategory={data} groups={groups} />);
+    expect(screen.getByText('Downy 1L')).toBeDefined();
+    expect(screen.getByText('Comfort 750ml')).toBeDefined();
+    expect(screen.getByText('Snuggle 1.5L')).toBeDefined();
+  });
+
+  it('narrows items to the selected group on chip tap', () => {
+    wrap(<StockClient itemsByCategory={data} groups={groups} />);
+    act(() => fireEvent.click(screen.getByText('Fridge')));
+    expect(screen.getByText('Downy 1L')).toBeDefined();
+    expect(screen.getByText('Snuggle 1.5L')).toBeDefined();
+    expect(screen.queryByText('Comfort 750ml')).toBeNull();
+  });
+
+  it('deselects group (shows all) when the same chip is tapped again', () => {
+    wrap(<StockClient itemsByCategory={data} groups={groups} />);
+    act(() => fireEvent.click(screen.getByText('Pantry')));
+    act(() => fireEvent.click(screen.getByText('Pantry')));
+    expect(screen.getByText('Downy 1L')).toBeDefined();
+    expect(screen.getByText('Comfort 750ml')).toBeDefined();
+    expect(screen.getByText('Snuggle 1.5L')).toBeDefined();
+  });
+
+  it('switches group filter when a different chip is tapped', () => {
+    wrap(<StockClient itemsByCategory={data} groups={groups} />);
+    act(() => fireEvent.click(screen.getByText('Fridge')));
+    act(() => fireEvent.click(screen.getByText('Pantry')));
+    expect(screen.getByText('Comfort 750ml')).toBeDefined();
+    expect(screen.queryByText('Downy 1L')).toBeNull();
+    expect(screen.queryByText('Snuggle 1.5L')).toBeNull();
+  });
+});

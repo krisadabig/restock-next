@@ -24,8 +24,15 @@ interface CategoryData {
   items: StockEntry[];
 }
 
+interface GroupFilter {
+  id: number;
+  name: string;
+  itemIds: number[];
+}
+
 interface Props {
   itemsByCategory: CategoryData[];
+  groups?: GroupFilter[];
 }
 
 type Filter = 'all' | 'out' | 'low' | 'az' | 'recent';
@@ -41,13 +48,14 @@ function formatPartnerTag(now: number, username: string, lastEntryAt: Date): str
   return `${username}·yesterday`;
 }
 
-export default function StockClient({ itemsByCategory }: Props) {
+export default function StockClient({ itemsByCategory, groups }: Props) {
   const { t } = useTranslation();
   const router = useRouter();
   const { currentUserId, members } = useHousehold();
   const { setQuickLogOpen } = useUI();
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState<Filter>('all');
+  const [selectedGroupId, setSelectedGroupId] = useState<number | null>(null);
   const [now] = useState(() => Date.now());
 
   const allItems: StockEntry[] = useMemo(
@@ -108,13 +116,21 @@ export default function StockClient({ itemsByCategory }: Props) {
       .map(({ item }) => ({ id: item.id, name: item.name }));
   }, [allItems]);
 
-  // Apply search + filter
+  // Group filter set (null = all)
+  const groupItemIdSet = useMemo<Set<number> | null>(() => {
+    if (selectedGroupId === null || !groups) return null;
+    const g = groups.find((g) => g.id === selectedGroupId);
+    return g ? new Set(g.itemIds) : null;
+  }, [selectedGroupId, groups]);
+
+  // Apply group → search → status/sort filter
   const filtered: CategoryData[] = useMemo(() => {
     const query = search.toLowerCase();
 
-    let items = allItems.filter((e) =>
-      query ? e.item.name.toLowerCase().includes(query) : true,
-    );
+    let items = allItems.filter((e) => {
+      if (groupItemIdSet && !groupItemIdSet.has(e.item.id)) return false;
+      return query ? e.item.name.toLowerCase().includes(query) : true;
+    });
 
     if (filter === 'out') items = items.filter(({ item }) => stockStatus(item) === 'out');
     if (filter === 'low') items = items.filter(({ item }) => stockStatus(item) === 'low');
@@ -133,7 +149,7 @@ export default function StockClient({ itemsByCategory }: Props) {
       grouped.get(key)!.items.push(e);
     }
     return Array.from(grouped.values());
-  }, [allItems, itemsByCategory, search, filter]);
+  }, [allItems, itemsByCategory, search, filter, groupItemIdSet]);
 
   const urgentItems = useMemo(
     () => allItems.filter(({ item }) => {
@@ -199,6 +215,26 @@ export default function StockClient({ itemsByCategory }: Props) {
             </button>
           ))}
         </div>
+
+        {/* Group filter chips — only rendered when groups exist */}
+        {groups && groups.length > 0 && (
+          <div data-testid="group-filter-strip" className="flex gap-2 overflow-x-auto pb-0.5 scrollbar-hide">
+            {groups.map((g) => (
+              <button
+                key={g.id}
+                type="button"
+                onClick={() => setSelectedGroupId(selectedGroupId === g.id ? null : g.id)}
+                className={`shrink-0 h-8 px-3.5 rounded-xl text-[10px] font-bold uppercase tracking-wider transition-all border ${
+                  selectedGroupId === g.id
+                    ? 'bg-primary text-white border-primary'
+                    : 'bg-secondary/50 border-primary/10 text-muted-foreground hover:text-foreground'
+                }`}
+              >
+                {g.name}
+              </button>
+            ))}
+          </div>
+        )}
       </header>
 
       {/* Activity strip — partner's recent logged items */}

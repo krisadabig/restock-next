@@ -268,8 +268,52 @@ Sub-tasks:
 | ✅ | **Group entity — schema + migration** | `src/lib/db/schema.ts` |
 | ✅ | **Group CRUD server actions** | `src/app/app/actions.ts` |
 | ✅ | **Group assignment — items & categories** | `src/app/app/actions.ts`, `src/lib/db/schema.ts` |
-| 🔲 | **Group-scoped views/filters in UI** | `src/components/stock/StockClient.tsx` |
-| 🔲 | **Group membership management UI** | `src/app/app/settings/SettingsClient.tsx` |
+| ✅ | **Group-scoped views/filters in UI** | `src/components/stock/StockClient.tsx` |
+| ✅ | **Group membership management UI** | `src/app/app/settings/SettingsClient.tsx` |
+| 🔲 | **Group item assignment UI** | `src/app/app/settings/SettingsClient.tsx` |
+| 🔲 | **Household invite & join flow** | `src/lib/db/schema.ts`, `src/app/app/actions.ts`, `src/app/app/settings/SettingsClient.tsx`, `src/app/join/[code]/page.tsx` |
+
+<details for "Group item assignment UI">
+
+Extend the Groups section in `SettingsClient` to let the user assign/remove items from each group.
+
+**Implementation** (no schema changes — actions already exist):
+1. Each group row in Settings gets a "Manage items" toggle button.
+2. When expanded, show all `allItems` (already passed as a prop) as a checkbox list.
+   - Checked = item is already in `group.items`.
+   - Checking calls `assignItemToGroup(groupId, itemId)` then `router.refresh()`.
+   - Unchecking calls `removeItemFromGroup(groupId, itemId)` then `router.refresh()`.
+3. Remove the `void allItems` stub from `SettingsClient`.
+
+**Tests:**
+- `SettingsClient.test.tsx` — expand group → shows item checkboxes; checking an item calls `assignItemToGroup`; unchecking calls `removeItemFromGroup`.
+
+</details>
+
+<details for "Household invite & join flow">
+
+Let one household member generate a short-lived invite code that a second person uses to join the household.
+
+**Build order:**
+1. **Schema** — add `household_invites` table: `id` (serial PK), `household_id` (FK→households cascade), `code` (text UNIQUE NOT NULL, 8-char alphanumeric), `created_by` (FK→users), `created_at` (timestamp defaultNow), `expires_at` (timestamp — 48h after creation), `used_at` (timestamp nullable). Migration via `bun run db:generate` + `bun run db:migrate`.
+2. **Server actions** (`src/app/app/actions.ts`):
+   - `createInvite()` → generates a random 8-char code, inserts into `household_invites`, returns `{ code }`. Logs `invite.create`.
+   - `joinByInviteCode(code)` → finds a valid (not expired, not used) invite; adds the current user to that household via `household_members`; marks invite `used_at = now()`. Throws if code invalid/expired/already used. Logs `invite.join`.
+3. **Settings UI** (`SettingsClient.tsx`) — "Invite member" button in the Household section:
+   - Tap → calls `createInvite()` → shows the 8-char code + a "Copy link" button that copies `/join/<code>` to clipboard.
+   - Code displayed in a monospaced badge. "Code expires in 48h."
+4. **Join route** — `src/app/join/[code]/page.tsx`:
+   - If not logged in → redirect to `/login?next=/join/<code>` (login page stores `next` param and redirects after auth).
+   - If logged in + already in a household → show "You're already in a household." with a link to `/app`.
+   - If logged in + no household → call `joinByInviteCode(code)` → redirect to `/app`.
+   - Error states: invalid code, expired, already used.
+5. **Auth guard** — `requireSession()` already works; `joinByInviteCode` must verify the user is not already in the target household.
+
+**Tests:**
+- `src/app/app/actions.test.ts` — unit: `createInvite` throws when no session; `joinByInviteCode` throws on expired/used/unknown code.
+- `tests/integration/invites.test.ts` — integration: full happy path (create invite → join → member appears in household_members); expired code returns error; double-join is idempotent or throws.
+
+</details>
 
 <details for "Group feature — full life-cycle">
 
