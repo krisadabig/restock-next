@@ -236,9 +236,54 @@ Sub-tasks (all in one session, all modify `src/components/entry/LogEntrySheet.ts
 | ✅ | `Autocomplete` (extended) | `src/components/ui/Autocomplete.tsx` |
 | ✅ | `PillSelector` | `src/components/ui/PillSelector.tsx` |
 
-## Backlog (not yet scheduled)
+## Testing & Quality
 
-| Status | Task | Notes |
+| Status | Task | Key Files |
 |---|---|---|
-| 🔲 | i18n test coverage — no-missing-keys guard | backlog.md |
-| 🔲 | Group feature — full life-cycle | backlog.md |
+| ✅ | **i18n test coverage — no-missing-keys guard** | `src/lib/i18n.tsx`, `src/lib/i18n.test.ts` |
+
+<details for "i18n test coverage — no-missing-keys guard">
+
+Ensure every i18n key referenced in the codebase has a corresponding value in both EN and TH locales.
+
+Sub-tasks:
+1. Audit all usages of `t(key)` across `src/` and collect the full set of keys used.
+2. Write a test in `src/lib/i18n.test.ts` that:
+   - Enumerates all keys present in EN translations object.
+   - Enumerates all keys present in TH translations object.
+   - Asserts both sets are identical (no key missing from either locale).
+3. Optionally: add a second test that cross-references keys used in source files against the translations object to catch stale or missing keys at CI time.
+
+**Tests:**
+- `src/lib/i18n.test.ts` — unit tests, no DB needed, run with `bun run test:unit`
+
+</details>
+
+---
+
+## Group Feature
+
+| Status | Task | Key Files |
+|---|---|---|
+| 🔲 | **Group entity — schema + migration** | `src/lib/db/schema.ts` |
+| 🔲 | **Group CRUD server actions** | `src/app/app/actions.ts` |
+| 🔲 | **Group assignment — items & categories** | `src/app/app/actions.ts`, `src/lib/db/schema.ts` |
+| 🔲 | **Group-scoped views/filters in UI** | `src/components/stock/StockClient.tsx` |
+| 🔲 | **Group membership management UI** | `src/app/app/settings/SettingsClient.tsx` |
+
+<details for "Group feature — full life-cycle">
+
+Full group feature: create named groups, assign items/categories to them, filter/view by group, and manage membership.
+
+Build order:
+1. **Schema** — add `groups` table (`id`, `household_id`, `name`, `created_at`) and `group_items` join table (`group_id`, `item_id`). Migration via `bun run db:push`.
+2. **CRUD actions** — `addGroup`, `renameGroup`, `deleteGroup`, `assignItemToGroup`, `removeItemFromGroup` in `actions.ts`. All must enforce `householdId` authorization.
+3. **Authorization tests** — unit tests asserting each action throws when the session `householdId` does not own the group/item. Follow pattern in `src/app/app/actions.test.ts`.
+4. **Group-scoped stock view** — add a group filter control to `StockClient` that narrows the item list to a selected group. No filter = show all (current behaviour preserved).
+5. **Membership management** — Settings screen section to create/rename/delete groups and assign items.
+
+**Tests:**
+- Integration: `tests/integration/groups.test.ts` — CRUD + auth guard
+- Unit: `src/components/stock/StockClient.test.tsx` — group filter renders/hides items correctly
+
+</details>

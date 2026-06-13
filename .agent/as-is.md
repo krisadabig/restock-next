@@ -434,4 +434,5 @@ type MutationType =
 | `src/lib/stock.ts` | `stockStatus({ currentStock, lowStockThreshold })` → `'out' \| 'low' \| 'ok'` |
 | `src/lib/queries.ts` | All raw Drizzle queries; consumed by server actions and page components |
 | `src/lib/logger.ts` | `log.info(event, payload)`, `log.warn(...)`, `log.error(...)` — wraps Axiom + console |
-| `src/lib/i18n.tsx` | `useTranslation()` hook + `t(key)` — EN and TH strings; all UI-visible strings must have keys here |
+| `src/lib/i18n.tsx` | `useTranslation()` hook + `t(key)` — EN and TH strings; all UI-visible strings must have keys here. `translations` object is exported for test access. |
+| `src/lib/i18n.test.ts` | No-missing-keys guard — asserts EN and TH have identical key sets (3 tests) |

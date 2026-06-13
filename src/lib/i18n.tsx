@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 
-const translations = {
+export const translations = {
 	en: {
 		app: {
 			title: 'My Restock',
@@ -357,6 +357,7 @@ const translations = {
 			sameAsLast: 'เหมือนครั้งก่อน',
 			change: 'เปลี่ยน',
 			typeToSearch: 'หรือพิมพ์เพื่อค้นหา...',
+			editEntry: 'แก้ไขรายการ',
 		},
 		trends: {
 			title: 'แนวโน้มการใช้จ่าย',
