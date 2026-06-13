@@ -1,9 +1,10 @@
 import { type NextRequest, NextResponse } from 'next/server';
 import { decrypt } from '@/lib/session';
+import { ROUTES } from '@/lib/constants';
 
 export async function proxy(request: NextRequest) {
-	const protectedRoutes = ['/app'];
-	const publicRoutes = ['/login', '/signup', '/api/auth'];
+	const protectedRoutes = [ROUTES.STOCK];
+	const publicRoutes = [ROUTES.LOGIN, '/signup', '/api/auth'];
 
 	const path = request.nextUrl.pathname;
 	const isProtectedRoute = protectedRoutes.some((route) => path.startsWith(route));
@@ -18,12 +19,12 @@ export async function proxy(request: NextRequest) {
 
 	// 1. Redirect to /login if accessing protected route without session
 	if (isProtectedRoute && !session?.userId) {
-		return NextResponse.redirect(new URL('/login', request.nextUrl));
+		return NextResponse.redirect(new URL(ROUTES.LOGIN, request.nextUrl));
 	}
 
 	// 2. Redirect to /app if accessing public route with active session
 	if (isPublicRoute && session?.userId && !request.nextUrl.pathname.startsWith('/api/auth')) {
-		return NextResponse.redirect(new URL('/app', request.nextUrl));
+		return NextResponse.redirect(new URL(ROUTES.STOCK, request.nextUrl));
 	}
 
 	return NextResponse.next();

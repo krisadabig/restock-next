@@ -1,84 +1,122 @@
 import { openDB, DBSchema, IDBPDatabase } from 'idb';
+import type { Item, Category, Entry } from './db/schema';
 
-interface Entry {
-	id: number;
-	item: string;
-	price: number;
-	date: string;
-	note: string | null;
-}
+export type MutationType =
+  | 'entry.add'
+  | 'entry.update'
+  | 'entry.delete'
+  | 'item.add'
+  | 'item.update'
+  | 'item.delete'
+  | 'category.add';
 
-interface PendingMutation {
-	id: string; // UUID
-	type: 'add' | 'edit' | 'delete';
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	payload: any;
-	timestamp: number;
+export interface PendingMutation {
+  id: string;
+  type: MutationType;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  payload: any;
+  timestamp: number;
 }
 
 interface RestockDB extends DBSchema {
-	entries: {
-		key: number;
-		value: Entry;
-	};
-	mutations: {
-		key: string;
-		value: PendingMutation;
-	};
+  items: { key: number; value: Item };
+  categories: { key: number; value: Category };
+  entries: { key: number; value: Entry };
+  mutations: { key: string; value: PendingMutation };
 }
 
-let dbPromise: Promise<IDBPDatabase<RestockDB>>;
+let dbPromise: Promise<IDBPDatabase<RestockDB>> | null = null;
+
+/** Only call this in tests to reset the singleton between test runs. */
+export function resetDBForTests() {
+  dbPromise = null;
+}
 
 export const initDB = () => {
-	if (!dbPromise) {
-		dbPromise = openDB<RestockDB>('restock-db', 2, {
-			upgrade(db) {
-				if (!db.objectStoreNames.contains('entries')) {
-					db.createObjectStore('entries', { keyPath: 'id' });
-				}
-				if (!db.objectStoreNames.contains('mutations')) {
-					db.createObjectStore('mutations', { keyPath: 'id' });
-				}
-			},
-		});
-	}
-	return dbPromise;
+  if (!dbPromise) {
+    dbPromise = openDB<RestockDB>('restock-db', 3, {
+      upgrade(db) {
+        if (!db.objectStoreNames.contains('items')) {
+          db.createObjectStore('items', { keyPath: 'id' });
+        }
+        if (!db.objectStoreNames.contains('categories')) {
+          db.createObjectStore('categories', { keyPath: 'id' });
+        }
+        if (!db.objectStoreNames.contains('entries')) {
+          db.createObjectStore('entries', { keyPath: 'id' });
+        }
+        if (!db.objectStoreNames.contains('mutations')) {
+          db.createObjectStore('mutations', { keyPath: 'id' });
+        }
+      },
+    });
+  }
+  return dbPromise;
 };
 
-// Entries Cache Operations
+// ── Items cache ──────────────────────────────────────────────────────────────
+
+export const saveItemsCache = async (items: Item[]) => {
+  const db = await initDB();
+  const tx = db.transaction('items', 'readwrite');
+  await tx.store.clear();
+  for (const item of items) await tx.store.put(item);
+  await tx.done;
+};
+
+export const getItemsCache = async (): Promise<Item[]> => {
+  const db = await initDB();
+  return db.getAll('items');
+};
+
+// ── Categories cache ─────────────────────────────────────────────────────────
+
+export const saveCategoriesCache = async (categories: Category[]) => {
+  const db = await initDB();
+  const tx = db.transaction('categories', 'readwrite');
+  await tx.store.clear();
+  for (const cat of categories) await tx.store.put(cat);
+  await tx.done;
+};
+
+export const getCategoriesCache = async (): Promise<Category[]> => {
+  const db = await initDB();
+  return db.getAll('categories');
+};
+
+// ── Entries cache ────────────────────────────────────────────────────────────
+
 export const saveEntriesCache = async (entries: Entry[]) => {
-	const db = await initDB();
-	const tx = db.transaction('entries', 'readwrite');
-	// Clear old cache to avoid stale deletions persisting
-	await tx.store.clear();
-	for (const entry of entries) {
-		await tx.store.put(entry);
-	}
-	await tx.done;
+  const db = await initDB();
+  const tx = db.transaction('entries', 'readwrite');
+  await tx.store.clear();
+  for (const entry of entries) await tx.store.put(entry);
+  await tx.done;
 };
 
 export const getEntriesCache = async (): Promise<Entry[]> => {
-	const db = await initDB();
-	return await db.getAll('entries');
+  const db = await initDB();
+  return db.getAll('entries');
 };
 
-// Mutation Queue Operations
+// ── Mutation queue ───────────────────────────────────────────────────────────
+
 export const addPendingMutation = async (mutation: PendingMutation) => {
-	const db = await initDB();
-	await db.put('mutations', mutation);
+  const db = await initDB();
+  await db.put('mutations', mutation);
 };
 
 export const getPendingMutations = async (): Promise<PendingMutation[]> => {
-	const db = await initDB();
-	return await db.getAll('mutations');
+  const db = await initDB();
+  return db.getAll('mutations');
 };
 
 export const removePendingMutation = async (id: string) => {
-	const db = await initDB();
-	await db.delete('mutations', id);
+  const db = await initDB();
+  await db.delete('mutations', id);
 };
 
 export const clearPendingMutations = async () => {
-	const db = await initDB();
-	await db.clear('mutations');
+  const db = await initDB();
+  await db.clear('mutations');
 };

@@ -1,6 +1,7 @@
 import 'server-only';
 import { SignJWT, jwtVerify } from 'jose';
 import { cookies } from 'next/headers';
+import { DEFAULTS } from './constants';
 
 const secretKey = process.env.JWT_SECRET;
 const encodedKey = new TextEncoder().encode(secretKey);
@@ -12,7 +13,7 @@ type SessionPayload = {
 };
 
 export async function createSession(userId: string, username: string) {
-	const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days
+	const expiresAt = new Date(Date.now() + DEFAULTS.SESSION_DURATION_MS);
 	const session = await encrypt({ userId, username, expiresAt });
 	const cookieStore = await cookies();
 

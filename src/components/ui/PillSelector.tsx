@@ -4,7 +4,7 @@ import { useRef, useEffect } from 'react';
 
 interface PillSelectorProps {
     name?: string;
-    options: string[];
+    options: readonly string[];
     value: string;
     onChange: (value: string) => void;
 }

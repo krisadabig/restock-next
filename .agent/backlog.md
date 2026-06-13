@@ -53,6 +53,19 @@ This document tracks known issues, technical debt, and features deferred for fut
 - [ ] Receipt photo attachment (camera integration)
 - [ ] Multi-device sync conflict resolution UI
 
+### i18n Test Coverage
+- [ ] Audit all i18n key usages to ensure every key referenced in code has a corresponding value in both EN and TH locales
+- [ ] Add automated tests that fail if any i18n key is used but undefined (no-missing-keys guard)
+- **Logged**: 2026-06-13
+
+### Group Feature — Full Life-cycle
+- [ ] Design group entity (schema, data model)
+- [ ] Group CRUD: create, rename, delete
+- [ ] Assign items/categories to a group
+- [ ] Group-scoped views/filters in the UI
+- [ ] Group membership management
+- **Logged**: 2026-06-13
+
 ---
 
 ## 📝 Notes

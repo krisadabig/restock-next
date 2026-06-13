@@ -1,12 +1,5 @@
-import { getEntries } from '../actions';
-import TrendsClient from '@/components/dashboard/TrendsClient';
+import { redirect } from 'next/navigation';
 
-export const metadata = {
-    title: 'Trends | Restock',
-};
-
-export default async function TrendsPage() {
-    const entries = await getEntries();
-
-    return <TrendsClient entries={entries} />;
+export default function TrendsPage() {
+  redirect('/app/price');
 }

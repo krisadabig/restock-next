@@ -1,8 +1,5 @@
-import { getInventory } from '@/app/app/actions';
-import InventoryClient from '@/components/inventory/InventoryClient';
+import { redirect } from 'next/navigation';
 
-export default async function InventoryPage() {
-    const inventory = await getInventory();
-
-    return <InventoryClient inventory={inventory} />;
+export default function InventoryPage() {
+  redirect('/app');
 }
