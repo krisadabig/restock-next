@@ -1,4 +1,5 @@
 import type { NextConfig } from 'next';
+import { withSentryConfig } from '@sentry/nextjs';
 import { version } from './package.json';
 
 const nextConfig: NextConfig = {
@@ -12,7 +13,16 @@ const nextConfig: NextConfig = {
 				headers: [
 					{
 						key: 'Content-Security-Policy',
-						value: "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.supabase.co; connect-src 'self' https://*.supabase.co wss://*.supabase.co; img-src 'self' data: https://*.supabase.co; style-src 'self' 'unsafe-inline'; font-src 'self'; frame-ancestors 'none';",
+						value: [
+							"default-src 'self'",
+							"script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.supabase.co https://*.sentry.io",
+							"connect-src 'self' https://*.supabase.co wss://*.supabase.co https://*.sentry.io https://*.ingest.sentry.io",
+							"img-src 'self' data: https://*.supabase.co",
+							"style-src 'self' 'unsafe-inline'",
+							"font-src 'self'",
+							"frame-ancestors 'none'",
+							"worker-src 'self' blob:",
+						].join('; '),
 					},
 					{
 						key: 'X-Frame-Options',
@@ -36,4 +46,14 @@ const nextConfig: NextConfig = {
 	},
 };
 
-export default nextConfig;
+export default withSentryConfig(nextConfig, {
+	org: process.env.SENTRY_ORG,
+	project: process.env.SENTRY_PROJECT,
+	silent: !process.env.CI,
+	widenClientFileUpload: true,
+	sourcemaps: { disable: false },
+	webpack: {
+		treeshake: { removeDebugLogging: true },
+		automaticVercelMonitors: true,
+	},
+});

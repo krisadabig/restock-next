@@ -2,140 +2,88 @@
 
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { SyncEngine, SyncStatus } from '@/lib/sync';
-import { 
-    addPendingMutation, 
-    saveEntriesCache 
-} from '@/lib/idb';
+import { addPendingMutation } from '@/lib/idb';
+import type { MutationType } from '@/lib/idb';
 import { v4 as uuidv4 } from 'uuid';
+import type { Item, Category } from '@/lib/db/schema';
 
-// Define types for actions to match server actions
-interface Entry {
-    id: number;
-    item: string;
-    price: number;
-    date: string;
-    note: string | null;
+// ── Payload types matching new schema ────────────────────────────────────────
+
+export interface AddEntryPayload {
+  itemId: number;
+  type: 'purchase' | 'consume';
+  price: number | null;
+  quantity: number;
+  unit: string;
+  store: string | null;
+  date: string;
+  note: string | null;
 }
 
-interface NewEntryData {
-    item: string;
-    price: number;
-    date: string;
-    note?: string;
-    quantity?: number;
-    unit?: string;
-}
-
-interface UpdateEntryData {
-    item: string;
-    price: number;
-    date: string;
-    note?: string | null;
-    quantity?: number;
-    unit?: string;
-}
-
-interface OfflineContextType {
-    isOnline: boolean;
-    syncStatus: SyncStatus;
-    // Proxies for actions
-    addEntryOffline: (data: NewEntryData) => Promise<void>;
-    updateEntryOffline: (id: number, data: UpdateEntryData) => Promise<void>;
-    deleteEntryOffline: (id: number) => Promise<void>;
-    refreshCache: (entries: Entry[]) => Promise<void>;
-    lastAction: number;
+export interface OfflineContextType {
+  isOnline: boolean;
+  syncStatus: SyncStatus;
+  addEntryOffline: (data: AddEntryPayload) => Promise<void>;
+  updateEntryOffline: (id: number, data: Partial<Omit<AddEntryPayload, 'itemId'>>) => Promise<void>;
+  deleteEntryOffline: (id: number) => Promise<void>;
+  addItemOffline: (data: Partial<Item>) => Promise<void>;
+  updateItemOffline: (id: number, data: Partial<Item>) => Promise<void>;
+  deleteItemOffline: (id: number) => Promise<void>;
+  addCategoryOffline: (data: Partial<Category>) => Promise<void>;
+  lastAction: number;
 }
 
 const OfflineContext = createContext<OfflineContextType | undefined>(undefined);
 
 export function OfflineProvider({ children }: { children: ReactNode }) {
-    const [lastAction, setLastAction] = useState(0);
-    const [isOnline, setIsOnline] = useState(true);
-    const [syncStatus, setSyncStatus] = useState<SyncStatus>('idle');
-    const [engine] = useState(() => new SyncEngine(setSyncStatus, () => setLastAction(Date.now())));
+  const [lastAction, setLastAction] = useState(0);
+  const [isOnline, setIsOnline] = useState(() =>
+    typeof navigator !== 'undefined' ? navigator.onLine : true,
+  );
+  const [syncStatus, setSyncStatus] = useState<SyncStatus>('idle');
+  const [engine] = useState(() => new SyncEngine(setSyncStatus, () => setLastAction(Date.now())));
 
-    // ... (existing useEffects)
-    // Monitor Online Status
-    useEffect(() => {
-        // Initial check
-        // eslint-disable-next-line
-        setIsOnline(navigator.onLine);
-
-        const handleOnline = () => {
-            setIsOnline(true);
-            engine.sync();
-        };
-        const handleOffline = () => setIsOnline(false);
-
-        window.addEventListener('online', handleOnline);
-        window.addEventListener('offline', handleOffline);
-
-        return () => {
-            window.removeEventListener('online', handleOnline);
-            window.removeEventListener('offline', handleOffline);
-        };
-    }, [engine]);
-
-    // Initial Sync on Mount
-    useEffect(() => {
-        if (navigator.onLine) {
-            engine.sync();
-        }
-    }, [engine]);
-
-
-    const triggerUpdate = () => setLastAction(Date.now());
-
-    const addEntryOffline = async (data: NewEntryData) => {
-        // Always queue mutation to IDB first for instant Optimistic UI
-        await queueMutation('add', data);
+  useEffect(() => {
+    const handleOnline = () => { setIsOnline(true); engine.sync(); };
+    const handleOffline = () => setIsOnline(false);
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
     };
+  }, [engine]);
 
-    const updateEntryOffline = async (id: number, data: UpdateEntryData) => {
-        // Always queue mutation to IDB first for instant Optimistic UI
-        await queueMutation('edit', { id, data });
-    };
+  useEffect(() => {
+    if (navigator.onLine) engine.sync();
+  }, [engine]);
 
-    const deleteEntryOffline = async (id: number) => {
-        // Always queue mutation to IDB first for instant Optimistic UI
-        await queueMutation('delete', { id });
-    };
+  const queue = async (type: MutationType, payload: unknown) => {
+    await addPendingMutation({ id: uuidv4(), type, payload, timestamp: Date.now() });
+    setLastAction(Date.now());
+    if (navigator.onLine) engine.sync();
+  };
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const queueMutation = async (type: 'add' | 'edit' | 'delete', payload: any) => {
-        await addPendingMutation({
-            id: uuidv4(),
-            type,
-            payload,
-            timestamp: Date.now()
-        });
-        triggerUpdate();
-        // Optimistically trigger sync check (will fail if offline, but sets status)
-        if (navigator.onLine) engine.sync();
-    };
-
-    const refreshCache = async (entries: Entry[]) => {
-        await saveEntriesCache(entries);
-        // triggerUpdate(); // Removed to prevent infinite loop in DashboardClient hydration
-    };
-
-    return (
-        <OfflineContext.Provider value={{ 
-            isOnline, 
-            syncStatus,
-            addEntryOffline,
-            updateEntryOffline,
-            deleteEntryOffline,
-            refreshCache,
-            lastAction
-        }}>
-            {children}
-        </OfflineContext.Provider>
-    );
+  return (
+    <OfflineContext.Provider value={{
+      isOnline,
+      syncStatus,
+      addEntryOffline: (data) => queue('entry.add', data),
+      updateEntryOffline: (id, data) => queue('entry.update', { id, data }),
+      deleteEntryOffline: (id) => queue('entry.delete', { id }),
+      addItemOffline: (data) => queue('item.add', data),
+      updateItemOffline: (id, data) => queue('item.update', { id, data }),
+      deleteItemOffline: (id) => queue('item.delete', { id }),
+      addCategoryOffline: (data) => queue('category.add', data),
+      lastAction,
+    }}>
+      {children}
+    </OfflineContext.Provider>
+  );
 }
 
-export function useOffline() {
-    const context = useContext(OfflineContext);
-    if (!context) throw new Error('useOffline must be used within OfflineProvider');
-    return context;
+export function useOffline(): OfflineContextType {
+  const ctx = useContext(OfflineContext);
+  if (!ctx) throw new Error('useOffline must be used within OfflineProvider');
+  return ctx;
 }

@@ -1,368 +1,222 @@
 'use server';
 
 import { db } from '@/lib/db';
-import { entries, users, inventory } from '@/lib/db/schema';
-import { desc, eq, and } from 'drizzle-orm';
-import { revalidatePath } from 'next/cache';
-
-export interface Entry {
-	id: number;
-	item: string;
-	price: number;
-	date: string;
-	note: string | null;
-	type?: 'purchase' | 'consume';
-	quantity?: number | null;
-	unit?: string | null;
-}
-
-import jwt from 'jsonwebtoken';
 import { getSession } from '@/lib/session';
+import { log } from '@/lib/logger';
+import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
+import * as queries from '@/lib/queries';
 
-async function getUser() {
-	let userPayload: { id: string; username: string } | null = null;
+export type { Entry, Item, Category, Household } from '@/lib/db/schema';
 
-	// 1. Try new Session logic first
-	const session = await getSession();
-	if (session) {
-		userPayload = { id: session.userId, username: session.username };
-	}
+// ── Auth helper ─────────────────────────────────────────────────────────────
 
-	// 2. Allow JWT bypass for E2E tests (Legacy/Test-Mode)
-	if (!userPayload && (process.env.NODE_ENV === 'test' || process.env.NODE_ENV === 'development')) {
-		const { cookies } = await import('next/headers');
-		const cookieStore = await cookies();
+async function requireSession() {
+  const session = await getSession();
+  if (!session) throw new Error('Unauthorized');
 
-		const rawSession = cookieStore.get('session')?.value;
-		if (rawSession) {
-			try {
-				const decoded = jwt.verify(rawSession, process.env.JWT_SECRET!) as { id: string; username: string };
-				if (decoded && decoded.id) {
-					userPayload = { id: decoded.id, username: decoded.username };
-				}
-			} catch {
-				// Ignore
-			}
-		}
-	}
+  const householdId = await queries.getHouseholdForUser(db, session.userId);
+  if (!householdId) throw new Error('No household found for user');
 
-	if (!userPayload) return null;
-
-	// Robustness: Ensure user exists in public.users to prevent FK errors when using mocked sessions
-	try {
-		// Check if ID exists
-		const existingUser = await db.select().from(users).where(eq(users.id, userPayload.id)).limit(1);
-
-		if (existingUser.length === 0) {
-			// Check if username is taken (to avoid unique constraint error if ID is different but name is same)
-			// But for tests, we usually want to force the specific ID/Username combo.
-			// If username taken, we might append suffix.
-			const existingName = await db.select().from(users).where(eq(users.username, userPayload.username)).limit(1);
-			const usernameToInsert = userPayload.username;
-
-			if (existingName.length > 0) {
-				// If name taken by DIFFERENT ID (since we checked ID already), then we must rename.
-				// However, if we rename it, it might confuse the test expectations which expect 'testuser'.
-				// But we can't violate DB constraint.
-				// Tests usually run against clean DB or use exact match.
-				// We'll trust the test data is consistent or DB is reset.
-				// Ideally we'd use `onConflictDoUpdate` but Drizzle syntax varies on driver.
-			}
-
-			await db.insert(users).values({
-				id: userPayload.id,
-				username: usernameToInsert,
-			});
-		}
-	} catch (e) {
-		console.warn('Auto-sync of user failed (might be race condition or read-only)', e);
-	}
-
-	return userPayload;
+  return { userId: session.userId, username: session.username, householdId };
 }
 
-export async function getEntries(): Promise<Entry[]> {
-	const user = await getUser();
-	if (!user) return [];
+// ── Category actions ────────────────────────────────────────────────────────
 
-	const result = await db.select().from(entries).where(eq(entries.userId, user.id)).orderBy(desc(entries.date));
-
-	return result.map((e) => ({
-		...e,
-		date: e.date,
-		type: (e.type as 'purchase' | 'consume') || 'purchase',
-	}));
-}
-
-export async function getEntriesByItem(itemName: string): Promise<Entry[]> {
-	const user = await getUser();
-	if (!user) return [];
-
-	const result = await db
-		.select()
-		.from(entries)
-		.where(and(eq(entries.userId, user.id), eq(entries.item, itemName)))
-		.orderBy(desc(entries.date));
-
-	return result.map((e) => ({
-		...e,
-		date: e.date,
-		type: (e.type as 'purchase' | 'consume') || 'purchase',
-	}));
-}
-
-const entrySchema = z.object({
-	item: z.string().min(1, 'Item name is required'),
-	price: z.number().min(0, 'Price must be 0 or more'),
-	date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Invalid date format'),
-	note: z.string().optional().nullable(),
-	quantity: z.number().optional().default(0),
-	unit: z.string().optional().default('pcs'),
+const categorySchema = z.object({
+  name: z.string().min(1),
+  defaultUnit: z.string().min(1).default('pcs'),
 });
 
-export async function addEntry(rawData: {
-	item: string;
-	price: number;
-	date: string;
-	note?: string;
-	quantity?: number;
-	unit?: string;
-}) {
-	const user = await getUser();
-	if (!user) throw new Error('Unauthorized');
-
-	const data = entrySchema.parse(rawData);
-
-	await db.insert(entries).values({
-		item: data.item,
-		price: data.price,
-		quantity: data.quantity,
-		unit: data.unit,
-		date: data.date,
-		note: data.note,
-		userId: user.id,
-		type: 'purchase', // Explicitly set type to purchase
-	});
-	console.log(`[addEntry] Inserted entry: ${data.item} Qty: ${data.quantity}`);
-
-	// Sync with Inventory: Ensure record exists and update quantity/unit
-	const existingStock = await db
-		.select()
-		.from(inventory)
-		.where(and(eq(inventory.item, data.item), eq(inventory.userId, user.id)))
-		.limit(1);
-
-	if (existingStock.length === 0) {
-		await db.insert(inventory).values({
-			item: data.item,
-			userId: user.id,
-			status: 'in-stock',
-			quantity: data.quantity || 0,
-			unit: data.unit || 'pcs',
-			lastStockUpdate: new Date(),
-		});
-	} else {
-		// Update existing inventory with latest unit and increment/set quantity
-		// For now, let's just set the quantity to what was bought,
-		// or increment? Usually adding an entry means adding to stock.
-		await db
-			.update(inventory)
-			.set({
-				quantity: (existingStock[0].quantity || 0) + (data.quantity || 0),
-				unit: data.unit || existingStock[0].unit,
-				status: 'in-stock', // Adding items usually means it's in stock
-				lastStockUpdate: new Date(),
-			})
-			.where(eq(inventory.id, existingStock[0].id));
-	}
-
-	revalidatePath('/app');
-	revalidatePath('/app/inventory');
-	revalidatePath('/app/trends');
+export async function addCategory(raw: { name: string; defaultUnit?: string }) {
+  const { householdId } = await requireSession();
+  const data = categorySchema.parse(raw);
+  const category = await queries.insertCategory(db, { householdId, ...data });
+  log.info('category.add', { categoryId: category.id, householdId });
+  revalidatePath('/app');
+  return category;
 }
 
-export async function deleteEntry(id: number) {
-	const user = await getUser();
-	if (!user) throw new Error('Unauthorized');
-
-	await db.delete(entries).where(and(eq(entries.id, id), eq(entries.userId, user.id)));
-
-	revalidatePath('/app');
-	revalidatePath('/app/trends');
+export async function getCategories() {
+  const { householdId } = await requireSession();
+  return queries.getCategories(db, householdId);
 }
 
-export async function updateEntry(
-	id: number,
-	rawData: { item: string; price: number; date: string; note?: string | null },
+// ── Item actions ────────────────────────────────────────────────────────────
+
+const itemSchema = z.object({
+  name: z.string().min(1),
+  unit: z.string().min(1).default('pcs'),
+  categoryId: z.number().int().nullable().optional(),
+});
+
+export async function addItem(raw: { name: string; unit?: string; categoryId?: number | null }) {
+  const { householdId, userId } = await requireSession();
+  const data = itemSchema.parse(raw);
+  const item = await queries.insertItem(db, { householdId, ...data });
+  log.info('item.add', { itemId: item.id, categoryId: item.categoryId, householdId, userId });
+  revalidatePath('/app');
+  return item;
+}
+
+export async function updateItem(
+  id: number,
+  raw: { name?: string; unit?: string; categoryId?: number | null; lowStockThreshold?: number | null; alertEnabled?: number },
 ) {
-	const user = await getUser();
-	if (!user) throw new Error('Unauthorized');
-
-	const data = entrySchema.parse(rawData);
-
-	await db
-		.update(entries)
-		.set({
-			item: data.item,
-			price: data.price,
-			date: data.date,
-			note: data.note,
-		})
-		.where(and(eq(entries.id, id), eq(entries.userId, user.id)));
-
-	revalidatePath('/app');
-	revalidatePath('/app/trends');
+  const { householdId } = await requireSession();
+  const existing = await db.query.items.findFirst({ where: (i, { eq }) => eq(i.id, id) });
+  if (!existing || existing.householdId !== householdId) throw new Error('Not found');
+  const item = await queries.updateItemRecord(db, id, raw);
+  revalidatePath('/app');
+  revalidatePath(`/app/item/${id}`);
+  return item;
 }
 
-export async function getUniqueItems(): Promise<string[]> {
-	const user = await getUser();
-	if (!user) return [];
-
-	const result = await db
-		.selectDistinct({ item: entries.item })
-		.from(entries)
-		.where(eq(entries.userId, user.id))
-		.orderBy(entries.item);
-
-	return result.map((r) => r.item);
+export async function deleteItem(id: number) {
+  const { userId, householdId } = await requireSession();
+  const existing = await db.query.items.findFirst({ where: (i, { eq }) => eq(i.id, id) });
+  if (!existing || existing.householdId !== householdId) throw new Error('Not found');
+  const entryCount = await queries.getItemAllEntries(db, id).then((e) => e.length);
+  await queries.deleteItemRecord(db, id);
+  log.warn('item.delete', { itemId: id, entryCount, userId });
+  revalidatePath('/app');
 }
 
-// --- Inventory Actions ---
-
-export async function getInventory() {
-	const user = await getUser();
-	if (!user) return [];
-
-	return await db.select().from(inventory).where(eq(inventory.userId, user.id)).orderBy(inventory.item);
+export async function getHouseholdItems() {
+  const { householdId } = await requireSession();
+  return queries.getHouseholdItems(db, householdId);
 }
 
-export async function getInventoryItem(itemName: string) {
-	const user = await getUser();
-	if (!user) return null;
-
-	const result = await db
-		.select()
-		.from(inventory)
-		.where(and(eq(inventory.item, itemName), eq(inventory.userId, user.id)))
-		.limit(1);
-
-	return result[0] || null;
+export async function getItemsForAutocomplete() {
+  const { householdId } = await requireSession();
+  return queries.getItemsForAutocomplete(db, householdId);
 }
 
-export async function toggleItemStatus(item: string, status: 'in-stock' | 'out-of-stock') {
-	const user = await getUser();
-	if (!user) throw new Error('Unauthorized');
+// ── Entry actions ────────────────────────────────────────────────────────────
 
-	await db
-		.update(inventory)
-		.set({ status, lastStockUpdate: new Date() })
-		.where(and(eq(inventory.item, item), eq(inventory.userId, user.id)));
+const entrySchema = z.object({
+  itemId: z.number().int(),
+  type: z.enum(['purchase', 'consume']),
+  price: z.number().nullable().optional(),
+  quantity: z.number().positive(),
+  unit: z.string().min(1),
+  store: z.string().nullable().optional(),
+  date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+  note: z.string().nullable().optional(),
+});
 
-	revalidatePath('/app');
+export async function addEntry(raw: z.input<typeof entrySchema>) {
+  const { userId, householdId } = await requireSession();
+  const data = entrySchema.parse(raw);
+
+  const price = data.type === 'consume' ? null : (data.price ?? null);
+  const store = data.type === 'consume' ? null : (data.store ?? null);
+
+  try {
+    const entry = await queries.insertEntry(db, {
+      userId, householdId, ...data,
+      price,
+      store,
+      note: data.note ?? null,
+    });
+    log.info('entry.add', { entryId: entry.id, itemId: data.itemId, type: data.type, userId, householdId });
+    revalidatePath('/app');
+    revalidatePath(`/app/item/${data.itemId}`);
+    return entry;
+  } catch (e) {
+    log.error('entry.add.failed', { error: (e as Error).message, itemId: data.itemId, userId });
+    throw e;
+  }
 }
 
-export async function updateInventory(
-	item: string,
-	data: { quantity?: number; unit?: string; alertEnabled?: boolean },
-) {
-	const user = await getUser();
-	if (!user) throw new Error('Unauthorized');
+const updateEntrySchema = z.object({
+  type: z.enum(['purchase', 'consume']).optional(),
+  price: z.number().nullable().optional(),
+  quantity: z.number().positive().optional(),
+  unit: z.string().min(1).optional(),
+  store: z.string().nullable().optional(),
+  date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
+  note: z.string().nullable().optional(),
+});
 
-	await db
-		.update(inventory)
-		.set({
-			...(data.quantity !== undefined && { quantity: data.quantity }),
-			...(data.unit !== undefined && { unit: data.unit }),
-			...(data.alertEnabled !== undefined && { alertEnabled: data.alertEnabled ? 1 : 0 }),
-			lastStockUpdate: new Date(),
-		})
-		.where(and(eq(inventory.item, item), eq(inventory.userId, user.id)));
+export async function updateEntry(entryId: number, raw: z.input<typeof updateEntrySchema>) {
+  const { userId, householdId } = await requireSession();
+  const updates = updateEntrySchema.parse(raw);
 
-	revalidatePath('/app');
+  const existing = await db.query.entries.findFirst({
+    where: (e, { eq }) => eq(e.id, entryId),
+  });
+  if (!existing || existing.householdId !== householdId) throw new Error('Entry not found');
+
+  try {
+    const entry = await queries.updateEntryRecord(db, existing, updates);
+    log.info('entry.update', { entryId, changes: Object.keys(updates), userId });
+    revalidatePath('/app');
+    revalidatePath(`/app/item/${existing.itemId}`);
+    return entry;
+  } catch (e) {
+    log.error('entry.update.failed', { error: (e as Error).message, entryId, userId });
+    throw e;
+  }
 }
 
-export async function consumeItem(item: string, quantity: number) {
-	const user = await getUser();
-	if (!user) throw new Error('Unauthorized');
+export async function deleteEntry(entryId: number) {
+  const { userId, householdId } = await requireSession();
 
-	const existingStock = await db
-		.select()
-		.from(inventory)
-		.where(and(eq(inventory.item, item), eq(inventory.userId, user.id)))
-		.limit(1);
+  const existing = await db.query.entries.findFirst({
+    where: (e, { eq }) => eq(e.id, entryId),
+  });
+  if (!existing || existing.householdId !== householdId) throw new Error('Entry not found');
 
-	if (existingStock.length === 0) {
-		// If item doesn't exist, we can't consume it. Or should we create it with negative?
-		// For now, let's create it with negative quantity to assume "Backorder" or just 0
-		await db.insert(inventory).values({
-			item,
-			userId: user.id,
-			status: 'out-of-stock',
-			quantity: -quantity,
-			unit: 'pcs', // Default
-			lastStockUpdate: new Date(),
-		});
-	} else {
-		const newQuantity = (existingStock[0].quantity || 0) - quantity;
-		await db
-			.update(inventory)
-			.set({
-				quantity: newQuantity,
-				status: newQuantity > 0 ? 'in-stock' : 'out-of-stock',
-				lastStockUpdate: new Date(),
-			})
-			.where(eq(inventory.id, existingStock[0].id));
-	}
-
-	// NEW: Log this consumption as a history entry
-	const today = new Date().toISOString().split('T')[0];
-	await db.insert(entries).values({
-		item: item,
-		price: 0, // Consumption has no purchase price
-		quantity: quantity,
-		unit: existingStock.length > 0 ? existingStock[0].unit : 'pcs',
-		date: today,
-		note: 'Consumed from stock',
-		userId: user.id,
-		type: 'consume',
-	});
-
-	revalidatePath('/app');
-	revalidatePath('/app/inventory');
+  try {
+    await queries.deleteEntryRecord(db, existing);
+    log.info('entry.delete', { entryId, itemId: existing.itemId, userId });
+    revalidatePath('/app');
+    revalidatePath(`/app/item/${existing.itemId}`);
+  } catch (e) {
+    log.error('entry.delete.failed', { error: (e as Error).message, entryId, userId });
+    throw e;
+  }
 }
 
-export async function restockItem(item: string, quantity: number) {
-	const user = await getUser();
-	if (!user) throw new Error('Unauthorized');
+// ── Query actions ────────────────────────────────────────────────────────────
 
-	const existingStock = await db
-		.select()
-		.from(inventory)
-		.where(and(eq(inventory.item, item), eq(inventory.userId, user.id)))
-		.limit(1);
-
-	if (existingStock.length === 0) {
-		await db.insert(inventory).values({
-			item,
-			userId: user.id,
-			status: 'in-stock',
-			quantity: quantity,
-			unit: 'pcs',
-			lastStockUpdate: new Date(),
-		});
-	} else {
-		const newQuantity = (existingStock[0].quantity || 0) + quantity;
-		await db
-			.update(inventory)
-			.set({
-				quantity: newQuantity,
-				status: 'in-stock',
-				lastStockUpdate: new Date(),
-			})
-			.where(eq(inventory.id, existingStock[0].id));
-	}
-
-	revalidatePath('/app');
-	revalidatePath('/app/inventory');
+export async function getItemDetail(itemId: number) {
+  const { householdId } = await requireSession();
+  const [item, allEntries] = await Promise.all([
+    db.query.items.findFirst({ where: (i, { eq, and }) => and(eq(i.id, itemId), eq(i.householdId, householdId)) }),
+    queries.getItemAllEntries(db, itemId),
+  ]);
+  if (!item) return null;
+  const purchaseHistory = allEntries.filter((e) => e.type === 'purchase');
+  return { item, allEntries, purchaseHistory };
 }
+
+export async function getCategoryDetail(categoryId: number) {
+  const { householdId } = await requireSession();
+  const [category, monthlySpend] = await Promise.all([
+    db.query.categories.findFirst({ where: (c, { eq, and }) => and(eq(c.id, categoryId), eq(c.householdId, householdId)) }),
+    queries.getCategoryMonthlySpend(db, categoryId),
+  ]);
+  if (!category) return null;
+  const items = await db.query.items.findMany({
+    where: (i, { eq }) => eq(i.categoryId, categoryId),
+  });
+  return { category, items, monthlySpend };
+}
+
+export async function getHouseholdSpend(from: string, to: string) {
+  const { householdId } = await requireSession();
+  return queries.getHouseholdSpend(db, householdId, from, to);
+}
+
+export async function getRecentPurchases(limit = 20) {
+  const { householdId } = await requireSession();
+  return queries.getRecentPurchases(db, householdId, limit);
+}
+
+export async function getHouseholdMembers() {
+  const { householdId } = await requireSession();
+  return queries.getHouseholdMembers(db, householdId);
+}
+

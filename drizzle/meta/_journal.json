@@ -5,29 +5,15 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1769092140916,
-      "tag": "0000_brave_stryfe",
+      "when": 1781243265518,
+      "tag": "0000_sharp_mikhail_rasputin",
       "breakpoints": true
     },
     {
       "idx": 1,
       "version": "7",
-      "when": 1769157414936,
-      "tag": "0001_warm_grandmaster",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1769681867256,
-      "tag": "0002_thankful_moondragon",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "7",
-      "when": 1769759402251,
-      "tag": "0003_glamorous_titania",
+      "when": 1781244549814,
+      "tag": "0001_fearless_gwen_stacy",
       "breakpoints": true
     }
   ]

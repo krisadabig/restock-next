@@ -1,7 +1,7 @@
 'use server';
 
 import { db } from '@/lib/db';
-import { users } from '@/lib/db/schema';
+import { users, households, householdMembers } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
 import { hash, compare } from 'bcryptjs';
 import { createSession, deleteSession } from '@/lib/session';
@@ -53,6 +53,10 @@ export async function signup(prevState: { error?: string } | null, formData: For
 		username,
 		passwordHash: hashedPassword,
 	});
+
+	const householdId = uuidv4();
+	await db.insert(households).values({ id: householdId, name: `${username}'s household` });
+	await db.insert(householdMembers).values({ householdId, userId });
 
 	await createSession(userId, username);
 	redirect('/app');

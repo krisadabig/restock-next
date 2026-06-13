@@ -1,26 +1,33 @@
-'use client';
-
 import { ReactNode } from 'react';
-import BottomNav from '@/components/dashboard/BottomNav';
-import { OfflineProvider } from '@/components/providers/OfflineContext';
-import { UIProvider } from '@/components/providers/UIContext';
+import { redirect } from 'next/navigation';
+import { getSession } from '@/lib/session';
+import { db } from '@/lib/db';
+import { getHouseholdForUser, getHouseholdMembers, getCategories } from '@/lib/queries';
+import ClientLayout from './ClientLayout';
 
-export default function DashboardLayout({ children }: { children: ReactNode }) {
+export default async function DashboardLayout({ children }: { children: ReactNode }) {
+  const session = await getSession();
+  if (!session) redirect('/login');
+
+  const householdId = await getHouseholdForUser(db, session.userId);
+
+  // No household yet — show empty layout; onboarding will create one
+  if (!householdId) {
+    return (
+      <ClientLayout householdId="" members={[]} categories={[]}>
+        {children}
+      </ClientLayout>
+    );
+  }
+
+  const [members, categories] = await Promise.all([
+    getHouseholdMembers(db, householdId),
+    getCategories(db, householdId),
+  ]);
+
   return (
-    <OfflineProvider>
-      <UIProvider>
-        <div className="min-h-screen bg-background text-foreground transition-colors duration-200 font-sans flex justify-center">
-            {/* Background Blobs for depth */}
-            <div className="bg-blob bg-primary/5 -top-50 -left-50" />
-            
-            <div className="w-full max-w-md bg-background/80 backdrop-blur-xl min-h-screen relative shadow-2xl flex flex-col border-x border-border/50">
-                <main className="flex-1 overflow-y-auto pb-24">
-                    {children}
-                </main>
-            </div>
-            <BottomNav />
-        </div>
-      </UIProvider>
-    </OfflineProvider>
+    <ClientLayout householdId={householdId} members={members} categories={categories}>
+      {children}
+    </ClientLayout>
   );
 }
