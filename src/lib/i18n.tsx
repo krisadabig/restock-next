@@ -152,6 +152,9 @@ const translations = {
 			visits: 'visits',
 			vsLastPeriod: 'vs last period',
 			priceScreenEmpty: 'Start logging purchases to see your spending.',
+			quickLog: 'Quick Log',
+			sameAsLast: 'same as last',
+			change: 'Change',
 		},
 		trends: {
 			title: 'Spending Trends',
@@ -349,6 +352,9 @@ const translations = {
 			visits: 'ครั้ง',
 			vsLastPeriod: 'เทียบช่วงที่แล้ว',
 			priceScreenEmpty: 'เริ่มบันทึกการซื้อเพื่อดูสรุปการใช้จ่าย',
+			quickLog: 'บันทึกด่วน',
+			sameAsLast: 'เหมือนครั้งก่อน',
+			change: 'เปลี่ยน',
 		},
 		trends: {
 			title: 'แนวโน้มการใช้จ่าย',

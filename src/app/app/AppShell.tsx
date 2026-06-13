@@ -4,6 +4,7 @@ import { ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
 import BottomNav from '@/components/dashboard/BottomNav';
 import LogEntrySheet from '@/components/entry/LogEntrySheet';
+import QuickLogSheet from '@/components/entry/QuickLogSheet';
 import EditItemSheet from '@/components/item/EditItemSheet';
 import DeleteItemModal from '@/components/item/DeleteItemModal';
 import { deleteItem } from '@/app/app/actions';
@@ -20,6 +21,7 @@ export default function AppShell({ categories, children }: Props) {
   const router = useRouter();
   const {
     isLogEntrySheetOpen, setLogEntrySheetOpen, logEntryPrefillItemId, logEntryPrefillType,
+    isQuickLogOpen, quickLogItemId, quickLogPrefill, setQuickLogOpen,
     isEditItemSheetOpen, editItemTarget, editItemEntryCount, setEditItemSheetOpen,
     isDeleteItemModalOpen, deleteItemTarget, setDeleteItemModalOpen,
   } = useUI();
@@ -45,6 +47,12 @@ export default function AppShell({ categories, children }: Props) {
         onClose={() => setLogEntrySheetOpen(false)}
         prefillItemId={logEntryPrefillItemId}
         prefillType={logEntryPrefillType}
+      />
+      <QuickLogSheet
+        isOpen={isQuickLogOpen}
+        onClose={() => setQuickLogOpen(false)}
+        itemId={quickLogItemId}
+        prefill={quickLogPrefill}
       />
       {editItemTarget && (
         <EditItemSheet

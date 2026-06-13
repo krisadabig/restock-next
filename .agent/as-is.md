@@ -192,6 +192,12 @@ interface UIContextType {
   logEntryPrefillType: 'purchase' | 'consume' | undefined;
   setLogEntrySheetOpen: (open: boolean, prefillItemId?: number, prefillType?: 'purchase' | 'consume') => void;
 
+  // Quick Log sheet (chip tap from QuickLogStrip)
+  isQuickLogOpen: boolean;
+  quickLogItemId: number | null;
+  quickLogPrefill: QuickLogPrefill | null; // { itemName, categoryName, unit, lastQty, lastPrice, lastStore }
+  setQuickLogOpen: (open: boolean, itemId?: number, prefill?: QuickLogPrefill) => void;
+
   // Edit item sheet
   isEditItemSheetOpen: boolean;
   editItemTarget: Item | null;
@@ -213,9 +219,8 @@ interface UIContextType {
   setAddModalOpen: (open: boolean) => void;
 }
 // Hook: useUI()
+// QuickLogPrefill exported from UIContext.tsx for use by StockClient + QuickLogSheet
 ```
-
-**Note:** `QuickLogSheet` is NOT yet wired here — that's upcoming work in `build-status.md`.
 
 ### `OfflineContext`
 File: `src/components/providers/OfflineContext.tsx`
@@ -322,6 +327,16 @@ interface Props {
 
 ### Entry sheets
 ```ts
+// src/components/entry/QuickLogSheet.tsx
+interface Props {
+  isOpen: boolean;
+  onClose: () => void;
+  itemId: number | null;      // item to log
+  prefill: QuickLogPrefill | null; // pre-fills qty/price/store/unit from last entry
+}
+// Purchase/Consume toggle, qty stepper, price pre-confirm with [Change], store input.
+// Consume mode hides price + store. Mounted in AppShell via UIContext.isQuickLogOpen.
+
 // src/components/entry/LogEntrySheet.tsx
 interface Props {
   isOpen: boolean;

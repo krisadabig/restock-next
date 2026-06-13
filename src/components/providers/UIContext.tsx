@@ -4,12 +4,27 @@ import React, { createContext, useContext, useState, ReactNode } from 'react';
 import type { Item, Entry } from '@/lib/db/schema';
 import type { EntryType } from '@/lib/constants';
 
+export interface QuickLogPrefill {
+  itemName: string;
+  categoryName: string | null;
+  unit: string;
+  lastQty: number;
+  lastPrice: number | null;
+  lastStore: string | null;
+}
+
 interface UIContextType {
   // Log entry sheet (FAB)
   isLogEntrySheetOpen: boolean;
   logEntryPrefillItemId: number | undefined;
   logEntryPrefillType: EntryType | undefined;
   setLogEntrySheetOpen: (open: boolean, prefillItemId?: number, prefillType?: EntryType) => void;
+
+  // Quick Log sheet (chip tap from QuickLogStrip)
+  isQuickLogOpen: boolean;
+  quickLogItemId: number | null;
+  quickLogPrefill: QuickLogPrefill | null;
+  setQuickLogOpen: (open: boolean, itemId?: number, prefill?: QuickLogPrefill) => void;
 
   // Edit item sheet
   isEditItemSheetOpen: boolean;
@@ -39,6 +54,10 @@ export function UIProvider({ children }: { children: ReactNode }) {
   const [logEntryPrefillItemId, setLogPrefillItemId] = useState<number | undefined>(undefined);
   const [logEntryPrefillType, setLogPrefillType] = useState<EntryType | undefined>(undefined);
 
+  const [isQuickLogOpen, setQuickLogOpenState] = useState(false);
+  const [quickLogItemId, setQuickLogItemId] = useState<number | null>(null);
+  const [quickLogPrefill, setQuickLogPrefillState] = useState<QuickLogPrefill | null>(null);
+
   const [isEditItemSheetOpen, setEditItemOpen] = useState(false);
   const [editItemTarget, setEditItemTarget] = useState<Item | null>(null);
   const [editItemEntryCount, setEditItemEntryCount] = useState(0);
@@ -53,6 +72,12 @@ export function UIProvider({ children }: { children: ReactNode }) {
     setLogOpen(open);
     setLogPrefillItemId(open ? prefillItemId : undefined);
     setLogPrefillType(open ? prefillType : undefined);
+  };
+
+  const setQuickLogOpen = (open: boolean, itemId?: number, prefill?: QuickLogPrefill) => {
+    setQuickLogOpenState(open);
+    setQuickLogItemId(open && itemId != null ? itemId : null);
+    setQuickLogPrefillState(open && prefill ? prefill : null);
   };
 
   const setEditItemSheetOpen = (open: boolean, item?: Item, entryCount?: number) => {
@@ -79,6 +104,10 @@ export function UIProvider({ children }: { children: ReactNode }) {
       logEntryPrefillItemId,
       logEntryPrefillType,
       setLogEntrySheetOpen,
+      isQuickLogOpen,
+      quickLogItemId,
+      quickLogPrefill,
+      setQuickLogOpen,
       isEditItemSheetOpen,
       editItemTarget,
       editItemEntryCount,

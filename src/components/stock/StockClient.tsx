@@ -45,7 +45,7 @@ export default function StockClient({ itemsByCategory }: Props) {
   const { t } = useTranslation();
   const router = useRouter();
   const { currentUserId, members } = useHousehold();
-  const { setLogEntrySheetOpen } = useUI();
+  const { setQuickLogOpen } = useUI();
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState<Filter>('all');
   const [now] = useState(() => Date.now());
@@ -214,7 +214,21 @@ export default function StockClient({ itemsByCategory }: Props) {
       {/* Quick log strip */}
       <QuickLogStrip
         items={recentItems}
-        onSelect={(id) => setLogEntrySheetOpen(true, id, 'purchase')}
+        onSelect={(id) => {
+          const entry = allItems.find(({ item }) => item.id === id);
+          if (!entry) return;
+          const catGroup = itemsByCategory.find((g) =>
+            g.items.some(({ item }) => item.id === id),
+          );
+          setQuickLogOpen(true, id, {
+            itemName: entry.item.name,
+            categoryName: catGroup?.category?.name ?? null,
+            unit: entry.item.unit,
+            lastQty: entry.lastEntry?.quantity ?? 1,
+            lastPrice: entry.lastEntry?.price ?? null,
+            lastStore: entry.lastEntry?.store ?? null,
+          });
+        }}
       />
 
       <div className="px-5 space-y-6">

@@ -151,7 +151,7 @@ Sub-tasks (implement in this order, all in one session):
 
 | Status | Task | Key Files |
 |---|---|---|
-| 🔲 | **QuickLogSheet** | Spec: `ux-spec.md §Screen 5a` |
+| ✅ | **QuickLogSheet** | Spec: `ux-spec.md §Screen 5a` |
 
 <details for "QuickLogSheet">
 
