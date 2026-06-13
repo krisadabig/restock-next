@@ -270,7 +270,7 @@ Sub-tasks:
 | ✅ | **Group assignment — items & categories** | `src/app/app/actions.ts`, `src/lib/db/schema.ts` |
 | ✅ | **Group-scoped views/filters in UI** | `src/components/stock/StockClient.tsx` |
 | ✅ | **Group membership management UI** | `src/app/app/settings/SettingsClient.tsx` |
-| 🔲 | **Group item assignment UI** | `src/app/app/settings/SettingsClient.tsx` |
+| ✅ | **Group item assignment UI** | `src/app/app/settings/SettingsClient.tsx` |
 | 🔲 | **Household invite & join flow** | `src/lib/db/schema.ts`, `src/app/app/actions.ts`, `src/app/app/settings/SettingsClient.tsx`, `src/app/join/[code]/page.tsx` |
 
 <details for "Group item assignment UI">

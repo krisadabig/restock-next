@@ -6,7 +6,7 @@ import { useTranslation } from '@/lib/i18n';
 import { Moon, Sun, Globe, LogOut, Trash2, Fingerprint, ShieldCheck, ChevronRight, Users, Store, Tag, Layers, Pencil, X, Check } from 'lucide-react';
 import { logout } from '@/app/auth/actions';
 import { registerPasskey } from '@/lib/auth';
-import { addGroup, renameGroup, deleteGroup } from '@/app/app/actions';
+import { addGroup, renameGroup, deleteGroup, assignItemToGroup, removeItemFromGroup } from '@/app/app/actions';
 import { useTheme } from 'next-themes';
 import type { Category } from '@/lib/db/schema';
 
@@ -54,8 +54,7 @@ export default function SettingsClient({ currentUserId, members, categories, sto
   const [renameText, setRenameText] = useState('');
   const [deletingGroupId, setDeletingGroupId] = useState<number | null>(null);
   const [groupSaving, setGroupSaving] = useState(false);
-
-  void allItems;
+  const [expandedGroupId, setExpandedGroupId] = useState<number | null>(null);
 
   // suppress the router import warning
   void router;
@@ -131,6 +130,15 @@ export default function SettingsClient({ currentUserId, members, categories, sto
     } finally {
       setGroupSaving(false);
     }
+  };
+
+  const handleToggleItemInGroup = async (groupId: number, itemId: number, isCurrentlyAssigned: boolean) => {
+    if (isCurrentlyAssigned) {
+      await removeItemFromGroup(groupId, itemId);
+    } else {
+      await assignItemToGroup(groupId, itemId);
+    }
+    router.refresh();
   };
 
   if (!mounted) {
@@ -288,6 +296,13 @@ export default function SettingsClient({ currentUserId, members, categories, sto
                       ) : (
                         <>
                           <button
+                            data-testid={`manage-items-${group.id}`}
+                            onClick={() => setExpandedGroupId(expandedGroupId === group.id ? null : group.id)}
+                            className="h-8 px-3 bg-secondary/40 rounded-xl text-[10px] font-bold text-muted-foreground hover:text-foreground transition-colors"
+                          >
+                            {t('settings.manageItems')}
+                          </button>
+                          <button
                             data-testid={`rename-group-${group.id}`}
                             onClick={() => { setRenamingGroupId(group.id); setRenameText(group.name); }}
                             className="h-8 px-3 bg-secondary/40 rounded-xl text-[10px] font-bold text-muted-foreground hover:text-foreground transition-colors"
@@ -307,20 +322,43 @@ export default function SettingsClient({ currentUserId, members, categories, sto
                   </div>
                 )}
 
-                {/* Assigned items */}
-                <div data-testid={`group-items-${group.id}`} className="flex flex-wrap gap-1.5">
-                  {group.items.map((item) => (
-                    <span
-                      key={item.id}
-                      className="inline-flex items-center h-6 px-2.5 rounded-full bg-primary/10 text-primary text-[10px] font-bold"
-                    >
-                      {item.name}
-                    </span>
-                  ))}
-                  {group.items.length === 0 && (
-                    <span className="text-[10px] text-muted-foreground/50">No items assigned</span>
-                  )}
-                </div>
+                {/* Item assignment panel */}
+                {expandedGroupId === group.id ? (
+                  <div className="mt-2 space-y-1 pl-1">
+                    {allItems.map((item) => {
+                      const assigned = group.items.some((gi) => gi.id === item.id);
+                      return (
+                        <label key={item.id} className="flex items-center gap-2 py-1 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            data-testid={`item-checkbox-${group.id}-${item.id}`}
+                            checked={assigned}
+                            onChange={() => handleToggleItemInGroup(group.id, item.id, assigned)}
+                            className="h-4 w-4 rounded border-primary/30 text-primary accent-primary"
+                          />
+                          <span className="text-xs font-medium text-foreground">{item.name}</span>
+                        </label>
+                      );
+                    })}
+                    {allItems.length === 0 && (
+                      <span className="text-[10px] text-muted-foreground/50">No items in household</span>
+                    )}
+                  </div>
+                ) : (
+                  <div data-testid={`group-items-${group.id}`} className="flex flex-wrap gap-1.5">
+                    {group.items.map((item) => (
+                      <span
+                        key={item.id}
+                        className="inline-flex items-center h-6 px-2.5 rounded-full bg-primary/10 text-primary text-[10px] font-bold"
+                      >
+                        {item.name}
+                      </span>
+                    ))}
+                    {group.items.length === 0 && (
+                      <span className="text-[10px] text-muted-foreground/50">No items assigned</span>
+                    )}
+                  </div>
+                )}
               </div>
             ))
           )}

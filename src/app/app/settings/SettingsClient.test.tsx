@@ -155,3 +155,44 @@ describe('SettingsClient — groups section', () => {
     expect(deleteGroup as Mock).toHaveBeenCalledWith(10);
   });
 });
+
+import { assignItemToGroup, removeItemFromGroup } from '@/app/app/actions';
+
+describe('SettingsClient — group item assignment', () => {
+  it('shows item checkboxes when "Manage items" is toggled open', () => {
+    wrap(<SettingsClient {...baseProps} groups={groupsData} allItems={allItems} />);
+    act(() => fireEvent.click(screen.getByTestId('manage-items-10')));
+    expect(screen.getByTestId('item-checkbox-10-1')).toBeDefined();
+    expect(screen.getByTestId('item-checkbox-10-2')).toBeDefined();
+  });
+
+  it('pre-checks items already assigned to the group', () => {
+    wrap(<SettingsClient {...baseProps} groups={groupsData} allItems={allItems} />);
+    act(() => fireEvent.click(screen.getByTestId('manage-items-10')));
+    const milkCheckbox = screen.getByTestId('item-checkbox-10-1') as HTMLInputElement;
+    expect(milkCheckbox.checked).toBe(true);
+    const breadCheckbox = screen.getByTestId('item-checkbox-10-2') as HTMLInputElement;
+    expect(breadCheckbox.checked).toBe(false);
+  });
+
+  it('calls assignItemToGroup when an unchecked item is checked', async () => {
+    wrap(<SettingsClient {...baseProps} groups={groupsData} allItems={allItems} />);
+    act(() => fireEvent.click(screen.getByTestId('manage-items-10')));
+    await act(async () => fireEvent.click(screen.getByTestId('item-checkbox-10-2')));
+    expect(assignItemToGroup as Mock).toHaveBeenCalledWith(10, 2);
+  });
+
+  it('calls removeItemFromGroup when a checked item is unchecked', async () => {
+    wrap(<SettingsClient {...baseProps} groups={groupsData} allItems={allItems} />);
+    act(() => fireEvent.click(screen.getByTestId('manage-items-10')));
+    await act(async () => fireEvent.click(screen.getByTestId('item-checkbox-10-1')));
+    expect(removeItemFromGroup as Mock).toHaveBeenCalledWith(10, 1);
+  });
+
+  it('hides the checkbox list when toggle is clicked again', () => {
+    wrap(<SettingsClient {...baseProps} groups={groupsData} allItems={allItems} />);
+    act(() => fireEvent.click(screen.getByTestId('manage-items-10')));
+    act(() => fireEvent.click(screen.getByTestId('manage-items-10')));
+    expect(screen.queryByTestId('item-checkbox-10-1')).toBeNull();
+  });
+});
