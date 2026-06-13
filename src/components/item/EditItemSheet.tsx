@@ -1,13 +1,13 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { createPortal } from 'react-dom';
 import { X, Trash2, AlertTriangle } from 'lucide-react';
+import BottomSheetContainer from '@/components/ui/BottomSheetContainer';
+import { UNIT_OPTIONS } from '@/lib/constants';
 import { useTranslation } from '@/lib/i18n';
 import { updateItem } from '@/app/app/actions';
 import type { Item, Category } from '@/lib/db/schema';
 
-const UNIT_OPTIONS = ['pcs', 'bottle', 'pack', 'kg', 'g', 'L', 'ml', 'box', 'bag'];
 
 interface Props {
   item: Item;
@@ -20,13 +20,10 @@ interface Props {
 
 export default function EditItemSheet({ item, categories, hasEntries = false, isOpen, onClose, onDeleteClick }: Props) {
   const { t } = useTranslation();
-  const [mounted, setMounted] = useState(false);
   const [name, setName] = useState(item.name);
   const [categoryId, setCategoryId] = useState<string>(item.categoryId ? String(item.categoryId) : '');
   const [unit, setUnit] = useState(item.unit);
   const [loading, setLoading] = useState(false);
-
-  useEffect(() => { setMounted(true); }, []);
 
   useEffect(() => {
     if (isOpen) {
@@ -51,17 +48,8 @@ export default function EditItemSheet({ item, categories, hasEntries = false, is
     }
   };
 
-  if (!mounted || !isOpen) return null;
-
-  return createPortal(
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center">
-      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
-      <div
-        data-testid="edit-item-sheet"
-        className="relative w-full max-w-md glass rounded-t-[2.5rem] sm:rounded-[2.5rem] animate-in slide-in-from-bottom-full sm:slide-in-from-bottom-10 duration-300 p-6 space-y-5"
-      >
-        <div className="sm:hidden w-12 h-1.5 bg-primary/20 rounded-full mx-auto -mt-2 mb-2" />
-
+  return (
+    <BottomSheetContainer isOpen={isOpen} onClose={onClose} testId="edit-item-sheet">
         <div className="flex items-center justify-between">
           <h2 className="text-xl font-bold">{t('app.editItem')}</h2>
           <button onClick={onClose} className="h-9 w-9 flex items-center justify-center rounded-xl hover:bg-secondary/60 transition-all">
@@ -133,8 +121,6 @@ export default function EditItemSheet({ item, categories, hasEntries = false, is
             {t('app.deleteItem')}
           </button>
         </div>
-      </div>
-    </div>,
-    document.body,
+    </BottomSheetContainer>
   );
 }

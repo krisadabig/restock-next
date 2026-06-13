@@ -1,14 +1,15 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { createPortal } from 'react-dom';
 import { X, Trash2, ShoppingBag, ArrowDownRight } from 'lucide-react';
+import BottomSheetContainer from '@/components/ui/BottomSheetContainer';
 import { useTranslation } from '@/lib/i18n';
 import { useOffline } from '@/components/providers/OfflineContext';
 import PillSelector from '@/components/ui/PillSelector';
 import type { Entry } from '@/lib/db/schema';
+import { ENTRY_TYPE, UNIT_OPTIONS } from '@/lib/constants';
+import type { EntryType } from '@/lib/constants';
 
-const UNIT_OPTIONS = ['pcs', 'bottle', 'pack', 'kg', 'g', 'L', 'ml', 'box', 'bag'];
 
 interface Props {
   entry: Entry;
@@ -21,8 +22,7 @@ export default function EditEntrySheet({ entry, isOpen, onClose, onDelete }: Pro
   const { t } = useTranslation();
   const { updateEntryOffline } = useOffline();
 
-  const [mounted, setMounted] = useState(false);
-  const [type, setType] = useState<'purchase' | 'consume'>(entry.type as 'purchase' | 'consume');
+  const [type, setType] = useState<EntryType>(entry.type as EntryType);
   const [quantity, setQuantity] = useState(String(entry.quantity));
   const [unit, setUnit] = useState(entry.unit);
   const [price, setPrice] = useState(entry.price != null ? String(entry.price) : '');
@@ -30,8 +30,6 @@ export default function EditEntrySheet({ entry, isOpen, onClose, onDelete }: Pro
   const [date, setDate] = useState(entry.date);
   const [note, setNote] = useState(entry.note ?? '');
   const [loading, setLoading] = useState(false);
-
-  useEffect(() => { setMounted(true); }, []);
 
   useEffect(() => {
     if (isOpen) {
@@ -51,10 +49,10 @@ export default function EditEntrySheet({ entry, isOpen, onClose, onDelete }: Pro
     try {
       await updateEntryOffline(entry.id, {
         type,
-        price: type === 'purchase' && price ? parseFloat(price) : null,
+        price: type === ENTRY_TYPE.PURCHASE && price ? parseFloat(price) : null,
         quantity: parseFloat(quantity) || 1,
         unit,
-        store: type === 'purchase' && store ? store : null,
+        store: type === ENTRY_TYPE.PURCHASE && store ? store : null,
         date,
         note: note || null,
       });
@@ -64,17 +62,8 @@ export default function EditEntrySheet({ entry, isOpen, onClose, onDelete }: Pro
     }
   };
 
-  if (!mounted || !isOpen) return null;
-
-  return createPortal(
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center">
-      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
-      <div
-        data-testid="edit-entry-sheet"
-        className="relative w-full max-w-md glass rounded-t-[2.5rem] sm:rounded-[2.5rem] animate-in slide-in-from-bottom-full sm:slide-in-from-bottom-10 duration-300 p-6 space-y-5"
-      >
-        <div className="sm:hidden w-12 h-1.5 bg-primary/20 rounded-full mx-auto -mt-2 mb-2" />
-
+  return (
+    <BottomSheetContainer isOpen={isOpen} onClose={onClose} testId="edit-entry-sheet">
         <div className="flex items-center justify-between">
           <h2 className="text-xl font-bold">{t('app.editEntry')}</h2>
           <button onClick={onClose} className="h-9 w-9 flex items-center justify-center rounded-xl hover:bg-secondary/60 transition-all">
@@ -84,7 +73,7 @@ export default function EditEntrySheet({ entry, isOpen, onClose, onDelete }: Pro
 
         {/* Type toggle */}
         <div className="flex gap-2 p-1 bg-secondary/40 rounded-2xl">
-          {(['purchase', 'consume'] as const).map((t_) => (
+          {([ENTRY_TYPE.PURCHASE, ENTRY_TYPE.CONSUME] as const).map((t_) => (
             <button
               key={t_}
               type="button"
@@ -94,8 +83,8 @@ export default function EditEntrySheet({ entry, isOpen, onClose, onDelete }: Pro
                 type === t_ ? 'bg-primary text-white shadow-md' : 'text-muted-foreground hover:text-foreground'
               }`}
             >
-              {t_ === 'purchase' ? <ShoppingBag size={15} /> : <ArrowDownRight size={15} />}
-              {t_ === 'purchase' ? t('app.purchase') : t('app.consume')}
+              {t_ === ENTRY_TYPE.PURCHASE ? <ShoppingBag size={15} /> : <ArrowDownRight size={15} />}
+              {t_ === ENTRY_TYPE.PURCHASE ? t('app.purchase') : t('app.consume')}
             </button>
           ))}
         </div>
@@ -113,7 +102,7 @@ export default function EditEntrySheet({ entry, isOpen, onClose, onDelete }: Pro
             </div>
           </div>
 
-          {type === 'purchase' && (
+          {type === ENTRY_TYPE.PURCHASE && (
             <div className="grid grid-cols-2 gap-3">
               <div data-testid="price-field" className="space-y-1.5">
                 <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">{t('app.pricePerUnit')}</label>
@@ -155,8 +144,6 @@ export default function EditEntrySheet({ entry, isOpen, onClose, onDelete }: Pro
             {t('app.deleteEntry')}
           </button>
         </div>
-      </div>
-    </div>,
-    document.body,
+    </BottomSheetContainer>
   );
 }

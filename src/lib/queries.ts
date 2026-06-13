@@ -1,4 +1,5 @@
 import { eq, and, desc, sql, gte, lte, isNotNull } from 'drizzle-orm';
+import { ENTRY_TYPE } from './constants';
 import type { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
 import * as schema from './db/schema';
 
@@ -80,7 +81,7 @@ export async function getHouseholdItems(db: Db, householdId: string) {
       entry: schema.entries,
     })
     .from(schema.entries)
-    .where(and(eq(schema.entries.householdId, householdId), eq(schema.entries.type, 'purchase')))
+    .where(and(eq(schema.entries.householdId, householdId), eq(schema.entries.type, ENTRY_TYPE.PURCHASE)))
     .orderBy(schema.entries.itemId, desc(schema.entries.date));
 
   const lastEntryMap = new Map(lastEntryRows.map((r) => [r.entry.itemId, r.entry]));
@@ -108,7 +109,7 @@ type InsertEntryInput = {
 };
 
 export async function insertEntry(db: Db, data: InsertEntryInput) {
-  const stockDelta = data.type === 'purchase' ? data.quantity : -data.quantity;
+  const stockDelta = data.type === ENTRY_TYPE.PURCHASE ? data.quantity : -data.quantity;
 
   const [entry] = await db.insert(schema.entries).values(data).returning();
 
@@ -131,8 +132,8 @@ type UpdateEntryInput = Partial<
 export async function updateEntryRecord(db: Db, existing: schema.Entry, updates: UpdateEntryInput) {
   const merged = { ...existing, ...updates };
 
-  const oldDelta = existing.type === 'purchase' ? existing.quantity : -existing.quantity;
-  const newDelta = merged.type === 'purchase' ? merged.quantity : -merged.quantity;
+  const oldDelta = existing.type === ENTRY_TYPE.PURCHASE ? existing.quantity : -existing.quantity;
+  const newDelta = merged.type === ENTRY_TYPE.PURCHASE ? merged.quantity : -merged.quantity;
   const correction = newDelta - oldDelta;
 
   const [entry] = await db
@@ -155,7 +156,7 @@ export async function deleteEntryRecord(db: Db, entry: schema.Entry) {
   await db.delete(schema.entries).where(eq(schema.entries.id, entry.id));
 
   if (entry.itemId !== null) {
-    const reversal = entry.type === 'purchase' ? -entry.quantity : entry.quantity;
+    const reversal = entry.type === ENTRY_TYPE.PURCHASE ? -entry.quantity : entry.quantity;
     await db
       .update(schema.items)
       .set({ currentStock: sql`current_stock + ${reversal}`, updatedAt: new Date() })
@@ -169,7 +170,7 @@ export async function getItemPurchaseHistory(db: Db, itemId: number) {
   return db
     .select()
     .from(schema.entries)
-    .where(and(eq(schema.entries.itemId, itemId), eq(schema.entries.type, 'purchase')))
+    .where(and(eq(schema.entries.itemId, itemId), eq(schema.entries.type, ENTRY_TYPE.PURCHASE)))
     .orderBy(desc(schema.entries.date));
 }
 
@@ -197,7 +198,7 @@ export async function getCategoryPurchaseEntries(db: Db, categoryId: number) {
     .where(
       and(
         eq(schema.items.categoryId, categoryId),
-        eq(schema.entries.type, 'purchase'),
+        eq(schema.entries.type, ENTRY_TYPE.PURCHASE),
       ),
     )
     .orderBy(desc(schema.entries.date))
@@ -217,7 +218,7 @@ export async function getCategoryMonthlySpend(db: Db, categoryId: number) {
     .where(
       and(
         eq(schema.items.categoryId, categoryId),
-        eq(schema.entries.type, 'purchase'),
+        eq(schema.entries.type, ENTRY_TYPE.PURCHASE),
       ),
     )
     .groupBy(sql`to_char(${schema.entries.date}::date, 'YYYY-MM')`)
@@ -240,7 +241,7 @@ export async function getHouseholdSpend(
     .where(
       and(
         eq(schema.entries.householdId, householdId),
-        eq(schema.entries.type, 'purchase'),
+        eq(schema.entries.type, ENTRY_TYPE.PURCHASE),
         gte(schema.entries.date, from),
         lte(schema.entries.date, to),
       ),
@@ -258,7 +259,7 @@ export async function getHouseholdSpend(
     .where(
       and(
         eq(schema.entries.householdId, householdId),
-        eq(schema.entries.type, 'purchase'),
+        eq(schema.entries.type, ENTRY_TYPE.PURCHASE),
         gte(schema.entries.date, from),
         lte(schema.entries.date, to),
       ),
@@ -285,7 +286,7 @@ export async function getStoreBreakdown(
     .where(
       and(
         eq(schema.entries.householdId, householdId),
-        eq(schema.entries.type, 'purchase'),
+        eq(schema.entries.type, ENTRY_TYPE.PURCHASE),
         isNotNull(schema.entries.store),
         gte(schema.entries.date, from),
         lte(schema.entries.date, to),
@@ -307,7 +308,7 @@ export async function getHouseholdStores(db: Db, householdId: string): Promise<s
     .where(
       and(
         eq(schema.entries.householdId, householdId),
-        eq(schema.entries.type, 'purchase'),
+        eq(schema.entries.type, ENTRY_TYPE.PURCHASE),
         isNotNull(schema.entries.store),
       ),
     )
@@ -328,7 +329,7 @@ export async function getRecentPurchases(db: Db, householdId: string, limit = 20
     .innerJoin(schema.items, eq(schema.entries.itemId, schema.items.id))
     .leftJoin(schema.categories, eq(schema.items.categoryId, schema.categories.id))
     .innerJoin(schema.users, eq(schema.entries.userId, schema.users.id))
-    .where(and(eq(schema.entries.householdId, householdId), eq(schema.entries.type, 'purchase')))
+    .where(and(eq(schema.entries.householdId, householdId), eq(schema.entries.type, ENTRY_TYPE.PURCHASE)))
     .orderBy(desc(schema.entries.createdAt))
     .limit(limit);
 }

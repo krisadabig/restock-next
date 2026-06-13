@@ -6,12 +6,13 @@ import { addPendingMutation } from '@/lib/idb';
 import type { MutationType } from '@/lib/idb';
 import { v4 as uuidv4 } from 'uuid';
 import type { Item, Category } from '@/lib/db/schema';
+import type { EntryType } from '@/lib/constants';
 
 // ── Payload types matching new schema ────────────────────────────────────────
 
 export interface AddEntryPayload {
   itemId: number;
-  type: 'purchase' | 'consume';
+  type: EntryType;
   price: number | null;
   quantity: number;
   unit: string;

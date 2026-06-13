@@ -9,6 +9,7 @@ import DeleteItemModal from '@/components/item/DeleteItemModal';
 import { deleteItem } from '@/app/app/actions';
 import { useUI } from '@/components/providers/UIContext';
 import type { Category } from '@/lib/db/schema';
+import { ROUTES } from '@/lib/constants';
 
 interface Props {
   categories: Category[];
@@ -27,7 +28,7 @@ export default function AppShell({ categories, children }: Props) {
     if (!deleteItemTarget) return;
     await deleteItem(deleteItemTarget.id);
     setDeleteItemModalOpen(false);
-    router.push('/app');
+    router.push(ROUTES.STOCK);
   };
 
   return (

@@ -1,34 +1,34 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { createPortal } from 'react-dom';
 import { X, ShoppingBag, ArrowDownRight } from 'lucide-react';
+import BottomSheetContainer from '@/components/ui/BottomSheetContainer';
 import { useTranslation } from '@/lib/i18n';
 import { useOffline } from '@/components/providers/OfflineContext';
 import SmartAutocomplete, { ItemSuggestion } from '@/components/ui/Autocomplete';
 import PillSelector from '@/components/ui/PillSelector';
 import { getItemsForAutocomplete, getCategories, addItem, addCategory } from '@/app/app/actions';
 import type { Category } from '@/lib/db/schema';
+import { ENTRY_TYPE, DEFAULTS, UNIT_OPTIONS } from '@/lib/constants';
+import type { EntryType } from '@/lib/constants';
 
 interface Props {
   isOpen: boolean;
   onClose: () => void;
   prefillItemId?: number; // used to pre-select item on open (wired in next step)
-  prefillType?: 'purchase' | 'consume';
+  prefillType?: EntryType;
 }
 
-const UNIT_OPTIONS = ['pcs', 'bottle', 'pack', 'kg', 'g', 'L', 'ml', 'box', 'bag'];
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export default function LogEntrySheet({ isOpen, onClose, prefillItemId: _prefillItemId, prefillType }: Props) {
   const { t } = useTranslation();
   const { addEntryOffline } = useOffline();
 
-  const [mounted, setMounted] = useState(false);
-  const [type, setType] = useState<'purchase' | 'consume'>(prefillType ?? 'purchase');
+  const [type, setType] = useState<EntryType>(prefillType ?? ENTRY_TYPE.PURCHASE);
   const [selectedItem, setSelectedItem] = useState<ItemSuggestion | null>(null);
   const [quantity, setQuantity] = useState('1');
-  const [unit, setUnit] = useState('pcs');
+  const [unit, setUnit] = useState<string>(DEFAULTS.UNIT);
   const [price, setPrice] = useState('');
   const [store, setStore] = useState('');
   const [date, setDate] = useState(new Date().toISOString().slice(0, 10));
@@ -40,11 +40,9 @@ export default function LogEntrySheet({ isOpen, onClose, prefillItemId: _prefill
   const [suggestions, setSuggestions] = useState<ItemSuggestion[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
 
-  useEffect(() => { setMounted(true); }, []);
-
   useEffect(() => {
     if (!isOpen) return;
-    setType(prefillType ?? 'purchase');
+    setType(prefillType ?? ENTRY_TYPE.PURCHASE);
     getItemsForAutocomplete().then(setSuggestions).catch(() => {});
     getCategories().then(setCategories).catch(() => {});
   }, [isOpen, prefillType]);
@@ -62,10 +60,10 @@ export default function LogEntrySheet({ isOpen, onClose, prefillItemId: _prefill
       await addEntryOffline({
         itemId: selectedItem.id,
         type,
-        price: type === 'purchase' && price ? parseFloat(price) : null,
+        price: type === ENTRY_TYPE.PURCHASE && price ? parseFloat(price) : null,
         quantity: parseFloat(quantity) || 1,
         unit,
-        store: type === 'purchase' && store ? store : null,
+        store: type === ENTRY_TYPE.PURCHASE && store ? store : null,
         date,
         note: note || null,
       });
@@ -75,18 +73,8 @@ export default function LogEntrySheet({ isOpen, onClose, prefillItemId: _prefill
     }
   };
 
-  if (!mounted || !isOpen) return null;
-
-  return createPortal(
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center">
-      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
-      <div
-        data-testid="log-entry-sheet"
-        className="relative w-full max-w-md glass rounded-t-[2.5rem] sm:rounded-[2.5rem] animate-in slide-in-from-bottom-full sm:slide-in-from-bottom-10 duration-300 p-6 space-y-5"
-      >
-        {/* Drag handle */}
-        <div className="sm:hidden w-12 h-1.5 bg-primary/20 rounded-full mx-auto -mt-2 mb-2" />
-
+  return (
+    <BottomSheetContainer isOpen={isOpen} onClose={onClose} testId="log-entry-sheet">
         {/* Header */}
         <div className="flex items-center justify-between">
           <h2 className="text-xl font-bold">{t('app.logEntry')}</h2>
@@ -97,7 +85,7 @@ export default function LogEntrySheet({ isOpen, onClose, prefillItemId: _prefill
 
         {/* Type toggle */}
         <div className="flex gap-2 p-1 bg-secondary/40 rounded-2xl">
-          {(['purchase', 'consume'] as const).map((t_) => (
+          {([ENTRY_TYPE.PURCHASE, ENTRY_TYPE.CONSUME] as const).map((t_) => (
             <button
               key={t_}
               type="button"
@@ -108,8 +96,8 @@ export default function LogEntrySheet({ isOpen, onClose, prefillItemId: _prefill
                 type === t_ ? 'bg-primary text-white shadow-md' : 'text-muted-foreground hover:text-foreground'
               }`}
             >
-              {t_ === 'purchase' ? <ShoppingBag size={15} /> : <ArrowDownRight size={15} />}
-              {t_ === 'purchase' ? t('app.purchase') : t('app.consume')}
+              {t_ === ENTRY_TYPE.PURCHASE ? <ShoppingBag size={15} /> : <ArrowDownRight size={15} />}
+              {t_ === ENTRY_TYPE.PURCHASE ? t('app.purchase') : t('app.consume')}
             </button>
           ))}
         </div>
@@ -155,7 +143,7 @@ export default function LogEntrySheet({ isOpen, onClose, prefillItemId: _prefill
           </div>
 
           {/* Price + store (purchase only) */}
-          {type === 'purchase' && (
+          {type === ENTRY_TYPE.PURCHASE && (
             <div className="grid grid-cols-2 gap-3">
               <div data-testid="price-field" className="space-y-1.5">
                 <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">{t('app.pricePerUnit')}</label>
@@ -195,9 +183,7 @@ export default function LogEntrySheet({ isOpen, onClose, prefillItemId: _prefill
             {loading ? '...' : t('app.save')}
           </button>
         </form>
-      </div>
-    </div>,
-    document.body,
+    </BottomSheetContainer>
   );
 }
 
@@ -214,7 +200,7 @@ function NewItemInlineFields({ categories, onCreated, onCancel }: NewItemInlineF
   const [name, setName] = useState('');
   const [categoryId, setCategoryId] = useState<string>('');
   const [newCatName, setNewCatName] = useState('');
-  const [unit, setUnit] = useState('pcs');
+  const [unit, setUnit] = useState<string>(DEFAULTS.UNIT);
   const [loading, setLoading] = useState(false);
 
   const handleCreate = async () => {

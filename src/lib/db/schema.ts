@@ -1,4 +1,5 @@
 import { pgTable, text, integer, serial, timestamp, real, unique, index } from 'drizzle-orm/pg-core';
+import { DEFAULTS } from '../constants';
 
 // ── Auth (unchanged from prototype) ────────────────────────────────────────
 
@@ -46,7 +47,7 @@ export const categories = pgTable('categories', {
     .notNull()
     .references(() => households.id, { onDelete: 'cascade' }),
   name: text('name').notNull(),
-  defaultUnit: text('default_unit').notNull().default('pcs'),
+  defaultUnit: text('default_unit').notNull().default(DEFAULTS.UNIT),
   createdAt: timestamp('created_at').defaultNow(),
 });
 
@@ -58,7 +59,7 @@ export const items = pgTable('items', {
   categoryId: integer('category_id')
     .references(() => categories.id, { onDelete: 'set null' }),
   name: text('name').notNull(),
-  unit: text('unit').notNull().default('pcs'),
+  unit: text('unit').notNull().default(DEFAULTS.UNIT),
   currentStock: real('current_stock').notNull().default(0),
   lowStockThreshold: real('low_stock_threshold'),
   alertEnabled: integer('alert_enabled').notNull().default(1),
@@ -82,7 +83,7 @@ export const entries = pgTable('entries', {
   type: text('type').notNull().default('purchase'), // 'purchase' | 'consume'
   price: real('price'),       // null for consume entries
   quantity: real('quantity').notNull().default(1),
-  unit: text('unit').notNull().default('pcs'),
+  unit: text('unit').notNull().default(DEFAULTS.UNIT),
   store: text('store'),       // "Big C", "CJ", free text — null for consume
   date: text('date').notNull(),
   note: text('note'),

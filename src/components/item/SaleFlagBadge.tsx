@@ -1,12 +1,14 @@
 'use client';
 
+import { THRESHOLDS } from '@/lib/constants';
+
 interface Props {
   price: number;
   avgPrice: number;
 }
 
 export default function SaleFlagBadge({ price, avgPrice }: Props) {
-  if (avgPrice === 0 || price / avgPrice > 0.85) return null;
+  if (avgPrice === 0 || price / avgPrice > THRESHOLDS.SALE_FLAG_RATIO) return null;
 
   return (
     <span

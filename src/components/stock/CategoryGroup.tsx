@@ -13,9 +13,10 @@ interface Props {
   category: Category | null;
   items: StockEntry[];
   onItemTap: (item: Item) => void;
+  partnerTags?: Record<number, string>;
 }
 
-export default function CategoryGroup({ category, items, onItemTap }: Props) {
+export default function CategoryGroup({ category, items, onItemTap, partnerTags }: Props) {
   const { t } = useTranslation();
 
   if (items.length === 0) return null;
@@ -34,6 +35,7 @@ export default function CategoryGroup({ category, items, onItemTap }: Props) {
             item={item}
             lastEntry={lastEntry}
             onTap={() => onItemTap(item)}
+            partnerTag={partnerTags?.[item.id]}
           />
         ))}
       </div>

@@ -5,6 +5,7 @@ import { useTranslation } from '@/lib/i18n';
 import ThemeToggle from '@/components/ThemeToggle';
 import LanguageToggle from '@/components/LanguageToggle';
 import { loginPasskey } from '@/lib/auth';
+import { ROUTES } from '@/lib/constants';
 import { useRouter } from 'next/navigation';
 import { login, signup } from '../auth/actions';
 
@@ -27,7 +28,7 @@ export default function LoginPage() {
       setIsPasskeyLoading(true);
       try {
           await loginPasskey();
-          router.push('/app');
+          router.push(ROUTES.STOCK);
       } catch (err) {
           setPasskeyError((err as Error).message);
           setIsPasskeyLoading(false);

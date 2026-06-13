@@ -156,14 +156,20 @@ Bottom Bar (3 tabs)        Persistent FAB
 ┌────────────────────────────────┐
 │ Restock          [Search] [⚙] │
 ├────────────────────────────────┤
+│ ← Sam logged 3 items · 2h ago  │  ← activity strip, horizontal scroll
+│   [Downy 1L] [Chicken] [Oil]   │     hidden when no partner activity <24h
+├────────────────────────────────┤
 │ 🔴 Out of Stock  (2 items)    │  ← collapsed, tap to expand
 │ 🟡 Low Stock     (1 item)     │  ← collapsed, tap to expand
+├────────────────────────────────┤
+│ Quick log                      │  ← horizontal chip strip, recent 4 items
+│ [Downy 1L▾] [Chicken▾] [Rice▾] [Oil▾] │  ← tap → Quick Log micro-sheet
 ├────────────────────────────────┤
 │ FABRIC SOFTENER                │  ← category group header
 │ ┌──────────────────────────┐  │
 │ │ Downy 1L Lavender        │  │
 │ │ 2 bottles  •  last: ฿89  │  │
-│ │ Big C · Jun 10           │  │
+│ │ Big C · Jun 10  Sam·2h   │  │  ← "Sam·2h" shown when partner logged
 │ └──────────────────────────┘  │
 │ ┌──────────────────────────┐  │
 │ │ Comfort 750ml Fresh      │  │
@@ -186,7 +192,19 @@ Bottom Bar (3 tabs)        Persistent FAB
 - Current quantity + unit
 - Stock status dot: green (in stock) · amber (low, user-set threshold) · red (zero)
 - Last price paid + store + date — the quick deal-check reference
+- Partner tag (`Sam·2h`, `Alex·yesterday`) shown when the other person was the last to log this item within 48h
 - Tap → Item Detail
+
+**Activity strip** (below header, hidden when no activity):
+- Shows partner's name + count + relative time ("Sam logged 3 items · 2h ago")
+- Horizontally scrollable chips of the specific items they logged
+- Tap a chip → Item Detail for that item
+- Dismissed automatically after 24h of no new partner activity
+
+**Quick log strip** (horizontal scrollable, below activity strip):
+- Shows the 4 most recently logged items as tappable chips
+- Tap any chip → Quick Log micro-sheet (see Screen 5a)
+- Hidden on empty state
 
 **Sort/Filter bar** (horizontal scrollable chips below header):
 `All` `Out of Stock` `Low` `A–Z` `Recent`
@@ -328,11 +346,48 @@ Bottom Bar (3 tabs)        Persistent FAB
 
 ---
 
+### Screen 5a: Quick Log (Micro-sheet)
+
+**Purpose**: Re-log a recent item in 2–3 taps. No item selection needed.
+
+**Entry point**: Tap any chip in the Quick log strip on the Stock screen.
+
+**Layout:**
+```
+┌────────────────────────────────┐
+│  ▬                             │
+│  Downy 1L Lavender             │  ← item name, read-only
+│  Fabric Softener               │  ← category, read-only
+│                                │
+│  [🛒 Purchase]  [📦 Consume]   │  ← toggle, Purchase default
+│                                │
+│  Quantity                      │
+│  ┌──────────────────────────┐ │
+│  │  [−]      2      [+]     │ │  ← stepper, last qty pre-filled
+│  │           bottles        │ │  ← unit shown as label, not editable
+│  └──────────────────────────┘ │
+│                                │
+│  Price per unit    Store       │  ← purchase only
+│  ฿89 (same as last) [Change]  │  ← inline confirm; tap Change → input
+│  Big C ▾                       │  ← last store pre-selected
+│                                │
+│  [           Save            ] │
+└────────────────────────────────┘
+```
+
+**Tap count for repeat purchase: 1 (chip) + Save = 2 taps.** Change qty or price adds 1 tap each.
+
+**Unit**: Always a read-only label derived from the item. Cannot be changed here — go to Edit Item if the unit needs to change.
+
+**Consume mode**: Price and Store hidden; only stepper + Save visible. 1 tap + Save = 2 taps total.
+
+---
+
 ### Screen 5: Log Entry (Bottom Sheet)
 
-**Purpose**: Record a purchase or consume. Max 3 taps for a repeat item.
+**Purpose**: Record a purchase or consume for any item, including new items.
 
-**Entry point**: FAB from any screen. Also [+ Purchase] / [− Consume] on Item Detail (pre-fills item).
+**Entry point**: FAB from any screen. Also [+ Purchase] / [− Consume] on Item Detail (pre-fills item and skips to step 2).
 
 **Layout:**
 ```
@@ -343,24 +398,27 @@ Bottom Bar (3 tabs)        Persistent FAB
 │                                │
 │  Item                          │
 │  ┌──────────────────────────┐ │
-│  │ Downy 1L Lavender      ▾ │ │  ← autocomplete, recent items first
+│  │ [Downy 1L] [Chicken][Oil]│ │  ← recent 6 items as tappable chips
+│  │ [Rice]  [Comfort] [Soap] │ │     one tap selects, no dropdown
 │  └──────────────────────────┘ │
+│  ─── or type to search ──────  │
 │  + New item                    │
 │                                │
-│  Quantity        Unit          │
-│  ┌──────────┐  ┌────────────┐ │
-│  │    2     │  │  bottles   │ │  ← unit pre-filled from item
-│  └──────────┘  └────────────┘ │
+│  Quantity                      │  ← shown after item selected
+│  ┌──────────────────────────┐ │
+│  │  [−]      2      [+]     │ │  ← stepper, last qty pre-filled
+│  │           bottles        │ │  ← unit shown as label
+│  │                  [≠ unit]│ │  ← tap to override unit (rare)
+│  └──────────────────────────┘ │
 │                                │
 │  Price per unit    Store       │  ← purchase only, hidden on consume
-│  ┌──────────┐  ┌────────────┐ │
-│  │   89     │  │  Big C   ▾ │ │  ← store: recent stores shown first
-│  └──────────┘  └────────────┘ │
+│  ฿89 (same as last) [Change]  │  ← inline confirm; tap Change → input
+│  ┌────────────────────────────┐│
+│  │  Big C   ▾                 ││  ← last store pre-selected
+│  └────────────────────────────┘│
 │                                │
 │  Date                          │
-│  ┌──────────────────────────┐ │
-│  │  Today, Jun 12         ▾ │ │
-│  └──────────────────────────┘ │
+│  Today, Jun 12          [≠]   │  ← label; tap [≠] to change date (rare)
 │                                │
 │  Note (optional)          [+] │  ← collapsed by default
 │                                │
@@ -368,20 +426,33 @@ Bottom Bar (3 tabs)        Persistent FAB
 └────────────────────────────────┘
 ```
 
-**Autocomplete behavior:**
-- Recent items shown first (no typing needed for repeat logs)
-- Typing filters by item name and category name
-- Selecting an existing item pre-fills unit
+**Item selection behavior:**
+- Opens showing a chip grid of the 6 most recently logged items — no typing needed for repeat logs
+- Typing below the grid filters all items by name and category name
+- Selecting any item immediately pre-fills: unit label, last quantity, last price, last store
+- Chips update ordering based on recency across both household members
+
+**Unit handling:**
+- Unit is displayed as a static label next to the quantity stepper, not an editable field
+- A small `[≠ unit]` link is available for the rare case where the user bought a different unit size (e.g., "pack" vs "box"). Tapping opens a compact unit picker (list of previously used units for this item + free text)
+- Changing unit here does not change the item's default unit — it only applies to this entry
+
+**Price field:**
+- Defaults to "฿XX (same as last)" — a confirmed pre-fill, not an empty input
+- Tap `[Change]` to open numeric input
+- If last price is unknown (first log), shows empty input directly
+
+**Date field:**
+- Defaults to "Today, Jun 12" shown as a label
+- Tap `[≠]` to open a date picker — keeps the common path (today) zero-tap
 
 **New item inline flow** (no new screen):
 1. Item name (free text)
-2. Category (existing list + "New category" option)
-3. Unit
+2. Category (existing chip list + "New category" option)
+3. Unit (free text, becomes the item's default unit)
 4. Continues to quantity/price fields
 
-**Repeat purchase fast path**: Last store pre-selected, last quantity pre-filled. User confirms/changes price only. 2 taps + Save.
-
-**Consume mode**: Price and Store fields hidden entirely.
+**Consume mode**: Price, Store, and price pre-fill hidden entirely. Stepper + Save only.
 
 ---
 
@@ -531,8 +602,12 @@ Price Tab
                         └── Item row → Item Detail
   └── Purchase row  → Item Detail (scrolled to entry)
 
+Quick log strip (Stock screen)
+  └── Chip tap → Quick Log Micro-sheet (Screen 5a)
+        └── Save → Stock screen, stock updated
+
 FAB (any screen)
-  └── Log Entry Sheet
+  └── Log Entry Sheet (Screen 5)
         └── New item → inline fields (no screen change)
         └── Save → previous screen, stock updated
 
@@ -583,7 +658,7 @@ Whoever goes to the store next checks the app, sees it out, buys it, logs it.
 | 1 | First consume log (both people) | If only one person logs, the shared value disappears in week 1 |
 | 2 | First time deal signal fires correctly | Builds trust in the system — "it knows my prices" |
 | 3 | First shopping trip using the stock screen | Replaces the WhatsApp text habit |
-| 4 | First time one person sees what the other logged | Makes the shared value tangible |
+| 4 | First time one person sees what the other logged | Makes the shared value tangible — delivered via activity strip + partner tag on item cards, not a separate feed screen |
 | 5 | First push notification that saved a run-out | The emotional payoff |
 
 ---

@@ -5,20 +5,21 @@ import { usePathname } from 'next/navigation';
 import { useTranslation } from '@/lib/i18n';
 import { Package, TrendingUp, Settings, Plus } from 'lucide-react';
 import { useUI } from '@/components/providers/UIContext';
+import { ROUTES } from '@/lib/constants';
 
 export default function BottomNav() {
   const pathname = usePathname();
   const { t } = useTranslation();
   const { setLogEntrySheetOpen } = useUI();
 
-  const isStock    = pathname === '/app';
-  const isPrice    = pathname.startsWith('/app/price');
-  const isSettings = pathname === '/app/settings';
+  const isStock    = pathname === ROUTES.STOCK;
+  const isPrice    = pathname.startsWith(ROUTES.PRICE);
+  const isSettings = pathname === ROUTES.SETTINGS;
 
   const tabs = [
-    { href: '/app',           label: t('app.navStock'),    icon: Package,    active: isStock },
-    { href: '/app/price',     label: t('app.navPrice'),    icon: TrendingUp, active: isPrice },
-    { href: '/app/settings',  label: t('app.navSettings'), icon: Settings,   active: isSettings },
+    { href: ROUTES.STOCK,    label: t('app.navStock'),    icon: Package,    active: isStock },
+    { href: ROUTES.PRICE,    label: t('app.navPrice'),    icon: TrendingUp, active: isPrice },
+    { href: ROUTES.SETTINGS, label: t('app.navSettings'), icon: Settings,   active: isSettings },
   ];
 
   return (

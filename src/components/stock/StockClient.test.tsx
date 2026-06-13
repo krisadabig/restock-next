@@ -14,6 +14,17 @@ vi.mock('@/components/providers/UIContext', () => ({
   useUI: () => ({ setLogEntrySheetOpen: vi.fn() }),
 }));
 
+vi.mock('@/components/providers/HouseholdContext', () => ({
+  useHousehold: () => ({
+    householdId: 'hh1',
+    currentUserId: 'u1',
+    members: [
+      { userId: 'u1', username: 'Alex' },
+      { userId: 'u2', username: 'Sam' },
+    ],
+  }),
+}));
+
 const wrap = (ui: React.ReactNode) =>
   render(<I18nProvider initialLocale="en">{ui}</I18nProvider>);
 

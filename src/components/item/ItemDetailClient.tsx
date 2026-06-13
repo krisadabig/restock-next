@@ -11,8 +11,9 @@ import ItemHistoryRow from './ItemHistoryRow';
 import EditEntrySheet from '@/components/entry/EditEntrySheet';
 import DeleteEntryModal from '@/components/entry/DeleteEntryModal';
 import type { Item, Category, Entry } from '@/lib/db/schema';
+import { ENTRY_TYPE } from '@/lib/constants';
 
-type HistoryFilter = 'all' | 'purchase' | 'consume';
+type HistoryFilter = 'all' | 'purchase' | 'consume'; // 'all' is local-only; purchase/consume match ENTRY_TYPE
 
 interface Props {
   item: Item;
@@ -38,15 +39,15 @@ export default function ItemDetailClient({ item, category, allEntries, purchaseH
   }, [purchaseHistory]);
 
   const filteredEntries = useMemo(() => {
-    if (historyFilter === 'purchase') return allEntries.filter(e => e.type === 'purchase');
-    if (historyFilter === 'consume')  return allEntries.filter(e => e.type === 'consume');
+    if (historyFilter === ENTRY_TYPE.PURCHASE) return allEntries.filter(e => e.type === ENTRY_TYPE.PURCHASE);
+    if (historyFilter === ENTRY_TYPE.CONSUME)  return allEntries.filter(e => e.type === ENTRY_TYPE.CONSUME);
     return allEntries;
   }, [allEntries, historyFilter]);
 
   const FILTERS: { key: HistoryFilter; label: string; testId: string }[] = [
-    { key: 'all',      label: t('app.filterAll'),  testId: 'filter-all' },
-    { key: 'purchase', label: t('app.purchase'),   testId: 'filter-purchase' },
-    { key: 'consume',  label: t('app.consume'),    testId: 'filter-consume' },
+    { key: 'all' as HistoryFilter,            label: t('app.filterAll'),  testId: 'filter-all' },
+    { key: ENTRY_TYPE.PURCHASE,              label: t('app.purchase'),   testId: 'filter-purchase' },
+    { key: ENTRY_TYPE.CONSUME,               label: t('app.consume'),    testId: 'filter-consume' },
   ];
 
   return (
@@ -103,7 +104,7 @@ export default function ItemDetailClient({ item, category, allEntries, purchaseH
           <div className="flex gap-3">
             <button
               type="button"
-              onClick={() => setLogEntrySheetOpen(true, item.id, 'purchase')}
+              onClick={() => setLogEntrySheetOpen(true, item.id, ENTRY_TYPE.PURCHASE)}
               className="flex-1 h-11 flex items-center justify-center gap-2 rounded-2xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold text-sm hover:bg-emerald-500/20 transition-all active:scale-95"
             >
               <ShoppingBag size={16} />
@@ -111,7 +112,7 @@ export default function ItemDetailClient({ item, category, allEntries, purchaseH
             </button>
             <button
               type="button"
-              onClick={() => setLogEntrySheetOpen(true, item.id, 'consume')}
+              onClick={() => setLogEntrySheetOpen(true, item.id, ENTRY_TYPE.CONSUME)}
               className="flex-1 h-11 flex items-center justify-center gap-2 rounded-2xl bg-orange-500/10 text-orange-600 dark:text-orange-400 font-bold text-sm hover:bg-orange-500/20 transition-all active:scale-95"
             >
               <ArrowDownRight size={16} />

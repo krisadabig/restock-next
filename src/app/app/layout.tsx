@@ -14,7 +14,7 @@ export default async function DashboardLayout({ children }: { children: ReactNod
   // No household yet — show empty layout; onboarding will create one
   if (!householdId) {
     return (
-      <ClientLayout householdId="" members={[]} categories={[]}>
+      <ClientLayout householdId="" currentUserId={session.userId} members={[]} categories={[]}>
         {children}
       </ClientLayout>
     );
@@ -26,7 +26,7 @@ export default async function DashboardLayout({ children }: { children: ReactNod
   ]);
 
   return (
-    <ClientLayout householdId={householdId} members={members} categories={categories}>
+    <ClientLayout householdId={householdId} currentUserId={session.userId} members={members} categories={categories}>
       {children}
     </ClientLayout>
   );

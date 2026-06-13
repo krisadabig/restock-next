@@ -51,4 +51,14 @@ describe('StockItemCard', () => {
     fireEvent.click(screen.getByTestId('stock-item-card'));
     expect(onTap).toHaveBeenCalled();
   });
+
+  it('shows partner tag when provided', () => {
+    wrap(<StockItemCard item={item} lastEntry={lastEntry} onTap={vi.fn()} partnerTag="Sam·2h" />);
+    expect(screen.getByTestId('partner-tag').textContent).toContain('Sam·2h');
+  });
+
+  it('does not render partner tag element when not provided', () => {
+    wrap(<StockItemCard item={item} lastEntry={lastEntry} onTap={vi.fn()} />);
+    expect(screen.queryByTestId('partner-tag')).toBeNull();
+  });
 });

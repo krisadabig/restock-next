@@ -1,6 +1,7 @@
 'use client';
 
 import { Edit2, ShoppingBag, ArrowDownRight } from 'lucide-react';
+import { ENTRY_TYPE } from '@/lib/constants';
 import SaleFlagBadge from './SaleFlagBadge';
 import type { Entry } from '@/lib/db/schema';
 
@@ -11,7 +12,7 @@ interface Props {
 }
 
 export default function ItemHistoryRow({ entry, itemAvgPrice, onEdit }: Props) {
-  const isPurchase = entry.type === 'purchase';
+  const isPurchase = entry.type === ENTRY_TYPE.PURCHASE;
 
   const dateLabel = new Date(entry.date).toLocaleDateString('default', {
     month: 'short',

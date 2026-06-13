@@ -2,13 +2,14 @@
 
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 import type { Item, Entry } from '@/lib/db/schema';
+import type { EntryType } from '@/lib/constants';
 
 interface UIContextType {
   // Log entry sheet (FAB)
   isLogEntrySheetOpen: boolean;
   logEntryPrefillItemId: number | undefined;
-  logEntryPrefillType: 'purchase' | 'consume' | undefined;
-  setLogEntrySheetOpen: (open: boolean, prefillItemId?: number, prefillType?: 'purchase' | 'consume') => void;
+  logEntryPrefillType: EntryType | undefined;
+  setLogEntrySheetOpen: (open: boolean, prefillItemId?: number, prefillType?: EntryType) => void;
 
   // Edit item sheet
   isEditItemSheetOpen: boolean;
@@ -36,7 +37,7 @@ const UIContext = createContext<UIContextType | undefined>(undefined);
 export function UIProvider({ children }: { children: ReactNode }) {
   const [isLogEntrySheetOpen, setLogOpen] = useState(false);
   const [logEntryPrefillItemId, setLogPrefillItemId] = useState<number | undefined>(undefined);
-  const [logEntryPrefillType, setLogPrefillType] = useState<'purchase' | 'consume' | undefined>(undefined);
+  const [logEntryPrefillType, setLogPrefillType] = useState<EntryType | undefined>(undefined);
 
   const [isEditItemSheetOpen, setEditItemOpen] = useState(false);
   const [editItemTarget, setEditItemTarget] = useState<Item | null>(null);
@@ -48,7 +49,7 @@ export function UIProvider({ children }: { children: ReactNode }) {
   const [isDeleteItemModalOpen, setDeleteItemOpen] = useState(false);
   const [deleteItemTarget, setDeleteItemTarget] = useState<Item | null>(null);
 
-  const setLogEntrySheetOpen = (open: boolean, prefillItemId?: number, prefillType?: 'purchase' | 'consume') => {
+  const setLogEntrySheetOpen = (open: boolean, prefillItemId?: number, prefillType?: EntryType) => {
     setLogOpen(open);
     setLogPrefillItemId(open ? prefillItemId : undefined);
     setLogPrefillType(open ? prefillType : undefined);

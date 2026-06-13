@@ -6,6 +6,7 @@ import { log } from '@/lib/logger';
 import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
 import * as queries from '@/lib/queries';
+import { ENTRY_TYPE, DEFAULTS } from '@/lib/constants';
 
 export type { Entry, Item, Category, Household } from '@/lib/db/schema';
 
@@ -25,7 +26,7 @@ async function requireSession() {
 
 const categorySchema = z.object({
   name: z.string().min(1),
-  defaultUnit: z.string().min(1).default('pcs'),
+  defaultUnit: z.string().min(1).default(DEFAULTS.UNIT),
 });
 
 export async function addCategory(raw: { name: string; defaultUnit?: string }) {
@@ -46,7 +47,7 @@ export async function getCategories() {
 
 const itemSchema = z.object({
   name: z.string().min(1),
-  unit: z.string().min(1).default('pcs'),
+  unit: z.string().min(1).default(DEFAULTS.UNIT),
   categoryId: z.number().int().nullable().optional(),
 });
 
@@ -96,7 +97,7 @@ export async function getItemsForAutocomplete() {
 
 const entrySchema = z.object({
   itemId: z.number().int(),
-  type: z.enum(['purchase', 'consume']),
+  type: z.enum([ENTRY_TYPE.PURCHASE, ENTRY_TYPE.CONSUME]),
   price: z.number().nullable().optional(),
   quantity: z.number().positive(),
   unit: z.string().min(1),
@@ -109,8 +110,8 @@ export async function addEntry(raw: z.input<typeof entrySchema>) {
   const { userId, householdId } = await requireSession();
   const data = entrySchema.parse(raw);
 
-  const price = data.type === 'consume' ? null : (data.price ?? null);
-  const store = data.type === 'consume' ? null : (data.store ?? null);
+  const price = data.type === ENTRY_TYPE.CONSUME ? null : (data.price ?? null);
+  const store = data.type === ENTRY_TYPE.CONSUME ? null : (data.store ?? null);
 
   try {
     const entry = await queries.insertEntry(db, {
@@ -130,7 +131,7 @@ export async function addEntry(raw: z.input<typeof entrySchema>) {
 }
 
 const updateEntrySchema = z.object({
-  type: z.enum(['purchase', 'consume']).optional(),
+  type: z.enum([ENTRY_TYPE.PURCHASE, ENTRY_TYPE.CONSUME]).optional(),
   price: z.number().nullable().optional(),
   quantity: z.number().positive().optional(),
   unit: z.string().min(1).optional(),
@@ -188,7 +189,7 @@ export async function getItemDetail(itemId: number) {
     queries.getItemAllEntries(db, itemId),
   ]);
   if (!item) return null;
-  const purchaseHistory = allEntries.filter((e) => e.type === 'purchase');
+  const purchaseHistory = allEntries.filter((e) => e.type === ENTRY_TYPE.PURCHASE);
   return { item, allEntries, purchaseHistory };
 }
 

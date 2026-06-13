@@ -7,6 +7,7 @@ import { hash, compare } from 'bcryptjs';
 import { createSession, deleteSession } from '@/lib/session';
 import { redirect } from 'next/navigation';
 import { z } from 'zod';
+import { ROUTES } from '@/lib/constants';
 import { v4 as uuidv4 } from 'uuid';
 
 const signupSchema = z
@@ -59,7 +60,7 @@ export async function signup(prevState: { error?: string } | null, formData: For
 	await db.insert(householdMembers).values({ householdId, userId });
 
 	await createSession(userId, username);
-	redirect('/app');
+	redirect(ROUTES.STOCK);
 }
 
 export async function login(prevState: { error?: string } | null, formData: FormData) {
@@ -91,10 +92,10 @@ export async function login(prevState: { error?: string } | null, formData: Form
 	}
 
 	await createSession(user[0].id, user[0].username);
-	redirect('/app');
+	redirect(ROUTES.STOCK);
 }
 
 export async function logout() {
 	await deleteSession();
-	redirect('/login');
+	redirect(ROUTES.LOGIN);
 }

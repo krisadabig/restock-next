@@ -9,6 +9,7 @@ export interface HouseholdMember {
 
 interface HouseholdContextValue {
   householdId: string;
+  currentUserId: string;
   members: HouseholdMember[];
 }
 
@@ -16,13 +17,14 @@ const HouseholdContext = createContext<HouseholdContextValue | undefined>(undefi
 
 interface HouseholdProviderProps {
   householdId: string;
+  currentUserId: string;
   members: HouseholdMember[];
   children: ReactNode;
 }
 
-export function HouseholdProvider({ householdId, members, children }: HouseholdProviderProps) {
+export function HouseholdProvider({ householdId, currentUserId, members, children }: HouseholdProviderProps) {
   return (
-    <HouseholdContext.Provider value={{ householdId, members }}>
+    <HouseholdContext.Provider value={{ householdId, currentUserId, members }}>
       {children}
     </HouseholdContext.Provider>
   );

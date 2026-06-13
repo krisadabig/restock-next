@@ -9,9 +9,10 @@ interface Props {
   item: Item;
   lastEntry: Entry | null;
   onTap: () => void;
+  partnerTag?: string;
 }
 
-export default function StockItemCard({ item, lastEntry, onTap }: Props) {
+export default function StockItemCard({ item, lastEntry, onTap, partnerTag }: Props) {
   const { t } = useTranslation();
   const status = stockStatus(item);
 
@@ -41,6 +42,11 @@ export default function StockItemCard({ item, lastEntry, onTap }: Props) {
 
         <p data-testid="last-entry" className="text-xs text-muted-foreground mt-1.5">
           {lastEntryText ?? t('app.noPurchasesYet')}
+          {partnerTag && (
+            <span data-testid="partner-tag" className="ml-2 text-muted-foreground/60">
+              {partnerTag}
+            </span>
+          )}
         </p>
       </div>
     </button>

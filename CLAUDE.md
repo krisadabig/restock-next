@@ -4,11 +4,18 @@
 In-house family (couple) stock tracking PWA. Price memory + shared inventory.
 Not a consumption tracker. No run-out prediction.
 
-## Specs (read these before implementing anything)
-- `.agent/ux-spec.md` — all screens, user journeys, edit flows
-- `.agent/data-model-spec.md` — schema, stock count logic, key queries
-- `.agent/component-inventory.md` — what to build/rewrite/deprecate + build order
-- `.agent/logging-spec.md` — Sentry + Axiom setup, log event catalogue
+## Agent docs (read these before implementing anything)
+
+| File | Purpose |
+|---|---|
+| `.agent/as-is.md` | **Current app reality** — routes, schema, server actions, context APIs, component interfaces. Read first. Update when anything changes. |
+| `.agent/build-status.md` | What's ✅ done and what's 🔲 next. Update before ending any session. |
+| `.agent/ux-spec.md` | Screen specs and user journeys — desired behaviour |
+| `.agent/data-model-spec.md` | Schema design rationale and key query patterns |
+| `.agent/logging-spec.md` | Axiom log event catalogue |
+| `.agent/backlog.md` | Deferred features and known issues |
+
+**Update rule**: Any change to a route, server action, schema column, context API, or top-level component interface **must** be reflected in `.agent/as-is.md` in the same session.
 
 ## Tech Stack
 Next.js 16 · TypeScript · Tailwind CSS 4 · Drizzle ORM · PostgreSQL (Supabase) · Vitest · Playwright
@@ -48,6 +55,6 @@ bun run test:all         # both
 ## Design System
 See `design.md` for full token reference. Key patterns:
 - Glass cards: `glass-card` utility class
-- Bottom sheets: `createPortal` + `animate-in slide-in-from-bottom-full`
+- Bottom sheets: use `<BottomSheetContainer>` (`src/components/ui/BottomSheetContainer.tsx`) — handles portal, backdrop, and animation. Do not repeat the pattern manually.
 - FAB: `bg-primary text-white login-glow h-14 w-14 rounded-2xl`
 - Status dots: green=in-stock · amber=low · red=out

@@ -1,3 +1,5 @@
+import { ENTRY_TYPE } from './constants';
+
 interface PurchaseEntry {
   price: number | null;
   store: string | null;
@@ -13,7 +15,7 @@ export interface PriceStats {
 }
 
 export function calculatePriceStats(purchases: PurchaseEntry[]): PriceStats | null {
-  const valid = purchases.filter((e) => e.type === 'purchase' && e.price !== null) as (PurchaseEntry & { price: number })[];
+  const valid = purchases.filter((e) => e.type === ENTRY_TYPE.PURCHASE && e.price !== null) as (PurchaseEntry & { price: number })[];
   if (valid.length === 0) return null;
 
   const prices = valid.map((e) => e.price);
