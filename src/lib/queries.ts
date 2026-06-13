@@ -47,7 +47,7 @@ export async function deleteItemRecord(db: Db, id: number) {
 }
 
 export async function getItemsForAutocomplete(db: Db, householdId: string) {
-  const rows = await db
+  const itemRows = await db
     .select({
       id: schema.items.id,
       name: schema.items.name,
@@ -57,9 +57,33 @@ export async function getItemsForAutocomplete(db: Db, householdId: string) {
     .from(schema.items)
     .leftJoin(schema.categories, eq(schema.items.categoryId, schema.categories.id))
     .where(eq(schema.items.householdId, householdId))
-    .orderBy(schema.items.name);
+    .orderBy(sql`${schema.items.lastEntryAt} DESC NULLS LAST`);
 
-  return rows.map((r) => ({ ...r, categoryName: r.categoryName ?? null }));
+  const lastPurchaseRows = await db
+    .selectDistinctOn([schema.entries.itemId], {
+      itemId: schema.entries.itemId,
+      lastQty: schema.entries.quantity,
+      lastPrice: schema.entries.price,
+      lastStore: schema.entries.store,
+    })
+    .from(schema.entries)
+    .where(and(eq(schema.entries.householdId, householdId), eq(schema.entries.type, ENTRY_TYPE.PURCHASE)))
+    .orderBy(schema.entries.itemId, desc(schema.entries.date));
+
+  const lastPurchaseMap = new Map(lastPurchaseRows.map((r) => [r.itemId, r]));
+
+  return itemRows.map((r) => {
+    const lp = lastPurchaseMap.get(r.id);
+    return {
+      id: r.id,
+      name: r.name,
+      unit: r.unit,
+      categoryName: r.categoryName ?? null,
+      lastQty: lp?.lastQty ?? null,
+      lastPrice: lp?.lastPrice ?? null,
+      lastStore: lp?.lastStore ?? null,
+    };
+  });
 }
 
 // ── Household items (Stock screen) ──────────────────────────────────────────

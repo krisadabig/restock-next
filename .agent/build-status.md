@@ -168,7 +168,7 @@ Sub-tasks (all in one session):
 | Status | Task | Key Files |
 |---|---|---|
 | ✅ | `LogEntrySheet` — base implementation | `src/components/entry/LogEntrySheet.tsx` |
-| 🔲 | **LogEntrySheet UX pass** | Spec: `ux-spec.md §Screen 5` |
+| ✅ | **LogEntrySheet UX pass** | Spec: `ux-spec.md §Screen 5` |
 
 <details for "LogEntrySheet UX pass">
 

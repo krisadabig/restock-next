@@ -155,6 +155,7 @@ const translations = {
 			quickLog: 'Quick Log',
 			sameAsLast: 'same as last',
 			change: 'Change',
+			typeToSearch: 'or type to search...',
 		},
 		trends: {
 			title: 'Spending Trends',
@@ -355,6 +356,7 @@ const translations = {
 			quickLog: 'บันทึกด่วน',
 			sameAsLast: 'เหมือนครั้งก่อน',
 			change: 'เปลี่ยน',
+			typeToSearch: 'หรือพิมพ์เพื่อค้นหา...',
 		},
 		trends: {
 			title: 'แนวโน้มการใช้จ่าย',

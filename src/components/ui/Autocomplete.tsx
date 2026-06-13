@@ -7,6 +7,10 @@ export interface ItemSuggestion {
   id: number;
   name: string;
   categoryName: string | null;
+  unit?: string;
+  lastQty?: number | null;
+  lastPrice?: number | null;
+  lastStore?: string | null;
 }
 
 interface AutocompleteProps {

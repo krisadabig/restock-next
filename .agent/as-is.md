@@ -138,7 +138,7 @@ Record-level authorization: actions that accept an ID re-fetch the record and co
 | `updateItem` | `(id, raw: { name?, unit?, categoryId?, lowStockThreshold?, alertEnabled? })` | `Item` | revalidates `/app` + `/app/item/[id]` |
 | `deleteItem` | `(id)` | `void` | revalidates `/app`; also deletes all entries (cascade) |
 | `getHouseholdItems` | `()` | `Array<{ item, category, lastEntry }>` | — |
-| `getItemsForAutocomplete` | `()` | `Array<{ id, name, categoryName }>` | — |
+| `getItemsForAutocomplete` | `()` | `Array<{ id, name, unit, categoryName, lastQty, lastPrice, lastStore }>` — ordered by `lastEntryAt DESC NULLS LAST` | — |
 
 ### Entry
 | Action | Signature | Returns | Side effects |
@@ -341,9 +341,11 @@ interface Props {
 interface Props {
   isOpen: boolean;
   onClose: () => void;
-  prefillItemId?: number;
+  prefillItemId?: number; // auto-selects item on open; pre-fills from last entry
   prefillType?: EntryType; // import from '@/lib/constants'
 }
+// UX: chip grid (6 recent items), qty stepper, unit as label + [≠ unit] picker,
+//     price pre-confirm + [Change], date label + [≠] picker, search input for all items.
 
 // src/components/entry/EditEntrySheet.tsx
 interface Props {
@@ -427,6 +429,7 @@ type MutationType =
 | File | What it exports |
 |---|---|
 | `src/lib/constants.ts` | `ENTRY_TYPE`, `EntryType`, `ROUTES`, `THRESHOLDS`, `DEFAULTS`, `UNIT_OPTIONS` — **import from here, never hardcode these values** |
+| `src/components/ui/Autocomplete.tsx` | `ItemSuggestion` — `{ id, name, categoryName, unit?, lastQty?, lastPrice?, lastStore? }` |
 | `src/lib/price.ts` | `calculatePriceStats(purchases)` → `{ avg, best, last, dealSignal }`, `compareStores(purchases)` → `Record<store, { avg, count }>` |
 | `src/lib/stock.ts` | `stockStatus({ currentStock, lowStockThreshold })` → `'out' \| 'low' \| 'ok'` |
 | `src/lib/queries.ts` | All raw Drizzle queries; consumed by server actions and page components |
