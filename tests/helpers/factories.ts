@@ -4,8 +4,6 @@ import * as schema from '@/lib/db/schema';
 
 type Db = ReturnType<typeof createTestDb>['db'];
 
-// Minimal seed helpers — build only what the test needs
-
 export async function makeUser(db: Db, overrides: Partial<schema.User> = {}): Promise<schema.User> {
   const [user] = await db.insert(schema.users).values({
     id: uuid(),
@@ -16,24 +14,34 @@ export async function makeUser(db: Db, overrides: Partial<schema.User> = {}): Pr
   return user;
 }
 
-export async function makeHousehold(db: Db, userId: string, overrides: Partial<schema.Household> = {}): Promise<schema.Household> {
-  const [household] = await db.insert(schema.households).values({
+export async function makeSpace(db: Db, overrides: Partial<schema.Space> = {}): Promise<schema.Space> {
+  const [space] = await db.insert(schema.spaces).values({
     id: uuid(),
-    name: 'Test Household',
+    name: 'Test Space',
     ...overrides,
   }).returning();
-
-  await db.insert(schema.householdMembers).values({
-    householdId: household.id,
-    userId,
-  });
-
-  return household;
+  return space;
 }
 
-export async function makeCategory(db: Db, householdId: string, overrides: Partial<schema.Category> = {}): Promise<schema.Category> {
+export async function makeSpaceMember(
+  db: Db,
+  spaceId: string,
+  userId: string,
+  displayName = 'Test User',
+  overrides: Partial<schema.SpaceMember> = {},
+): Promise<schema.SpaceMember> {
+  const [member] = await db.insert(schema.spaceMembers).values({
+    spaceId,
+    userId,
+    displayName,
+    ...overrides,
+  }).returning();
+  return member;
+}
+
+export async function makeCategory(db: Db, spaceId: string, overrides: Partial<schema.Category> = {}): Promise<schema.Category> {
   const [category] = await db.insert(schema.categories).values({
-    householdId,
+    spaceId,
     name: 'Test Category',
     defaultUnit: 'pcs',
     ...overrides,
@@ -41,9 +49,9 @@ export async function makeCategory(db: Db, householdId: string, overrides: Parti
   return category;
 }
 
-export async function makeItem(db: Db, householdId: string, categoryId: number, overrides: Partial<schema.Item> = {}): Promise<schema.Item> {
+export async function makeItem(db: Db, spaceId: string, categoryId: number, overrides: Partial<schema.Item> = {}): Promise<schema.Item> {
   const [item] = await db.insert(schema.items).values({
-    householdId,
+    spaceId,
     categoryId,
     name: 'Test Item',
     unit: 'pcs',
@@ -53,11 +61,11 @@ export async function makeItem(db: Db, householdId: string, categoryId: number, 
   return item;
 }
 
-export async function makeEntry(db: Db, householdId: string, itemId: number, userId: string, overrides: Partial<schema.Entry> = {}): Promise<schema.Entry> {
+export async function makeEntry(db: Db, spaceId: string, itemId: number, memberId: number, overrides: Partial<schema.Entry> = {}): Promise<schema.Entry> {
   const [entry] = await db.insert(schema.entries).values({
-    householdId,
+    spaceId,
     itemId,
-    userId,
+    memberId,
     type: 'purchase',
     price: 100,
     quantity: 1,

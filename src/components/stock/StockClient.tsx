@@ -75,7 +75,7 @@ export default function StockClient({ itemsByCategory, groups }: Props) {
     const cutoff = THRESHOLDS.ACTIVITY_STRIP_HOURS * 60 * 60 * 1000;
     return allItems
       .filter(({ lastEntry }) => {
-        if (!lastEntry || lastEntry.userId !== partner.userId) return false;
+        if (!lastEntry || lastEntry.memberId !== partner.memberId) return false;
         const age = now - new Date(lastEntry.createdAt!).getTime();
         return age <= cutoff;
       })
@@ -96,7 +96,7 @@ export default function StockClient({ itemsByCategory, groups }: Props) {
     const cutoff = THRESHOLDS.PARTNER_TAG_HOURS * 60 * 60 * 1000;
     const tags: Record<number, string> = {};
     for (const { item, lastEntry } of allItems) {
-      if (!lastEntry || lastEntry.userId !== partner.userId) continue;
+      if (!lastEntry || lastEntry.memberId !== partner.memberId) continue;
       const age = now - new Date(lastEntry.createdAt!).getTime();
       if (age <= cutoff) {
         tags[item.id] = formatPartnerTag(now, partner.username, new Date(lastEntry.createdAt!));

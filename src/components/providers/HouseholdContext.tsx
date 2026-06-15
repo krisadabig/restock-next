@@ -5,6 +5,8 @@ import React, { createContext, useContext, ReactNode } from 'react';
 export interface HouseholdMember {
   userId: string;
   username: string;
+  memberId: number;
+  displayName: string;
 }
 
 interface HouseholdContextValue {

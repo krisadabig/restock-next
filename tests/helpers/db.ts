@@ -25,8 +25,9 @@ export async function resetDb(db: ReturnType<typeof createTestDb>['db']) {
   await db.delete(schema.entries);
   await db.delete(schema.items);
   await db.delete(schema.categories);
-  await db.delete(schema.householdMembers);
-  await db.delete(schema.households);
+  await db.delete(schema.spaceInvites);
+  await db.delete(schema.spaceMembers);
+  await db.delete(schema.spaces);
   await db.delete(schema.authenticators);
   await db.delete(schema.users);
 }

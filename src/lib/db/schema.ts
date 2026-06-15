@@ -1,4 +1,4 @@
-import { pgTable, text, integer, serial, timestamp, real, unique, index } from 'drizzle-orm/pg-core';
+import { pgTable, text, integer, serial, timestamp, real, unique, index, boolean, date } from 'drizzle-orm/pg-core';
 import { DEFAULTS } from '../constants';
 
 // ── Auth (unchanged from prototype) ────────────────────────────────────────
@@ -20,32 +20,48 @@ export const authenticators = pgTable('authenticators', {
     .references(() => users.id, { onDelete: 'cascade' }),
 });
 
-// ── Household ───────────────────────────────────────────────────────────────
+// ── Spaces ──────────────────────────────────────────────────────────────────
 
-export const households = pgTable('households', {
+export const spaces = pgTable('spaces', {
   id: text('id').primaryKey(), // uuid
   name: text('name').notNull(),
   createdAt: timestamp('created_at').defaultNow(),
 });
 
-export const householdMembers = pgTable('household_members', {
+export const spaceMembers = pgTable('space_members', {
   id: serial('id').primaryKey(),
-  householdId: text('household_id')
+  spaceId: text('space_id')
     .notNull()
-    .references(() => households.id, { onDelete: 'cascade' }),
+    .references(() => spaces.id, { onDelete: 'cascade' }),
   userId: text('user_id')
     .notNull()
     .references(() => users.id, { onDelete: 'cascade' }),
+  displayName: text('display_name').notNull(),
+  avatar: text('avatar'),
   joinedAt: timestamp('joined_at').defaultNow(),
-}, (t) => [unique().on(t.householdId, t.userId)]);
+}, (t) => [unique().on(t.spaceId, t.userId)]);
+
+export const spaceInvites = pgTable('space_invites', {
+  id: serial('id').primaryKey(),
+  spaceId: text('space_id')
+    .notNull()
+    .references(() => spaces.id, { onDelete: 'cascade' }),
+  code: text('code').notNull().unique(), // 8-char alphanumeric
+  createdBy: integer('created_by')
+    .notNull()
+    .references(() => spaceMembers.id, { onDelete: 'cascade' }),
+  expiresAt: timestamp('expires_at').notNull(),
+  usedAt: timestamp('used_at'),
+  createdAt: timestamp('created_at').defaultNow(),
+});
 
 // ── Catalogue ───────────────────────────────────────────────────────────────
 
 export const categories = pgTable('categories', {
   id: serial('id').primaryKey(),
-  householdId: text('household_id')
+  spaceId: text('space_id')
     .notNull()
-    .references(() => households.id, { onDelete: 'cascade' }),
+    .references(() => spaces.id, { onDelete: 'cascade' }),
   name: text('name').notNull(),
   defaultUnit: text('default_unit').notNull().default(DEFAULTS.UNIT),
   createdAt: timestamp('created_at').defaultNow(),
@@ -53,21 +69,21 @@ export const categories = pgTable('categories', {
 
 export const items = pgTable('items', {
   id: serial('id').primaryKey(),
-  householdId: text('household_id')
+  spaceId: text('space_id')
     .notNull()
-    .references(() => households.id, { onDelete: 'cascade' }),
+    .references(() => spaces.id, { onDelete: 'cascade' }),
   categoryId: integer('category_id')
     .references(() => categories.id, { onDelete: 'set null' }),
   name: text('name').notNull(),
   unit: text('unit').notNull().default(DEFAULTS.UNIT),
   currentStock: real('current_stock').notNull().default(0),
   lowStockThreshold: real('low_stock_threshold'),
-  alertEnabled: integer('alert_enabled').notNull().default(1),
+  alertEnabled: boolean('alert_enabled').notNull().default(true),
   lastEntryAt: timestamp('last_entry_at'),
   createdAt: timestamp('created_at').defaultNow(),
   updatedAt: timestamp('updated_at').defaultNow(),
 }, (t) => [
-  index('idx_items_household').on(t.householdId),
+  index('idx_items_space').on(t.spaceId),
   index('idx_items_category').on(t.categoryId),
 ]);
 
@@ -75,63 +91,37 @@ export const items = pgTable('items', {
 
 export const entries = pgTable('entries', {
   id: serial('id').primaryKey(),
-  householdId: text('household_id')
+  spaceId: text('space_id')
     .notNull()
-    .references(() => households.id, { onDelete: 'cascade' }),
+    .references(() => spaces.id, { onDelete: 'cascade' }),
   itemId: integer('item_id')
     .references(() => items.id, { onDelete: 'set null' }),
+  memberId: integer('member_id')
+    .notNull()
+    .references(() => spaceMembers.id, { onDelete: 'cascade' }),
   type: text('type').notNull().default('purchase'), // 'purchase' | 'consume'
   price: real('price'),       // null for consume entries
   quantity: real('quantity').notNull().default(1),
   unit: text('unit').notNull().default(DEFAULTS.UNIT),
-  store: text('store'),       // "Big C", "CJ", free text — null for consume
-  date: text('date').notNull(),
+  store: text('store'),       // free text — null for consume
+  date: date('date').notNull(),
   note: text('note'),
-  userId: text('user_id')     // attribution — who in the household logged this
-    .notNull()
-    .references(() => users.id, { onDelete: 'cascade' }),
   createdAt: timestamp('created_at').defaultNow(),
 }, (t) => [
   index('idx_entries_item_id').on(t.itemId),
-  index('idx_entries_household_date').on(t.householdId, t.date),
-  index('idx_entries_household_created').on(t.householdId, t.createdAt),
-]);
-
-// ── Groups ──────────────────────────────────────────────────────────────────
-
-export const groups = pgTable('groups', {
-  id: serial('id').primaryKey(),
-  householdId: text('household_id')
-    .notNull()
-    .references(() => households.id, { onDelete: 'cascade' }),
-  name: text('name').notNull(),
-  createdAt: timestamp('created_at').defaultNow(),
-}, (t) => [
-  index('idx_groups_household').on(t.householdId),
-]);
-
-export const groupItems = pgTable('group_items', {
-  groupId: integer('group_id')
-    .notNull()
-    .references(() => groups.id, { onDelete: 'cascade' }),
-  itemId: integer('item_id')
-    .notNull()
-    .references(() => items.id, { onDelete: 'cascade' }),
-}, (t) => [
-  unique().on(t.groupId, t.itemId),
+  index('idx_entries_space_date').on(t.spaceId, t.date),
+  index('idx_entries_space_created').on(t.spaceId, t.createdAt),
 ]);
 
 // ── Type exports ────────────────────────────────────────────────────────────
 
 export type User = typeof users.$inferSelect;
-export type Household = typeof households.$inferSelect;
-export type HouseholdMember = typeof householdMembers.$inferSelect;
+export type Space = typeof spaces.$inferSelect;
+export type SpaceMember = typeof spaceMembers.$inferSelect;
+export type SpaceInvite = typeof spaceInvites.$inferSelect;
 export type Category = typeof categories.$inferSelect;
 export type Item = typeof items.$inferSelect;
 export type Entry = typeof entries.$inferSelect;
-export type Group = typeof groups.$inferSelect;
-export type GroupItem = typeof groupItems.$inferSelect;
 export type NewEntry = typeof entries.$inferInsert;
 export type NewItem = typeof items.$inferInsert;
 export type NewCategory = typeof categories.$inferInsert;
-export type NewGroup = typeof groups.$inferInsert;

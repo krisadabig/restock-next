@@ -2,8 +2,8 @@ import { redirect } from 'next/navigation';
 import { db } from '@/lib/db';
 import { getSession } from '@/lib/session';
 import {
-  getHouseholdForUser,
-  getHouseholdSpend,
+  getActiveSpaceForUser,
+  getSpaceSpend,
   getRecentPurchases,
   getStoreBreakdown,
 } from '@/lib/queries';
@@ -67,18 +67,18 @@ export default async function PricePage({ searchParams }: Props) {
   const session = await getSession();
   if (!session) redirect('/login');
 
-  const householdId = await getHouseholdForUser(db, session.userId);
-  if (!householdId) redirect('/app');
+  const membership = await getActiveSpaceForUser(db, session.userId);
+  if (!membership) redirect('/app');
 
   const { range: rawRange } = await searchParams;
   const range = parseRange(rawRange);
   const { from, to, prevFrom, prevTo } = getRangeDates(range);
 
   const [current, previous, recentRows, storeSpend] = await Promise.all([
-    getHouseholdSpend(db, householdId, from, to),
-    getHouseholdSpend(db, householdId, prevFrom, prevTo),
-    getRecentPurchases(db, householdId, 10),
-    getStoreBreakdown(db, householdId, from, to),
+    getSpaceSpend(db, membership.spaceId, from, to),
+    getSpaceSpend(db, membership.spaceId, prevFrom, prevTo),
+    getRecentPurchases(db, membership.spaceId, 10),
+    getStoreBreakdown(db, membership.spaceId, from, to),
   ]);
 
   const categorySpend = current.byCategory.map((c) => ({

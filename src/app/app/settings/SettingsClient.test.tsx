@@ -1,13 +1,12 @@
 import { describe, it, expect, vi, afterEach } from 'vitest';
-import { render, screen, cleanup, fireEvent, act } from '@testing-library/react';
+import { render, screen, cleanup } from '@testing-library/react';
 import { I18nProvider } from '@/lib/i18n';
 import SettingsClient from './SettingsClient';
 
 afterEach(cleanup);
 
-const mockRefresh = vi.fn();
 vi.mock('next/navigation', () => ({
-  useRouter: () => ({ push: vi.fn(), back: vi.fn(), refresh: mockRefresh }),
+  useRouter: () => ({ push: vi.fn(), back: vi.fn(), refresh: vi.fn() }),
 }));
 
 vi.mock('next-themes', () => ({
@@ -17,25 +16,17 @@ vi.mock('next-themes', () => ({
 vi.mock('@/app/auth/actions', () => ({ logout: vi.fn() }));
 vi.mock('@/lib/auth', () => ({ registerPasskey: vi.fn() }));
 
-vi.mock('@/app/app/actions', () => ({
-  addGroup: vi.fn().mockResolvedValue({ id: 99, name: 'New' }),
-  renameGroup: vi.fn().mockResolvedValue({ id: 10, name: 'Updated' }),
-  deleteGroup: vi.fn().mockResolvedValue(undefined),
-  assignItemToGroup: vi.fn().mockResolvedValue(undefined),
-  removeItemFromGroup: vi.fn().mockResolvedValue(undefined),
-}));
-
 const wrap = (ui: React.ReactNode) =>
   render(<I18nProvider initialLocale="en">{ui}</I18nProvider>);
 
 const members = [
-  { userId: 'u1', username: 'Alex' },
-  { userId: 'u2', username: 'Sam' },
+  { userId: 'u1', username: 'Alex', memberId: 1, displayName: 'Alex' },
+  { userId: 'u2', username: 'Sam', memberId: 2, displayName: 'Sam' },
 ];
 
 const categories = [
-  { id: 1, householdId: 'hh1', name: 'Fabric Softener', defaultUnit: 'bottle', createdAt: new Date() },
-  { id: 2, householdId: 'hh1', name: 'Meat', defaultUnit: 'pack', createdAt: new Date() },
+  { id: 1, spaceId: 'sp1', name: 'Fabric Softener', defaultUnit: 'bottle', createdAt: new Date() },
+  { id: 2, spaceId: 'sp1', name: 'Meat', defaultUnit: 'pack', createdAt: new Date() },
 ];
 
 const stores = ['Big C', 'CJ'];
@@ -45,11 +36,9 @@ const baseProps = {
   members,
   categories,
   stores,
-  groups: [],
-  allItems: [],
 };
 
-describe('SettingsClient — household section', () => {
+describe('SettingsClient — members section', () => {
   it('shows each member name', () => {
     wrap(<SettingsClient {...baseProps} />);
     expect(screen.getByTestId('member-u1').textContent).toContain('Alex');
@@ -85,114 +74,5 @@ describe('SettingsClient — stores section', () => {
   it('shows empty state when no stores', () => {
     wrap(<SettingsClient {...baseProps} stores={[]} />);
     expect(screen.getByTestId('no-stores-settings')).toBeDefined();
-  });
-});
-
-// ── Groups section ─────────────────────────────────────────────────────────
-
-import { addGroup, renameGroup, deleteGroup } from '@/app/app/actions';
-import type { Mock } from 'vitest';
-
-const groupsData = [
-  { id: 10, name: 'Fridge', items: [{ id: 1, name: 'Milk' }] },
-  { id: 11, name: 'Pantry', items: [] },
-];
-
-const allItems = [
-  { id: 1, name: 'Milk' },
-  { id: 2, name: 'Bread' },
-];
-
-describe('SettingsClient — groups section', () => {
-  it('shows empty state when no groups', () => {
-    wrap(<SettingsClient {...baseProps} groups={[]} allItems={allItems} />);
-    expect(screen.getByTestId('no-groups')).toBeDefined();
-  });
-
-  it('renders each group row by name', () => {
-    wrap(<SettingsClient {...baseProps} groups={groupsData} allItems={allItems} />);
-    expect(screen.getByTestId('group-row-10').textContent).toContain('Fridge');
-    expect(screen.getByTestId('group-row-11').textContent).toContain('Pantry');
-  });
-
-  it('shows assigned item names inside each group row', () => {
-    wrap(<SettingsClient {...baseProps} groups={groupsData} allItems={allItems} />);
-    expect(screen.getByTestId('group-items-10').textContent).toContain('Milk');
-  });
-
-  it('shows add-group form when "Add group" button is clicked', () => {
-    wrap(<SettingsClient {...baseProps} groups={groupsData} allItems={allItems} />);
-    act(() => fireEvent.click(screen.getByTestId('add-group-btn')));
-    expect(screen.getByTestId('add-group-form')).toBeDefined();
-  });
-
-  it('calls addGroup with the entered name on form submit', async () => {
-    wrap(<SettingsClient {...baseProps} groups={groupsData} allItems={allItems} />);
-    act(() => fireEvent.click(screen.getByTestId('add-group-btn')));
-    act(() => fireEvent.change(screen.getByTestId('add-group-input'), { target: { value: 'Freezer' } }));
-    await act(async () => fireEvent.submit(screen.getByTestId('add-group-form')));
-    expect(addGroup as Mock).toHaveBeenCalledWith({ name: 'Freezer' });
-  });
-
-  it('shows rename input when rename button is clicked', () => {
-    wrap(<SettingsClient {...baseProps} groups={groupsData} allItems={allItems} />);
-    act(() => fireEvent.click(screen.getByTestId('rename-group-10')));
-    expect(screen.getByTestId('rename-group-input-10')).toBeDefined();
-  });
-
-  it('calls renameGroup with new name on rename submit', async () => {
-    wrap(<SettingsClient {...baseProps} groups={groupsData} allItems={allItems} />);
-    act(() => fireEvent.click(screen.getByTestId('rename-group-10')));
-    act(() => fireEvent.change(screen.getByTestId('rename-group-input-10'), { target: { value: 'Freezer' } }));
-    await act(async () => fireEvent.submit(screen.getByTestId('rename-group-form-10')));
-    expect(renameGroup as Mock).toHaveBeenCalledWith(10, { name: 'Freezer' });
-  });
-
-  it('calls deleteGroup when delete is confirmed', async () => {
-    wrap(<SettingsClient {...baseProps} groups={groupsData} allItems={allItems} />);
-    act(() => fireEvent.click(screen.getByTestId('delete-group-10')));
-    await act(async () => fireEvent.click(screen.getByTestId('confirm-delete-group-10')));
-    expect(deleteGroup as Mock).toHaveBeenCalledWith(10);
-  });
-});
-
-import { assignItemToGroup, removeItemFromGroup } from '@/app/app/actions';
-
-describe('SettingsClient — group item assignment', () => {
-  it('shows item checkboxes when "Manage items" is toggled open', () => {
-    wrap(<SettingsClient {...baseProps} groups={groupsData} allItems={allItems} />);
-    act(() => fireEvent.click(screen.getByTestId('manage-items-10')));
-    expect(screen.getByTestId('item-checkbox-10-1')).toBeDefined();
-    expect(screen.getByTestId('item-checkbox-10-2')).toBeDefined();
-  });
-
-  it('pre-checks items already assigned to the group', () => {
-    wrap(<SettingsClient {...baseProps} groups={groupsData} allItems={allItems} />);
-    act(() => fireEvent.click(screen.getByTestId('manage-items-10')));
-    const milkCheckbox = screen.getByTestId('item-checkbox-10-1') as HTMLInputElement;
-    expect(milkCheckbox.checked).toBe(true);
-    const breadCheckbox = screen.getByTestId('item-checkbox-10-2') as HTMLInputElement;
-    expect(breadCheckbox.checked).toBe(false);
-  });
-
-  it('calls assignItemToGroup when an unchecked item is checked', async () => {
-    wrap(<SettingsClient {...baseProps} groups={groupsData} allItems={allItems} />);
-    act(() => fireEvent.click(screen.getByTestId('manage-items-10')));
-    await act(async () => fireEvent.click(screen.getByTestId('item-checkbox-10-2')));
-    expect(assignItemToGroup as Mock).toHaveBeenCalledWith(10, 2);
-  });
-
-  it('calls removeItemFromGroup when a checked item is unchecked', async () => {
-    wrap(<SettingsClient {...baseProps} groups={groupsData} allItems={allItems} />);
-    act(() => fireEvent.click(screen.getByTestId('manage-items-10')));
-    await act(async () => fireEvent.click(screen.getByTestId('item-checkbox-10-1')));
-    expect(removeItemFromGroup as Mock).toHaveBeenCalledWith(10, 1);
-  });
-
-  it('hides the checkbox list when toggle is clicked again', () => {
-    wrap(<SettingsClient {...baseProps} groups={groupsData} allItems={allItems} />);
-    act(() => fireEvent.click(screen.getByTestId('manage-items-10')));
-    act(() => fireEvent.click(screen.getByTestId('manage-items-10')));
-    expect(screen.queryByTestId('item-checkbox-10-1')).toBeNull();
   });
 });

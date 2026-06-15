@@ -3,7 +3,7 @@ import { eq } from 'drizzle-orm';
 import { db } from '@/lib/db';
 import { getSession } from '@/lib/session';
 import {
-  getHouseholdForUser,
+  getActiveSpaceForUser,
   getCategoryItems,
   getCategoryPurchaseEntries,
   getCategoryMonthlySpend,
@@ -23,14 +23,14 @@ export default async function CategoryPage({ params }: Props) {
   const session = await getSession();
   if (!session) redirect('/login');
 
-  const householdId = await getHouseholdForUser(db, session.userId);
-  if (!householdId) redirect('/app');
+  const membership = await getActiveSpaceForUser(db, session.userId);
+  if (!membership) redirect('/app');
 
   const category = await db.query.categories.findFirst({
     where: eq(schema.categories.id, categoryId),
   });
 
-  if (!category || category.householdId !== householdId) notFound();
+  if (!category || category.spaceId !== membership.spaceId) notFound();
 
   const [items, purchaseEntries, monthlySpend] = await Promise.all([
     getCategoryItems(db, categoryId),

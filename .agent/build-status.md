@@ -1,333 +1,516 @@
-# Build Status
+# Build Status — Redesign
 
-> The single source of truth for what's done and what's next.
-> A fresh `/goal` session reads this file first to orient itself.
-> **Rule**: mark a task `✅` here before ending any session.
+> Source of truth for `/goal`. First `🔲` row is always the next task.
+> Full plan: `.agent/redesign-plan.md`
+> Mark `✅` before ending any session. Use `🚧` if partially done.
 
 ## Legend
 - ✅ Done — implemented, tests pass, build clean
 - 🔲 Todo — not yet started
-- 🚧 In Progress — started in a session that didn't finish
+- 🚧 In Progress — started but not finished
 
 ---
 
 ## NEXT UP
 
-> The first `🔲` task below is always the next task for `/goal`.
+> The first `🔲` task below is always picked up by `/goal`.
 
 ---
 
-## Constants & DRY (do this before any new feature work)
+## Sprint 1 — Foundation
 
-| Status | Task | Key Files |
-|---|---|---|
-| ✅ | **Extract shared constants** | `src/lib/constants.ts` |
+| Status | Task | Key Files | Tests |
+|---|---|---|---|
+| ✅ | **S1.1 — Write new schema** | `src/lib/db/schema.ts` | TypeScript types compile clean |
+| 🔲 | **S1.2 — Generate & apply migration** | `drizzle/migrations/` | Migration runs on dev + test DB without error |
+| ✅ | **S1.3 — Rewrite Drizzle query helpers** | `src/lib/queries.ts` | Build clean, no references to old table names |
+| ✅ | **S1.0 — Update test helpers & factories** | `tests/helpers/factories.ts`, `tests/helpers/db.ts` | Unit: `makeSpace`, `makeSpaceMember` produce correct rows |
 
-<details for "Extract shared constants">
+<details for "S1.1 — Write new schema">
 
-Create `src/lib/constants.ts` with all reused literals and business-rule numbers. Then update every existing file that currently hardcodes these values to import from constants instead.
+Rewrite `src/lib/db/schema.ts` from scratch. Drop: `households`, `household_members`, `groups`, `group_items`. Create: `spaces`, `space_members`, `space_invites`. Update existing tables:
 
-**Constants to define:**
-
+**`spaces`** (replaces `households`)
 ```ts
-// Entry types — used in 15+ places today
-export const ENTRY_TYPE = {
-  PURCHASE: 'purchase',
-  CONSUME:  'consume',
-} as const;
-export type EntryType = typeof ENTRY_TYPE[keyof typeof ENTRY_TYPE];
-
-// App routes — used in BottomNav, AppShell, login page, proxy
-export const ROUTES = {
-  STOCK:       '/app',
-  PRICE:       '/app/price',
-  SETTINGS:    '/app/settings',
-  ITEM:        (id: number) => `/app/item/${id}`,
-  CATEGORY:    (id: number) => `/app/category/${id}`,
-  LOGIN:       '/login',
-} as const;
-
-// Business-rule thresholds — must match ux-spec.md wording
-export const THRESHOLDS = {
-  SALE_FLAG_RATIO:        0.85, // price/avg < 0.85 → >15% below avg → show 🏷️
-  PARTNER_TAG_HOURS:      48,   // show "Sam·2h" on item card within 48h of partner logging
-  ACTIVITY_STRIP_HOURS:   24,   // hide activity strip if no partner activity for 24h
-} as const;
-
-// UI defaults
-export const DEFAULTS = {
-  UNIT:                    'pcs',
-  RECENT_CHIPS_STRIP:      4,   // QuickLogStrip on Stock screen
-  RECENT_CHIPS_GRID:       6,   // item chip grid in LogEntrySheet
-  SESSION_DURATION_MS:     7 * 24 * 60 * 60 * 1000,
-} as const;
+id: text PK (uuid)
+name: text NOT NULL
+created_at: timestamp defaultNow
 ```
 
-**Files to update (replace hardcoded values with imports):**
+**`space_members`** (replaces `household_members`)
+```ts
+id: serial PK
+space_id: text FK→spaces cascade
+user_id: text FK→users cascade
+display_name: text NOT NULL
+avatar: text nullable
+joined_at: timestamp defaultNow
+UNIQUE (space_id, user_id)
+```
 
-| File | What to replace |
-|---|---|
-| `src/app/app/actions.ts` | `'purchase'`, `'consume'` → `ENTRY_TYPE.PURCHASE/CONSUME` |
-| `src/app/app/AppShell.tsx` | `'/app'` → `ROUTES.STOCK` |
-| `src/app/login/page.tsx` | `'/app'` → `ROUTES.STOCK` |
-| `src/proxy.ts` | `'/app'`, `'/login'` → `ROUTES.STOCK`, `ROUTES.LOGIN` |
-| `src/components/dashboard/BottomNav.tsx` | all route strings → `ROUTES.*` |
-| `src/components/entry/LogEntrySheet.tsx` | `'purchase'`, `'consume'` → `ENTRY_TYPE.*`; `'pcs'` → `DEFAULTS.UNIT` |
-| `src/components/entry/EditEntrySheet.tsx` | `'purchase'`, `'consume'` → `ENTRY_TYPE.*` |
-| `src/components/item/ItemDetailClient.tsx` | `'purchase'`, `'consume'` → `ENTRY_TYPE.*` |
-| `src/components/item/ItemHistoryRow.tsx` | `'purchase'` → `ENTRY_TYPE.PURCHASE` |
-| `src/components/item/SaleFlagBadge.tsx` | `0.85` → `THRESHOLDS.SALE_FLAG_RATIO` |
-| `src/components/providers/UIContext.tsx` | `'purchase'`, `'consume'` type literals → `EntryType` |
-| `src/components/providers/OfflineContext.tsx` | `'purchase'`, `'consume'` → `ENTRY_TYPE.*` |
-| `src/lib/price.ts` | `'purchase'` → `ENTRY_TYPE.PURCHASE` |
-| `src/lib/queries.ts` | `'purchase'` → `ENTRY_TYPE.PURCHASE` |
-| `src/lib/session.ts` | `7 * 24 * 60 * 60 * 1000` → `DEFAULTS.SESSION_DURATION_MS` |
-| `src/lib/db/schema.ts` | `'pcs'` default → `DEFAULTS.UNIT` (import carefully — schema file runs at DB level) |
+**`space_invites`** (new)
+```ts
+id: serial PK
+space_id: text FK→spaces cascade
+code: text UNIQUE NOT NULL        -- 8-char alphanumeric
+created_by: integer FK→space_members cascade
+expires_at: timestamp NOT NULL
+used_at: timestamp nullable
+created_at: timestamp defaultNow
+```
 
-**Tests:**
-- No new test file needed — all existing tests still pass (pure rename, no behaviour change)
-- Run `bun run test:unit` after to confirm zero regressions
+**`categories`** — change `household_id` → `space_id`
 
-**After this task**, all upcoming components (`ActivityStrip`, `QuickLogStrip`, `QuickLogSheet`, `LogEntrySheet` UX pass) must import from `constants.ts` instead of hardcoding any of these values.
+**`items`** — change `household_id` → `space_id`, change `alert_enabled: integer` → `boolean`
+
+**`entries`** — change `household_id` → `space_id`, change `user_id` → `member_id FK→space_members`, change `date: text` → `date: date` (proper PostgreSQL date type)
+
+**TDD**: Schema itself has no test. Verify by: `bun run build` compiles clean, and migration in S1.2 runs without error.
+
+</details>
+
+<details for "S1.2 — Generate & apply migration">
+
+```bash
+bun run db:generate    # generates SQL file in drizzle/migrations/
+bun run db:migrate     # applies to local dev DB
+bun run db:migrate:test  # applies to local test DB
+```
+
+Commit the generated `.sql` file. Verify new tables exist with correct columns. **Never use drizzle-kit push.**
+
+**TDD**: Run `bun run test:integration` after — existing integration tests will fail (expected, they use old schema). That's the RED state before S1.3+.
+
+</details>
+
+<details for "S1.3 — Rewrite Drizzle query helpers">
+
+Rewrite `src/lib/queries.ts` to use new table/column names. All references to `householdId`, `household_members`, `groups`, `group_items` must be removed.
+
+Key queries to update:
+- `getSpaceItems()` (was `getHouseholdItems`) — join items + categories + last entry
+- `getItemDetail()` — entries now join `space_members` for display_name
+- `getCategoryDetail()` — space-scoped
+- `getHouseholdSpend()` → `getSpaceSpend()`
+- `getRecentPurchases()` — join space_members for display_name
+- `getSpaceMembers()` — from space_members, not users
+
+**TDD**: `bun run build` must be clean. No integration test yet — that comes in S3.7.
+
+</details>
+
+<details for "S1.0 — Update test helpers & factories">
+
+Update `tests/helpers/factories.ts`:
+- Rename `makeHousehold(db, userId)` → `makeSpace(db)` (space has no owner, members join separately)
+- Rename `makeHouseholdMember` → `makeSpaceMember(db, spaceId, userId, displayName)`
+- Update `makeCategory`, `makeItem`, `makeEntry` to use `spaceId` instead of `householdId`
+- `makeEntry` now takes `memberId` (FK→space_members) instead of `userId`
+
+**TDD (RED→GREEN)**:
+- Write a test in `tests/helpers/factories.test.ts` asserting each factory inserts the correct row and returns the expected shape
+- Run: `bun run test:integration` → RED (factories reference old columns) → fix → GREEN
 
 </details>
 
 ---
 
-## Foundation
+## Sprint 2 — Auth & Session
 
-| Status | Task | Key Files |
-|---|---|---|
-| ✅ | Schema + migrations | `src/lib/db/schema.ts` |
-| ✅ | Server actions (items / entries / categories) | `src/app/app/actions.ts` |
-| ✅ | Authorization tests (householdId guard) | `src/app/app/actions.test.ts` |
-| ✅ | Session + auth | `src/lib/auth.ts`, `src/lib/server/session.ts` |
-| ✅ | Price calculation utils | `src/lib/price.ts`, `src/lib/price.test.ts` |
-| ✅ | Stock calculation utils | `src/lib/stock.ts`, `src/lib/stock.test.ts` |
-| ✅ | IndexedDB offline layer | `src/lib/idb.ts`, `src/lib/idb.test.ts` |
-| ✅ | Logger | `src/lib/logger.ts` |
-| ✅ | i18n (EN + TH) | `src/lib/i18n.tsx` |
-| ✅ | Queries | `src/lib/queries.ts` |
+| Status | Task | Key Files | Tests |
+|---|---|---|---|
+| 🔲 | **S2.1 — Update session shape** | `src/lib/session.ts`, `src/app/api/auth/route.ts` | Unit: session encodes/decodes `activeSpaceId` + `activeMemberId` |
+| 🔲 | **S2.2 — Space creation flow** | `src/app/app/actions.ts`, `src/app/api/auth/route.ts` | Integration: register → space + member created → session has activeSpaceId |
+| 🔲 | **S2.3 — Space switching** | `src/app/app/actions.ts` | Integration: switchSpace sets new activeSpaceId in session; throws if not a member |
+| 🔲 | **S2.4 — Member profile management** | `src/app/app/actions.ts` | Integration: updateMemberProfile updates display_name; auth guard throws for wrong space |
 
-## Providers & Context
+<details for "S2.1 — Update session shape">
 
-| Status | Task | Key Files |
-|---|---|---|
-| ✅ | `HouseholdContext` | `src/components/providers/HouseholdContext.tsx` |
-| ✅ | `OfflineContext` | `src/components/providers/OfflineContext.tsx` |
-| ✅ | `UIContext` | `src/components/providers/UIContext.tsx` |
-| ✅ | `Providers` root wrapper | `src/components/Providers.tsx` |
+Update JWT payload and `getSession()` return type:
+```ts
+interface Session {
+  userId: string;
+  username: string;
+  activeSpaceId: string;
+  activeMemberId: number;
+}
+```
 
-## Navigation
+Login flow logic:
+- User has 1 space → auto-select, set in session
+- User has 0 spaces → create default space inline (or redirect to onboarding)
+- User has 2+ spaces → return space list, client picks one, then call `switchSpace()`
 
-| Status | Task | Key Files |
-|---|---|---|
-| ✅ | `BottomNav` (3 tabs + FAB) | `src/components/dashboard/BottomNav.tsx` |
-
-## Stock Screen
-
-| Status | Task | Key Files |
-|---|---|---|
-| ✅ | `StockClient` | `src/components/stock/StockClient.tsx` |
-| ✅ | `StockItemCard` | `src/components/stock/StockItemCard.tsx` |
-| ✅ | `CategoryGroup` | `src/components/stock/CategoryGroup.tsx` |
-| ✅ | `StockStatusBadge` | `src/components/stock/StockStatusBadge.tsx` |
-| ✅ | `LowStockRail` | `src/components/stock/LowStockRail.tsx` |
-| ✅ | `/app` page (Stock route) | `src/app/app/page.tsx` |
-| ✅ | **Stock Screen: shared visibility + quick log** | Spec: `ux-spec.md §Screen 1` |
-
-<details for "Stock Screen: shared visibility + quick log">
-
-Sub-tasks (implement in this order, all in one session):
-1. `ActivityStrip` (new) — horizontal scrollable strip below header showing partner name + item chips. Hidden when no partner activity in last 24h. File: `src/components/stock/ActivityStrip.tsx`
-2. `QuickLogStrip` (new) — horizontal chip strip of 4 most recently logged items. Tap → opens `QuickLogSheet`. File: `src/components/stock/QuickLogStrip.tsx`
-3. `StockItemCard` partner tag — add muted "Sam·2h" line below last price when the other household member was the last logger within 48h. Modify: `src/components/stock/StockItemCard.tsx`
-4. Wire `ActivityStrip` + `QuickLogStrip` into `StockClient` layout (below header, above LowStockRail).
-5. Tests: `ActivityStrip.test.tsx` (hidden when no activity, shows partner name + chips), `QuickLogStrip.test.tsx` (renders recent items, fires onSelect), `StockItemCard.test.tsx` (partner tag shown/hidden correctly).
+**TDD (RED→GREEN)**:
+- Unit test: `encodeSession(payload)` / `decodeSession(token)` roundtrip includes new fields
+- Unit test: `getSession()` returns null for missing/expired token
+- Run: `bun run test:unit` → RED → implement → GREEN
 
 </details>
 
-## Quick Log Micro-sheet (Screen 5a)
+<details for "S2.2 — Space creation flow">
 
-| Status | Task | Key Files |
-|---|---|---|
-| ✅ | **QuickLogSheet** | Spec: `ux-spec.md §Screen 5a` |
+On register (`POST /api/auth { action: 'register' }`):
+1. Create `users` row
+2. Create `spaces` row (name = "My Home" default or from request)
+3. Create `space_members` row with `display_name` = username
+4. Set session `{ userId, activeSpaceId, activeMemberId }`
 
-<details for "QuickLogSheet">
+Standalone action `createSpace(name, displayName)`:
+- Creates space + space_member for current user
+- Returns `{ spaceId, memberId }`
+- Logs `space.create`
 
-Sub-tasks (all in one session):
-1. `QuickLogSheet` (new bottom sheet) — receives a pre-known item; no item selection step. Layout: Purchase/Consume toggle → qty stepper `[−] n [+]` with unit as read-only label → price pre-confirm "฿89 (same as last)" with `[Change]` → last store pre-selected → Save. File: `src/components/entry/QuickLogSheet.tsx`
-2. Wire into `UIContext`: add `isQuickLogOpen`, `setQuickLogOpen`, `quickLogItemId`.
-3. Connect `QuickLogStrip` chip tap → open `QuickLogSheet` with the tapped item's id.
-4. Tests: confirm-wiring (Save calls mutation), consume mode hides price+store, `[Change]` reveals price input, unit label is not editable.
-
-</details>
-
-## Log Entry Sheet (Screen 5 — UX improvements)
-
-| Status | Task | Key Files |
-|---|---|---|
-| ✅ | `LogEntrySheet` — base implementation | `src/components/entry/LogEntrySheet.tsx` |
-| ✅ | **LogEntrySheet UX pass** | Spec: `ux-spec.md §Screen 5` |
-
-<details for "LogEntrySheet UX pass">
-
-Sub-tasks (all in one session, all modify `src/components/entry/LogEntrySheet.tsx`):
-1. **Item selection** — replace the dropdown/autocomplete with a chip grid of the 6 most recently logged items (across both household members). Typing below the grid still filters all items. Selecting a chip pre-fills qty, unit label, price, store.
-2. **Quantity stepper** — replace the number `<input>` with `[−] n [+]` inline stepper. Last qty pre-filled.
-3. **Unit as label** — unit is a read-only text label next to the stepper, not a separate field. Add a small `[≠ unit]` link that opens a compact unit picker (list of previously used units for this item + free-text option). Changing unit here applies to this entry only, not the item default.
-4. **Price pre-confirm** — when an item is selected and a previous price exists, show "฿89 (same as last)" as confirmed state (no keyboard needed). Tap `[Change]` to open numeric input. If no prior price, show empty input directly.
-5. **Date as label** — show "Today, Jun 12" as a label (not an input). Tap `[≠]` to open a date picker.
-6. **Tests** — update `LogEntrySheet.test.tsx` to cover: chip grid renders recent items, stepper increments/decrements, unit shown as label, price pre-confirm confirmed by default, `[Change]` opens input, date defaults to today label.
+**TDD (RED→GREEN)**:
+- Integration: register → DB has space row + space_members row → session cookie decodes with activeSpaceId
+- Unit: `createSpace` throws 'Unauthorized' when no session
+- Run: `bun run test:integration` → RED → implement → GREEN
 
 </details>
 
-## Item Detail Screen
+<details for "S2.3 — Space switching">
 
-| Status | Task | Key Files |
-|---|---|---|
-| ✅ | `ItemDetailClient` | `src/components/item/ItemDetailClient.tsx` |
-| ✅ | `PriceIntelligencePanel` | `src/components/item/PriceIntelligencePanel.tsx` |
-| ✅ | `DealSignalBadge` | `src/components/item/DealSignalBadge.tsx` |
-| ✅ | `ItemHistoryRow` | `src/components/item/ItemHistoryRow.tsx` |
-| ✅ | `SaleFlagBadge` | `src/components/item/SaleFlagBadge.tsx` |
-| ✅ | `/app/item/[id]` page | `src/app/app/item/[id]/page.tsx` |
+`switchSpace(spaceId)`:
+- Validates `space_members` row exists for (spaceId, userId)
+- Updates session cookie with new `activeSpaceId` + `activeMemberId`
+- Calls `revalidatePath('/app')`
+- Throws `'Not a member'` if user doesn't belong to that space
+- Logs `space.switch`
 
-## Category View Screen
+`getMySpaces()`:
+- Returns all spaces the current user belongs to (via space_members)
+- Includes display_name for each membership
 
-| Status | Task | Key Files |
-|---|---|---|
-| ✅ | `CategoryClient` | `src/components/category/CategoryClient.tsx` |
-| ✅ | `ItemComparisonTable` | `src/components/category/ItemComparisonTable.tsx` |
-| ✅ | `SpendBarChart` | `src/components/category/SpendBarChart.tsx` |
-| ✅ | `/app/category/[id]` page | `src/app/app/category/[id]/page.tsx` |
+**TDD (RED→GREEN)**:
+- Integration: user in 2 spaces → switchSpace(space2Id) → getSession() returns space2Id
+- Integration: switchSpace with foreign spaceId → throws 'Not a member'
+- Run: `bun run test:integration` → RED → implement → GREEN
 
-## Price Screen
+</details>
 
-| Status | Task | Key Files |
-|---|---|---|
-| ✅ | `PriceClient` | `src/components/price/PriceClient.tsx` |
-| ✅ | `CategorySpendRow` | `src/components/price/CategorySpendRow.tsx` |
-| ✅ | `RecentPurchaseRow` | `src/components/price/RecentPurchaseRow.tsx` |
-| ✅ | `StoreBreakdown` | `src/components/price/StoreBreakdown.tsx` |
-| ✅ | `TimeRangeSelector` | `src/components/price/TimeRangeSelector.tsx` |
-| ✅ | `/app/price` page | `src/app/app/price/page.tsx` |
+<details for "S2.4 — Member profile management">
 
-## Edit / Delete Sheets
+`updateMemberProfile({ displayName, avatar? })`:
+- Updates `space_members` row for current `activeMemberId`
+- Validates the memberId belongs to the session's activeSpaceId (auth guard)
+- Logs `member.profile.update`
 
-| Status | Task | Key Files |
-|---|---|---|
-| ✅ | `EditEntrySheet` | `src/components/entry/EditEntrySheet.tsx` |
-| ✅ | `DeleteEntryModal` | `src/components/entry/DeleteEntryModal.tsx` |
-| ✅ | `EditItemSheet` | `src/components/item/EditItemSheet.tsx` |
-| ✅ | `DeleteItemModal` | `src/components/item/DeleteItemModal.tsx` |
-
-## Settings Screen
-
-| Status | Task | Key Files |
-|---|---|---|
-| ✅ | `SettingsClient` | `src/app/app/settings/SettingsClient.tsx` |
-| ✅ | `/app/settings` page | `src/app/app/settings/page.tsx` |
-
-## Shared UI Primitives
-
-| Status | Task | Key Files |
-|---|---|---|
-| ✅ | `Autocomplete` (extended) | `src/components/ui/Autocomplete.tsx` |
-| ✅ | `PillSelector` | `src/components/ui/PillSelector.tsx` |
-
-## Testing & Quality
-
-| Status | Task | Key Files |
-|---|---|---|
-| ✅ | **i18n test coverage — no-missing-keys guard** | `src/lib/i18n.tsx`, `src/lib/i18n.test.ts` |
-
-<details for "i18n test coverage — no-missing-keys guard">
-
-Ensure every i18n key referenced in the codebase has a corresponding value in both EN and TH locales.
-
-Sub-tasks:
-1. Audit all usages of `t(key)` across `src/` and collect the full set of keys used.
-2. Write a test in `src/lib/i18n.test.ts` that:
-   - Enumerates all keys present in EN translations object.
-   - Enumerates all keys present in TH translations object.
-   - Asserts both sets are identical (no key missing from either locale).
-3. Optionally: add a second test that cross-references keys used in source files against the translations object to catch stale or missing keys at CI time.
-
-**Tests:**
-- `src/lib/i18n.test.ts` — unit tests, no DB needed, run with `bun run test:unit`
+**TDD (RED→GREEN)**:
+- Integration: updateMemberProfile → space_members row has new display_name
+- Unit: throws 'Unauthorized' when no session
+- Run: `bun run test:integration` → RED → implement → GREEN
 
 </details>
 
 ---
 
-## Group Feature
+## Sprint 3 — Server Actions
 
-| Status | Task | Key Files |
-|---|---|---|
-| ✅ | **Group entity — schema + migration** | `src/lib/db/schema.ts` |
-| ✅ | **Group CRUD server actions** | `src/app/app/actions.ts` |
-| ✅ | **Group assignment — items & categories** | `src/app/app/actions.ts`, `src/lib/db/schema.ts` |
-| ✅ | **Group-scoped views/filters in UI** | `src/components/stock/StockClient.tsx` |
-| ✅ | **Group membership management UI** | `src/app/app/settings/SettingsClient.tsx` |
-| ✅ | **Group item assignment UI** | `src/app/app/settings/SettingsClient.tsx` |
-| 🔲 | **Household invite & join flow** | `src/lib/db/schema.ts`, `src/app/app/actions.ts`, `src/app/app/settings/SettingsClient.tsx`, `src/app/join/[code]/page.tsx` |
+| Status | Task | Key Files | Tests |
+|---|---|---|---|
+| 🔲 | **S3.1 — Update requireSession()** | `src/lib/session.ts` | Unit: returns spaceId+memberId; throws on no session; throws on no active space |
+| 🔲 | **S3.2 — Category actions** | `src/app/app/actions.ts` | Integration: CRUD + auth guard (wrong spaceId throws) |
+| 🔲 | **S3.3 — Item actions** | `src/app/app/actions.ts` | Integration: CRUD + auth guard + getSpaceItems returns correct shape |
+| 🔲 | **S3.4 — Entry actions** | `src/app/app/actions.ts` | Integration: add/update/delete recalculates currentStock; memberId attribution |
+| 🔲 | **S3.5 — Space actions** | `src/app/app/actions.ts` | Integration: getMySpaces, renameSpace, leaveSpace |
+| 🔲 | **S3.6 — Invite actions** | `src/app/app/actions.ts` | Integration: createInvite → joinByInviteCode happy path; expired/used/duplicate errors |
+| 🔲 | **S3.7 — Authorization tests** | `src/app/app/actions.test.ts` | Unit: every ID-accepting action throws when spaceId doesn't own the record |
 
-<details for "Group item assignment UI">
+<details for "S3.1 — Update requireSession()">
 
-Extend the Groups section in `SettingsClient` to let the user assign/remove items from each group.
+```ts
+async function requireSession(): Promise<{ userId: string; spaceId: string; memberId: number }> {
+  const session = await getSession();
+  if (!session) throw new Error('Unauthorized');
+  if (!session.activeSpaceId) throw new Error('No active space');
+  return { userId: session.userId, spaceId: session.activeSpaceId, memberId: session.activeMemberId };
+}
+```
 
-**Implementation** (no schema changes — actions already exist):
-1. Each group row in Settings gets a "Manage items" toggle button.
-2. When expanded, show all `allItems` (already passed as a prop) as a checkbox list.
-   - Checked = item is already in `group.items`.
-   - Checking calls `assignItemToGroup(groupId, itemId)` then `router.refresh()`.
-   - Unchecking calls `removeItemFromGroup(groupId, itemId)` then `router.refresh()`.
-3. Remove the `void allItems` stub from `SettingsClient`.
-
-**Tests:**
-- `SettingsClient.test.tsx` — expand group → shows item checkboxes; checking an item calls `assignItemToGroup`; unchecking calls `removeItemFromGroup`.
-
-</details>
-
-<details for "Household invite & join flow">
-
-Let one household member generate a short-lived invite code that a second person uses to join the household.
-
-**Build order:**
-1. **Schema** — add `household_invites` table: `id` (serial PK), `household_id` (FK→households cascade), `code` (text UNIQUE NOT NULL, 8-char alphanumeric), `created_by` (FK→users), `created_at` (timestamp defaultNow), `expires_at` (timestamp — 48h after creation), `used_at` (timestamp nullable). Migration via `bun run db:generate` + `bun run db:migrate`.
-2. **Server actions** (`src/app/app/actions.ts`):
-   - `createInvite()` → generates a random 8-char code, inserts into `household_invites`, returns `{ code }`. Logs `invite.create`.
-   - `joinByInviteCode(code)` → finds a valid (not expired, not used) invite; adds the current user to that household via `household_members`; marks invite `used_at = now()`. Throws if code invalid/expired/already used. Logs `invite.join`.
-3. **Settings UI** (`SettingsClient.tsx`) — "Invite member" button in the Household section:
-   - Tap → calls `createInvite()` → shows the 8-char code + a "Copy link" button that copies `/join/<code>` to clipboard.
-   - Code displayed in a monospaced badge. "Code expires in 48h."
-4. **Join route** — `src/app/join/[code]/page.tsx`:
-   - If not logged in → redirect to `/login?next=/join/<code>` (login page stores `next` param and redirects after auth).
-   - If logged in + already in a household → show "You're already in a household." with a link to `/app`.
-   - If logged in + no household → call `joinByInviteCode(code)` → redirect to `/app`.
-   - Error states: invalid code, expired, already used.
-5. **Auth guard** — `requireSession()` already works; `joinByInviteCode` must verify the user is not already in the target household.
-
-**Tests:**
-- `src/app/app/actions.test.ts` — unit: `createInvite` throws when no session; `joinByInviteCode` throws on expired/used/unknown code.
-- `tests/integration/invites.test.ts` — integration: full happy path (create invite → join → member appears in household_members); expired code returns error; double-join is idempotent or throws.
+**TDD (RED→GREEN)**:
+- Unit: mock getSession() → null → throws 'Unauthorized'
+- Unit: mock getSession() → no activeSpaceId → throws 'No active space'
+- Unit: mock getSession() → full session → returns { userId, spaceId, memberId }
+- Run: `bun run test:unit` → RED → implement → GREEN
 
 </details>
 
-<details for "Group feature — full life-cycle">
+<details for "S3.2 — Category actions">
 
-Full group feature: create named groups, assign items/categories to them, filter/view by group, and manage membership.
+`addCategory({ name, defaultUnit? })` → scoped to spaceId
+`getCategories()` → space-scoped list
+`updateCategory(id, { name?, defaultUnit? })` → auth guard
+`deleteCategory(id)` → auth guard
 
-Build order:
-1. **Schema** — add `groups` table (`id`, `household_id`, `name`, `created_at`) and `group_items` join table (`group_id`, `item_id`). Migration via `bun run db:push`.
-2. **CRUD actions** — `addGroup`, `renameGroup`, `deleteGroup`, `assignItemToGroup`, `removeItemFromGroup` in `actions.ts`. All must enforce `householdId` authorization.
-3. **Authorization tests** — unit tests asserting each action throws when the session `householdId` does not own the group/item. Follow pattern in `src/app/app/actions.test.ts`.
-4. **Group-scoped stock view** — add a group filter control to `StockClient` that narrows the item list to a selected group. No filter = show all (current behaviour preserved).
-5. **Membership management** — Settings screen section to create/rename/delete groups and assign items.
+Auth guard pattern: fetch record, compare `record.spaceId !== spaceId` → throw 'Not found'
+Log events: `category.add`, `category.update`, `category.delete`
 
-**Tests:**
-- Integration: `tests/integration/groups.test.ts` — CRUD + auth guard
-- Unit: `src/components/stock/StockClient.test.tsx` — group filter renders/hides items correctly
+**TDD (RED→GREEN)**:
+- Integration: addCategory → row in DB with correct spaceId
+- Integration: updateCategory with foreign spaceId → throws 'Not found'
+- Run: `bun run test:integration` → RED → implement → GREEN
 
 </details>
+
+<details for "S3.3 — Item actions">
+
+`addItem({ name, unit?, categoryId? })` → scoped to spaceId
+`updateItem(id, patch)` → auth guard
+`deleteItem(id)` → auth guard, cascade entries
+`getSpaceItems()` → returns `Array<{ item, category, lastEntry, lastMember: { displayName } }>`
+`getItemsForAutocomplete()` → ordered by lastEntryAt DESC
+
+Log events: `item.add`, `item.update`, `item.delete`
+
+**TDD (RED→GREEN)**:
+- Integration: addItem → DB row with spaceId
+- Integration: getSpaceItems → includes lastMember.displayName from space_members
+- Integration: deleteItem with foreign spaceId → throws 'Not found'
+- Run: `bun run test:integration` → RED → implement → GREEN
+
+</details>
+
+<details for "S3.4 — Entry actions">
+
+`addEntry({ itemId, type, price?, quantity, unit, store?, date, note? })`
+- Uses `memberId` from requireSession() for attribution
+- Atomically updates `item.current_stock` in same transaction
+- Strips price+store when type='consume'
+
+`updateEntry(id, patch)` → recalculates stock delta
+`deleteEntry(id)` → reverses stock delta
+
+Log events: `entry.add`, `entry.update`, `entry.delete`
+
+**TDD (RED→GREEN)**:
+- Integration: addEntry purchase → item.currentStock increases by quantity
+- Integration: addEntry consume → item.currentStock decreases
+- Integration: deleteEntry purchase → item.currentStock decreases back
+- Integration: updateEntry changes quantity → stock recalculated correctly
+- Integration: addEntry with foreign itemId → throws 'Not found'
+- Run: `bun run test:integration` → RED → implement → GREEN
+
+</details>
+
+<details for "S3.5 — Space actions">
+
+`getMySpaces()` → `Array<{ id, name, displayName, memberCount }>`
+`renameSpace(id, name)` → auth: user must be a member
+`leaveSpace(id)` → removes space_members row; throws if last member (or delete space)
+
+Log events: `space.rename`, `space.leave`
+
+**TDD (RED→GREEN)**:
+- Integration: getMySpaces → returns all spaces current user is a member of
+- Integration: renameSpace with foreign spaceId → throws 'Not a member'
+- Integration: leaveSpace → space_members row deleted
+- Run: `bun run test:integration` → RED → implement → GREEN
+
+</details>
+
+<details for "S3.6 — Invite actions">
+
+`createInvite()` → generates 8-char alphanumeric code, inserts `space_invites` with `expires_at = now() + 48h`, returns `{ code }`
+`joinByInviteCode(code)` → find invite (not expired, not used) → insert space_members with display_name = username → mark `used_at` → return spaceId
+Throws: `'Invalid code'`, `'Code expired'`, `'Already used'`, `'Already a member'`
+
+Log events: `invite.create`, `invite.join`, `invite.join.failed`
+
+**TDD (RED→GREEN)**:
+- Integration: createInvite → row in space_invites with 8-char code
+- Integration: joinByInviteCode happy path → space_members row created
+- Integration: joinByInviteCode with expired invite → throws 'Code expired'
+- Integration: joinByInviteCode twice → throws 'Already used'
+- Integration: joinByInviteCode already a member → throws 'Already a member'
+- Run: `bun run test:integration` → RED → implement → GREEN
+
+</details>
+
+<details for "S3.7 — Authorization tests">
+
+Unit tests using `vi.hoisted` + mock `@/lib/session` + mock `@/lib/db` pattern.
+Every action that accepts a record ID must assert it throws when session spaceId does not own that record.
+
+Actions to cover: `updateItem`, `deleteItem`, `updateEntry`, `deleteEntry`, `updateCategory`, `deleteCategory`, `renameSpace`, `joinByInviteCode` (used invite).
+
+**TDD (RED→GREEN)**:
+- Write all tests first → RED (actions not yet checking ownership correctly or mocks not set up)
+- Implement auth guards in actions → GREEN
+- Run: `bun run test:unit` → all pass
+
+</details>
+
+---
+
+## Sprint 4 — Context & Architecture
+
+| Status | Task | Key Files | Tests |
+|---|---|---|---|
+| 🔲 | **S4.1 — SpaceContext provider** | `src/components/providers/SpaceContext.tsx` | Unit: useSpace() returns correct shape; throws outside provider |
+| 🔲 | **S4.2 — UIContext refactor** | `src/components/providers/` | Unit: each hook manages its own open/close state independently |
+| 🔲 | **S4.3 — Simplify offline layer** | `src/components/providers/OfflineContext.tsx`, `src/lib/sync.ts` | Unit: only entry mutations queued to IDB; others call server directly |
+
+<details for "S4.1 — SpaceContext provider">
+
+```ts
+interface SpaceContextValue {
+  spaceId: string;
+  memberId: number;
+  displayName: string;
+  avatar: string | null;
+  members: Array<{ memberId: number; displayName: string; avatar: string | null }>;
+  mySpaces: Array<{ id: string; name: string }>;
+}
+```
+
+Initialized server-side in `app/app/layout.tsx` → passed to `<SpaceProvider initialValue={...}>`.
+Hook: `useSpace()` — throws if used outside provider.
+Remove `HouseholdContext` and `useHousehold()` entirely.
+
+**TDD (RED→GREEN)**:
+- Unit: render component using useSpace() outside provider → throws
+- Unit: render with SpaceProvider → useSpace() returns expected shape
+- Run: `bun run test:unit` → RED → implement → GREEN
+
+</details>
+
+<details for "S4.2 — UIContext refactor">
+
+Split UIContext into 3 focused hooks/contexts:
+
+`useLogSheet` — `{ isOpen, prefillItemId, prefillType, open(itemId?, type?), close() }`
+`useQuickLog` — `{ isOpen, itemId, prefill, open(itemId, prefill), close() }`
+`useItemSheet` — `{ isEditOpen, editTarget, isDeleteOpen, deleteTarget, openEdit(item), openDelete(item), close() }`
+
+Remove: `isAddModalOpen` legacy alias, `editItemEntryCount` from context (pass directly to modal).
+Update all consumers.
+
+**TDD (RED→GREEN)**:
+- Unit: useLogSheet — open() sets isOpen true + prefill; close() resets
+- Unit: useQuickLog — open() with itemId → itemId stored; close() clears
+- Unit: useItemSheet — openEdit and openDelete are independent
+- Run: `bun run test:unit` → RED → implement → GREEN
+
+</details>
+
+<details for "S4.3 — Simplify offline layer">
+
+Keep offline queue ONLY for: `entry.add`, `entry.update`, `entry.delete`.
+Remove from OfflineContext: `addItemOffline`, `updateItemOffline`, `deleteItemOffline`, `addCategoryOffline`.
+Update `SyncEngine` to only process entry mutation types.
+Update `MutationType` in `src/lib/idb.ts`.
+
+**TDD (RED→GREEN)**:
+- Unit: addEntryOffline when offline → mutation queued in IDB
+- Unit: updateItemOffline no longer exists (compile error if referenced)
+- Run: `bun run test:unit` → RED → implement → GREEN
+
+</details>
+
+---
+
+## Sprint 5 — UI Screens
+
+| Status | Task | Key Files | Tests |
+|---|---|---|---|
+| 🔲 | **S5.1 — App layout & space switcher UI** | `src/app/app/layout.tsx` | Unit: SpaceContext initialized with correct data from session |
+| 🔲 | **S5.2 — Stock screen update** | `src/components/stock/StockClient.tsx` | Unit: partner tag uses display_name; group filter chip removed |
+| 🔲 | **S5.3 — Log entry & quick log sheets** | `src/components/entry/` | Unit: attribution uses memberId; confirm-wiring tests |
+| 🔲 | **S5.4 — Settings screen redesign** | `src/app/app/settings/SettingsClient.tsx` | Unit: invite flow shown; profile edit calls updateMemberProfile |
+| 🔲 | **S5.5 — Price & category screens** | `src/components/price/`, `src/components/category/` | Build clean; no household references |
+| 🔲 | **S5.6 — Remove deprecated routes & dead code** | `src/app/app/inventory/`, `src/app/app/trends/` | Build clean; no 404 routes remain |
+
+<details for "S5.1 — App layout & space switcher UI">
+
+`app/app/layout.tsx` — server component:
+1. Call `requireSession()` → get { spaceId, memberId }
+2. Fetch space data: space name, members (display_name, avatar), mySpaces list
+3. Pass all to `<SpaceProvider initialValue={...}>`
+
+Add space name + switcher somewhere visible (Settings header or nav). Tapping a space in the list calls `switchSpace(spaceId)`.
+
+**TDD (RED→GREEN)**:
+- Unit: layout passes correct initialValue to SpaceProvider based on mocked session + DB
+- Run: `bun run test:unit` → RED → implement → GREEN
+
+</details>
+
+<details for "S5.2 — Stock screen update">
+
+- Replace `useHousehold()` → `useSpace()`
+- `partnerActivityItems`: derived from entries where `memberId !== activeMemberId` (not `userId !== currentUserId`)
+- `partnerTag` on item cards: uses `space_members.display_name` not `users.username`
+- Remove group filter chip strip (groups concept dropped)
+- `StockClient` props: remove `groups` prop
+
+**TDD (RED→GREEN)**:
+- Unit: StockClient — partner tag shows display_name when last entry is from other member
+- Unit: StockClient — no group-filter-strip rendered
+- Run: `bun run test:unit` → RED → implement → GREEN
+
+</details>
+
+<details for "S5.3 — Log entry & quick log sheets">
+
+- `LogEntrySheet` / `QuickLogSheet`: pass `memberId` (from `useSpace()`) to `addEntry()`
+- Switch from `useUI()` → `useLogSheet()` / `useQuickLog()`
+- Confirm-wiring test: Save button fires `addEntryOffline` with correct memberId
+
+**TDD (RED→GREEN)**:
+- Unit: QuickLogSheet Save → addEntryOffline called with memberId from context
+- Unit: LogEntrySheet consume mode → price+store hidden, addEntryOffline called with type='consume'
+- Run: `bun run test:unit` → RED → implement → GREEN
+
+</details>
+
+<details for "S5.4 — Settings screen redesign">
+
+Replace Household section with Space section:
+- Space name (editable via renameSpace)
+- My profile: display_name + avatar (editable via updateMemberProfile)
+- Members list: all space_members with display_name
+- Invite: "Invite member" button → createInvite() → show code + copy link `/join/<code>`
+- Danger zone: Leave this space
+
+Also: switch space / create new space links.
+
+**TDD (RED→GREEN)**:
+- Unit: "Invite member" tap → createInvite() called → code displayed
+- Unit: profile save → updateMemberProfile() called with new displayName
+- Unit: leave space → leaveSpace() called with confirm dialog
+- Run: `bun run test:unit` → RED → implement → GREEN
+
+</details>
+
+<details for "S5.5 — Price & category screens">
+
+Minor updates:
+- `PriceClient` props: `spaceId` instead of `householdId` (or remove from props entirely if fetched server-side)
+- `CategoryClient`: same
+- Page data fetching: use `getSpaceSpend()`, `getSpaceItems()` etc.
+
+**TDD**: `bun run build` clean + `bun run test:unit` pass (no new tests needed for rename-only changes).
+
+</details>
+
+<details for "S5.6 — Remove deprecated routes & dead code">
+
+Delete:
+- `src/app/app/inventory/` (redirect route)
+- `src/app/app/trends/` (redirect route)
+- `isAddModalOpen` alias from wherever it still lives
+- All `householdId` / `household_id` prop names in components
+
+**TDD**: `bun run build` clean. `bun run test:unit` pass. No 404-redirect routes remain.
+
+</details>
+
+---
+
+## Sprint 6 — Quality & Docs
+
+| Status | Task | Key Files | Tests |
+|---|---|---|---|
+| 🔲 | **S6.1 — Integration tests** | `tests/integration/spaces.test.ts` | Integration: full happy paths for spaces + invites |
+| 🔲 | **S6.2 — i18n update** | `src/lib/i18n.tsx`, `src/lib/i18n.test.ts` | Unit: no-missing-keys guard passes with new keys |
+| 🔲 | **S6.3 — Update agent docs** | `.agent/as-is.md`, `.agent/data-model-spec.md`, `.agent/ux-spec.md` | Docs reflect new schema, actions, context |
