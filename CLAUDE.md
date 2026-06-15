@@ -1,19 +1,21 @@
 # Restock — Project Context
 
 ## What This Is
-In-house family (couple) stock tracking PWA. Price memory + shared inventory.
+Multi-space shared inventory + price memory PWA. A user can belong to multiple spaces (couples, families, roommates). Each space has its own inventory. Each user has a per-space profile (display name, avatar).
 Not a consumption tracker. No run-out prediction.
+
+## ⚠️ Active Redesign
+The codebase is undergoing a full system redesign. Read `.agent/redesign-plan.md` for the full plan before touching any code. The new naming convention is `space` (replaces `household` everywhere).
 
 ## Agent docs (read these before implementing anything)
 
 | File | Purpose |
 |---|---|
-| `.agent/as-is.md` | **Current app reality** — routes, schema, server actions, context APIs, component interfaces. Read first. Update when anything changes. |
-| `.agent/build-status.md` | What's ✅ done and what's 🔲 next. Update before ending any session. |
-| `.agent/ux-spec.md` | Screen specs and user journeys — desired behaviour |
-| `.agent/data-model-spec.md` | Schema design rationale and key query patterns |
+| `.agent/redesign-plan.md` | **Full redesign plan** — target schema, epics, stories, TDD rules. Read this first. |
+| `.agent/build-status.md` | What's ✅ done and what's 🔲 next. First 🔲 row = next task for `/goal`. |
+| `.agent/as-is.md` | Current app reality — update whenever schema/actions/context change. |
+| `.agent/ux-spec.md` | Screen specs and user journeys |
 | `.agent/logging-spec.md` | Axiom log event catalogue |
-| `.agent/backlog.md` | Deferred features and known issues |
 
 **Update rule**: Any change to a route, server action, schema column, context API, or top-level component interface **must** be reflected in `.agent/as-is.md` in the same session.
 

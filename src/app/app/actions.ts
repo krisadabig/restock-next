@@ -8,7 +8,7 @@ import { z } from 'zod';
 import * as queries from '@/lib/queries';
 import { ENTRY_TYPE, DEFAULTS } from '@/lib/constants';
 
-export type { Entry, Item, Category, Household, Group } from '@/lib/db/schema';
+export type { Entry, Item, Category } from '@/lib/db/schema';
 
 // ── Auth helper ─────────────────────────────────────────────────────────────
 
@@ -16,10 +16,10 @@ async function requireSession() {
   const session = await getSession();
   if (!session) throw new Error('Unauthorized');
 
-  const householdId = await queries.getHouseholdForUser(db, session.userId);
-  if (!householdId) throw new Error('No household found for user');
+  const membership = await queries.getActiveSpaceForUser(db, session.userId);
+  if (!membership) throw new Error('No space found for user');
 
-  return { userId: session.userId, username: session.username, householdId };
+  return { userId: session.userId, username: session.username, spaceId: membership.spaceId, memberId: membership.memberId };
 }
 
 // ── Category actions ────────────────────────────────────────────────────────
@@ -30,17 +30,17 @@ const categorySchema = z.object({
 });
 
 export async function addCategory(raw: { name: string; defaultUnit?: string }) {
-  const { householdId } = await requireSession();
+  const { spaceId } = await requireSession();
   const data = categorySchema.parse(raw);
-  const category = await queries.insertCategory(db, { householdId, ...data });
-  log.info('category.add', { categoryId: category.id, householdId });
+  const category = await queries.insertCategory(db, { spaceId, ...data });
+  log.info('category.add', { categoryId: category.id, spaceId });
   revalidatePath('/app');
   return category;
 }
 
 export async function getCategories() {
-  const { householdId } = await requireSession();
-  return queries.getCategories(db, householdId);
+  const { spaceId } = await requireSession();
+  return queries.getCategories(db, spaceId);
 }
 
 // ── Item actions ────────────────────────────────────────────────────────────
@@ -52,21 +52,21 @@ const itemSchema = z.object({
 });
 
 export async function addItem(raw: { name: string; unit?: string; categoryId?: number | null }) {
-  const { householdId, userId } = await requireSession();
+  const { spaceId, userId } = await requireSession();
   const data = itemSchema.parse(raw);
-  const item = await queries.insertItem(db, { householdId, ...data });
-  log.info('item.add', { itemId: item.id, categoryId: item.categoryId, householdId, userId });
+  const item = await queries.insertItem(db, { spaceId, ...data });
+  log.info('item.add', { itemId: item.id, categoryId: item.categoryId, spaceId, userId });
   revalidatePath('/app');
   return item;
 }
 
 export async function updateItem(
   id: number,
-  raw: { name?: string; unit?: string; categoryId?: number | null; lowStockThreshold?: number | null; alertEnabled?: number },
+  raw: { name?: string; unit?: string; categoryId?: number | null; lowStockThreshold?: number | null; alertEnabled?: boolean },
 ) {
-  const { householdId } = await requireSession();
+  const { spaceId } = await requireSession();
   const existing = await db.query.items.findFirst({ where: (i, { eq }) => eq(i.id, id) });
-  if (!existing || existing.householdId !== householdId) throw new Error('Not found');
+  if (!existing || existing.spaceId !== spaceId) throw new Error('Not found');
   const item = await queries.updateItemRecord(db, id, raw);
   revalidatePath('/app');
   revalidatePath(`/app/item/${id}`);
@@ -74,23 +74,23 @@ export async function updateItem(
 }
 
 export async function deleteItem(id: number) {
-  const { userId, householdId } = await requireSession();
+  const { userId, spaceId } = await requireSession();
   const existing = await db.query.items.findFirst({ where: (i, { eq }) => eq(i.id, id) });
-  if (!existing || existing.householdId !== householdId) throw new Error('Not found');
+  if (!existing || existing.spaceId !== spaceId) throw new Error('Not found');
   const entryCount = await queries.getItemAllEntries(db, id).then((e) => e.length);
   await queries.deleteItemRecord(db, id);
   log.warn('item.delete', { itemId: id, entryCount, userId });
   revalidatePath('/app');
 }
 
-export async function getHouseholdItems() {
-  const { householdId } = await requireSession();
-  return queries.getHouseholdItems(db, householdId);
+export async function getSpaceItems() {
+  const { spaceId } = await requireSession();
+  return queries.getSpaceItems(db, spaceId);
 }
 
 export async function getItemsForAutocomplete() {
-  const { householdId } = await requireSession();
-  return queries.getItemsForAutocomplete(db, householdId);
+  const { spaceId } = await requireSession();
+  return queries.getItemsForAutocomplete(db, spaceId);
 }
 
 // ── Entry actions ────────────────────────────────────────────────────────────
@@ -107,7 +107,7 @@ const entrySchema = z.object({
 });
 
 export async function addEntry(raw: z.input<typeof entrySchema>) {
-  const { userId, householdId } = await requireSession();
+  const { userId, spaceId, memberId } = await requireSession();
   const data = entrySchema.parse(raw);
 
   const price = data.type === ENTRY_TYPE.CONSUME ? null : (data.price ?? null);
@@ -115,12 +115,12 @@ export async function addEntry(raw: z.input<typeof entrySchema>) {
 
   try {
     const entry = await queries.insertEntry(db, {
-      userId, householdId, ...data,
+      memberId, spaceId, ...data,
       price,
       store,
       note: data.note ?? null,
     });
-    log.info('entry.add', { entryId: entry.id, itemId: data.itemId, type: data.type, userId, householdId });
+    log.info('entry.add', { entryId: entry.id, itemId: data.itemId, type: data.type, memberId, spaceId });
     revalidatePath('/app');
     revalidatePath(`/app/item/${data.itemId}`);
     return entry;
@@ -141,13 +141,13 @@ const updateEntrySchema = z.object({
 });
 
 export async function updateEntry(entryId: number, raw: z.input<typeof updateEntrySchema>) {
-  const { userId, householdId } = await requireSession();
+  const { userId, spaceId } = await requireSession();
   const updates = updateEntrySchema.parse(raw);
 
   const existing = await db.query.entries.findFirst({
     where: (e, { eq }) => eq(e.id, entryId),
   });
-  if (!existing || existing.householdId !== householdId) throw new Error('Entry not found');
+  if (!existing || existing.spaceId !== spaceId) throw new Error('Entry not found');
 
   try {
     const entry = await queries.updateEntryRecord(db, existing, updates);
@@ -162,12 +162,12 @@ export async function updateEntry(entryId: number, raw: z.input<typeof updateEnt
 }
 
 export async function deleteEntry(entryId: number) {
-  const { userId, householdId } = await requireSession();
+  const { userId, spaceId } = await requireSession();
 
   const existing = await db.query.entries.findFirst({
     where: (e, { eq }) => eq(e.id, entryId),
   });
-  if (!existing || existing.householdId !== householdId) throw new Error('Entry not found');
+  if (!existing || existing.spaceId !== spaceId) throw new Error('Entry not found');
 
   try {
     await queries.deleteEntryRecord(db, existing);
@@ -180,80 +180,12 @@ export async function deleteEntry(entryId: number) {
   }
 }
 
-// ── Group actions ────────────────────────────────────────────────────────────
-
-const groupSchema = z.object({ name: z.string().min(1) });
-
-export async function addGroup(raw: { name: string }) {
-  const { householdId } = await requireSession();
-  const data = groupSchema.parse(raw);
-  const group = await queries.insertGroup(db, { householdId, ...data });
-  log.info('group.add', { groupId: group.id, householdId });
-  revalidatePath('/app/settings');
-  return group;
-}
-
-export async function renameGroup(id: number, raw: { name: string }) {
-  const { householdId } = await requireSession();
-  const existing = await db.query.groups.findFirst({ where: (g, { eq }) => eq(g.id, id) });
-  if (!existing || existing.householdId !== householdId) throw new Error('Not found');
-  const data = groupSchema.parse(raw);
-  const group = await queries.updateGroupName(db, id, data.name);
-  log.info('group.rename', { groupId: id, householdId });
-  revalidatePath('/app/settings');
-  return group;
-}
-
-export async function deleteGroup(id: number) {
-  const { householdId } = await requireSession();
-  const existing = await db.query.groups.findFirst({ where: (g, { eq }) => eq(g.id, id) });
-  if (!existing || existing.householdId !== householdId) throw new Error('Not found');
-  await queries.deleteGroupRecord(db, id);
-  log.warn('group.delete', { groupId: id, householdId });
-  revalidatePath('/app/settings');
-  revalidatePath('/app');
-}
-
-export async function getGroups() {
-  const { householdId } = await requireSession();
-  return queries.getGroups(db, householdId);
-}
-
-export async function assignItemToGroup(groupId: number, itemId: number) {
-  const { householdId } = await requireSession();
-  const [group, item] = await Promise.all([
-    db.query.groups.findFirst({ where: (g, { eq }) => eq(g.id, groupId) }),
-    db.query.items.findFirst({ where: (i, { eq }) => eq(i.id, itemId) }),
-  ]);
-  if (!group || group.householdId !== householdId) throw new Error('Not found');
-  if (!item || item.householdId !== householdId) throw new Error('Not found');
-  await queries.insertGroupItem(db, { groupId, itemId });
-  log.info('group.item.assign', { groupId, itemId, householdId });
-  revalidatePath('/app');
-}
-
-export async function removeItemFromGroup(groupId: number, itemId: number) {
-  const { householdId } = await requireSession();
-  const group = await db.query.groups.findFirst({ where: (g, { eq }) => eq(g.id, groupId) });
-  if (!group || group.householdId !== householdId) throw new Error('Not found');
-  await queries.deleteGroupItem(db, groupId, itemId);
-  log.info('group.item.remove', { groupId, itemId, householdId });
-  revalidatePath('/app');
-}
-
-export async function getGroupItems(groupId: number) {
-  const { householdId } = await requireSession();
-  const group = await db.query.groups.findFirst({ where: (g, { eq }) => eq(g.id, groupId) });
-  if (!group || group.householdId !== householdId) throw new Error('Not found');
-  return queries.getGroupItems(db, groupId);
-}
-
 // ── Query actions ────────────────────────────────────────────────────────────
 
 export async function getItemDetail(itemId: number) {
-  const { householdId } = await requireSession();
+  const { spaceId } = await requireSession();
   const [item, allEntries] = await Promise.all([
-    db.query.items.findFirst({ where: (i, { eq, and }) => and(eq(i.id, itemId), eq(i.householdId, householdId)) }),
+    db.query.items.findFirst({ where: (i, { eq, and }) => and(eq(i.id, itemId), eq(i.spaceId, spaceId)) }),
     queries.getItemAllEntries(db, itemId),
   ]);
   if (!item) return null;
@@ -262,9 +194,9 @@ export async function getItemDetail(itemId: number) {
 }
 
 export async function getCategoryDetail(categoryId: number) {
-  const { householdId } = await requireSession();
+  const { spaceId } = await requireSession();
   const [category, monthlySpend] = await Promise.all([
-    db.query.categories.findFirst({ where: (c, { eq, and }) => and(eq(c.id, categoryId), eq(c.householdId, householdId)) }),
+    db.query.categories.findFirst({ where: (c, { eq, and }) => and(eq(c.id, categoryId), eq(c.spaceId, spaceId)) }),
     queries.getCategoryMonthlySpend(db, categoryId),
   ]);
   if (!category) return null;
@@ -274,18 +206,17 @@ export async function getCategoryDetail(categoryId: number) {
   return { category, items, monthlySpend };
 }
 
-export async function getHouseholdSpend(from: string, to: string) {
-  const { householdId } = await requireSession();
-  return queries.getHouseholdSpend(db, householdId, from, to);
+export async function getSpaceSpend(from: string, to: string) {
+  const { spaceId } = await requireSession();
+  return queries.getSpaceSpend(db, spaceId, from, to);
 }
 
 export async function getRecentPurchases(limit = 20) {
-  const { householdId } = await requireSession();
-  return queries.getRecentPurchases(db, householdId, limit);
+  const { spaceId } = await requireSession();
+  return queries.getRecentPurchases(db, spaceId, limit);
 }
 
-export async function getHouseholdMembers() {
-  const { householdId } = await requireSession();
-  return queries.getHouseholdMembers(db, householdId);
+export async function getSpaceMembers() {
+  const { spaceId } = await requireSession();
+  return queries.getSpaceMembers(db, spaceId);
 }
-

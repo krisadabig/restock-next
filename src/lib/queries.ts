@@ -9,21 +9,21 @@ type Db = PostgresJsDatabase<typeof schema>;
 
 export async function insertCategory(
   db: Db,
-  data: { householdId: string; name: string; defaultUnit: string },
+  data: { spaceId: string; name: string; defaultUnit: string },
 ) {
   const [category] = await db.insert(schema.categories).values(data).returning();
   return category;
 }
 
-export async function getCategories(db: Db, householdId: string) {
-  return db.select().from(schema.categories).where(eq(schema.categories.householdId, householdId));
+export async function getCategories(db: Db, spaceId: string) {
+  return db.select().from(schema.categories).where(eq(schema.categories.spaceId, spaceId));
 }
 
 // ── Item ────────────────────────────────────────────────────────────────────
 
 export async function insertItem(
   db: Db,
-  data: { householdId: string; categoryId?: number | null; name: string; unit: string },
+  data: { spaceId: string; categoryId?: number | null; name: string; unit: string },
 ) {
   const [item] = await db.insert(schema.items).values({ ...data, currentStock: 0 }).returning();
   return item;
@@ -46,7 +46,7 @@ export async function deleteItemRecord(db: Db, id: number) {
   await db.delete(schema.items).where(eq(schema.items.id, id));
 }
 
-export async function getItemsForAutocomplete(db: Db, householdId: string) {
+export async function getItemsForAutocomplete(db: Db, spaceId: string) {
   const itemRows = await db
     .select({
       id: schema.items.id,
@@ -56,7 +56,7 @@ export async function getItemsForAutocomplete(db: Db, householdId: string) {
     })
     .from(schema.items)
     .leftJoin(schema.categories, eq(schema.items.categoryId, schema.categories.id))
-    .where(eq(schema.items.householdId, householdId))
+    .where(eq(schema.items.spaceId, spaceId))
     .orderBy(sql`${schema.items.lastEntryAt} DESC NULLS LAST`);
 
   const lastPurchaseRows = await db
@@ -67,7 +67,7 @@ export async function getItemsForAutocomplete(db: Db, householdId: string) {
       lastStore: schema.entries.store,
     })
     .from(schema.entries)
-    .where(and(eq(schema.entries.householdId, householdId), eq(schema.entries.type, ENTRY_TYPE.PURCHASE)))
+    .where(and(eq(schema.entries.spaceId, spaceId), eq(schema.entries.type, ENTRY_TYPE.PURCHASE)))
     .orderBy(schema.entries.itemId, desc(schema.entries.date));
 
   const lastPurchaseMap = new Map(lastPurchaseRows.map((r) => [r.itemId, r]));
@@ -86,9 +86,9 @@ export async function getItemsForAutocomplete(db: Db, householdId: string) {
   });
 }
 
-// ── Household items (Stock screen) ──────────────────────────────────────────
+// ── Space items (Stock screen) ───────────────────────────────────────────────
 
-export async function getHouseholdItems(db: Db, householdId: string) {
+export async function getSpaceItems(db: Db, spaceId: string) {
   const itemRows = await db
     .select({
       item: schema.items,
@@ -96,19 +96,20 @@ export async function getHouseholdItems(db: Db, householdId: string) {
     })
     .from(schema.items)
     .leftJoin(schema.categories, eq(schema.items.categoryId, schema.categories.id))
-    .where(eq(schema.items.householdId, householdId))
+    .where(eq(schema.items.spaceId, spaceId))
     .orderBy(desc(schema.items.lastEntryAt));
 
-  // Fetch last purchase entry per item
   const lastEntryRows = await db
     .selectDistinctOn([schema.entries.itemId], {
       entry: schema.entries,
+      memberDisplayName: schema.spaceMembers.displayName,
     })
     .from(schema.entries)
-    .where(and(eq(schema.entries.householdId, householdId), eq(schema.entries.type, ENTRY_TYPE.PURCHASE)))
+    .innerJoin(schema.spaceMembers, eq(schema.entries.memberId, schema.spaceMembers.id))
+    .where(and(eq(schema.entries.spaceId, spaceId), eq(schema.entries.type, ENTRY_TYPE.PURCHASE)))
     .orderBy(schema.entries.itemId, desc(schema.entries.date));
 
-  const lastEntryMap = new Map(lastEntryRows.map((r) => [r.entry.itemId, r.entry]));
+  const lastEntryMap = new Map(lastEntryRows.map((r) => [r.entry.itemId, { ...r.entry, memberDisplayName: r.memberDisplayName }]));
 
   return itemRows.map((r) => ({
     item: r.item,
@@ -120,9 +121,9 @@ export async function getHouseholdItems(db: Db, householdId: string) {
 // ── Entry mutations ─────────────────────────────────────────────────────────
 
 type InsertEntryInput = {
-  householdId: string;
+  spaceId: string;
   itemId: number;
-  userId: string;
+  memberId: number;
   type: 'purchase' | 'consume';
   price: number | null;
   quantity: number;
@@ -251,11 +252,11 @@ export async function getCategoryMonthlySpend(db: Db, categoryId: number) {
   return rows;
 }
 
-// ── Household spend (Price screen) ──────────────────────────────────────────
+// ── Space spend (Price screen) ───────────────────────────────────────────────
 
-export async function getHouseholdSpend(
+export async function getSpaceSpend(
   db: Db,
-  householdId: string,
+  spaceId: string,
   from: string,
   to: string,
 ) {
@@ -264,7 +265,7 @@ export async function getHouseholdSpend(
     .from(schema.entries)
     .where(
       and(
-        eq(schema.entries.householdId, householdId),
+        eq(schema.entries.spaceId, spaceId),
         eq(schema.entries.type, ENTRY_TYPE.PURCHASE),
         gte(schema.entries.date, from),
         lte(schema.entries.date, to),
@@ -282,7 +283,7 @@ export async function getHouseholdSpend(
     .innerJoin(schema.categories, eq(schema.items.categoryId, schema.categories.id))
     .where(
       and(
-        eq(schema.entries.householdId, householdId),
+        eq(schema.entries.spaceId, spaceId),
         eq(schema.entries.type, ENTRY_TYPE.PURCHASE),
         gte(schema.entries.date, from),
         lte(schema.entries.date, to),
@@ -296,7 +297,7 @@ export async function getHouseholdSpend(
 
 export async function getStoreBreakdown(
   db: Db,
-  householdId: string,
+  spaceId: string,
   from: string,
   to: string,
 ) {
@@ -309,7 +310,7 @@ export async function getStoreBreakdown(
     .from(schema.entries)
     .where(
       and(
-        eq(schema.entries.householdId, householdId),
+        eq(schema.entries.spaceId, spaceId),
         eq(schema.entries.type, ENTRY_TYPE.PURCHASE),
         isNotNull(schema.entries.store),
         gte(schema.entries.date, from),
@@ -325,13 +326,13 @@ export async function getStoreBreakdown(
     );
 }
 
-export async function getHouseholdStores(db: Db, householdId: string): Promise<string[]> {
+export async function getSpaceStores(db: Db, spaceId: string): Promise<string[]> {
   const rows = await db
     .selectDistinct({ store: schema.entries.store })
     .from(schema.entries)
     .where(
       and(
-        eq(schema.entries.householdId, householdId),
+        eq(schema.entries.spaceId, spaceId),
         eq(schema.entries.type, ENTRY_TYPE.PURCHASE),
         isNotNull(schema.entries.store),
       ),
@@ -341,86 +342,49 @@ export async function getHouseholdStores(db: Db, householdId: string): Promise<s
   return rows.map((r) => r.store).filter((s): s is string => s != null);
 }
 
-export async function getRecentPurchases(db: Db, householdId: string, limit = 20) {
+export async function getRecentPurchases(db: Db, spaceId: string, limit = 20) {
   return db
     .select({
       entry: schema.entries,
       itemName: schema.items.name,
       categoryName: schema.categories.name,
-      contributorName: schema.users.username,
+      contributorName: schema.spaceMembers.displayName,
     })
     .from(schema.entries)
     .innerJoin(schema.items, eq(schema.entries.itemId, schema.items.id))
     .leftJoin(schema.categories, eq(schema.items.categoryId, schema.categories.id))
-    .innerJoin(schema.users, eq(schema.entries.userId, schema.users.id))
-    .where(and(eq(schema.entries.householdId, householdId), eq(schema.entries.type, ENTRY_TYPE.PURCHASE)))
+    .innerJoin(schema.spaceMembers, eq(schema.entries.memberId, schema.spaceMembers.id))
+    .where(and(eq(schema.entries.spaceId, spaceId), eq(schema.entries.type, ENTRY_TYPE.PURCHASE)))
     .orderBy(desc(schema.entries.createdAt))
     .limit(limit);
 }
 
-// ── Groups ──────────────────────────────────────────────────────────────────
+// ── Space membership ─────────────────────────────────────────────────────────
 
-export async function insertGroup(db: Db, data: { householdId: string; name: string }) {
-  const [group] = await db.insert(schema.groups).values(data).returning();
-  return group;
-}
-
-export async function updateGroupName(db: Db, id: number, name: string) {
-  const [group] = await db
-    .update(schema.groups)
-    .set({ name })
-    .where(eq(schema.groups.id, id))
-    .returning();
-  return group;
-}
-
-export async function deleteGroupRecord(db: Db, id: number) {
-  await db.delete(schema.groups).where(eq(schema.groups.id, id));
-}
-
-export async function getGroups(db: Db, householdId: string) {
-  return db
-    .select()
-    .from(schema.groups)
-    .where(eq(schema.groups.householdId, householdId))
-    .orderBy(schema.groups.name);
-}
-
-export async function insertGroupItem(db: Db, data: { groupId: number; itemId: number }) {
-  await db.insert(schema.groupItems).values(data).onConflictDoNothing();
-}
-
-export async function deleteGroupItem(db: Db, groupId: number, itemId: number) {
-  await db
-    .delete(schema.groupItems)
-    .where(and(eq(schema.groupItems.groupId, groupId), eq(schema.groupItems.itemId, itemId)));
-}
-
-export async function getGroupItems(db: Db, groupId: number) {
-  return db
-    .select({ item: schema.items })
-    .from(schema.groupItems)
-    .innerJoin(schema.items, eq(schema.groupItems.itemId, schema.items.id))
-    .where(eq(schema.groupItems.groupId, groupId))
-    .orderBy(schema.items.name)
-    .then((rows) => rows.map((r) => r.item));
-}
-
-// ── Household ────────────────────────────────────────────────────────────────
-
-export async function getHouseholdForUser(db: Db, userId: string) {
-  const [member] = await db
-    .select({ householdId: schema.householdMembers.householdId })
-    .from(schema.householdMembers)
-    .where(eq(schema.householdMembers.userId, userId))
+export async function getActiveSpaceForUser(
+  db: Db,
+  userId: string,
+): Promise<{ spaceId: string; memberId: number } | null> {
+  const [row] = await db
+    .select({
+      spaceId: schema.spaceMembers.spaceId,
+      memberId: schema.spaceMembers.id,
+    })
+    .from(schema.spaceMembers)
+    .where(eq(schema.spaceMembers.userId, userId))
     .limit(1);
-  return member?.householdId ?? null;
+  return row ?? null;
 }
 
-export async function getHouseholdMembers(db: Db, householdId: string) {
+export async function getSpaceMembers(db: Db, spaceId: string) {
   return db
-    .select({ userId: schema.users.id, username: schema.users.username })
-    .from(schema.householdMembers)
-    .innerJoin(schema.users, eq(schema.householdMembers.userId, schema.users.id))
-    .where(eq(schema.householdMembers.householdId, householdId));
+    .select({
+      userId: schema.users.id,
+      username: schema.users.username,
+      memberId: schema.spaceMembers.id,
+      displayName: schema.spaceMembers.displayName,
+    })
+    .from(schema.spaceMembers)
+    .innerJoin(schema.users, eq(schema.spaceMembers.userId, schema.users.id))
+    .where(eq(schema.spaceMembers.spaceId, spaceId));
 }
