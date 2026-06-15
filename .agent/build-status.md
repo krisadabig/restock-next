@@ -22,7 +22,7 @@
 | Status | Task | Key Files | Tests |
 |---|---|---|---|
 | ✅ | **S1.1 — Write new schema** | `src/lib/db/schema.ts` | TypeScript types compile clean |
-| 🔲 | **S1.2 — Generate & apply migration** | `drizzle/migrations/` | Migration runs on dev + test DB without error |
+| ✅ | **S1.2 — Generate & apply migration** | `drizzle/migrations/` | Migration runs on dev + test DB without error |
 | ✅ | **S1.3 — Rewrite Drizzle query helpers** | `src/lib/queries.ts` | Build clean, no references to old table names |
 | ✅ | **S1.0 — Update test helpers & factories** | `tests/helpers/factories.ts`, `tests/helpers/db.ts` | Unit: `makeSpace`, `makeSpaceMember` produce correct rows |
 
