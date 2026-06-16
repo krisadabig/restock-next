@@ -22,12 +22,13 @@ vi.mock('@/lib/db', () => ({
   },
 }));
 vi.mock('@/lib/queries', () => ({
-  getActiveSpaceForUser: vi.fn(),
-  updateItemRecord:      vi.fn(),
-  deleteItemRecord:      vi.fn(),
-  getItemAllEntries:     vi.fn(),
-  updateEntryRecord:     vi.fn(),
-  deleteEntryRecord:     vi.fn(),
+  getActiveSpaceForUser:  vi.fn(),
+  insertSpaceWithMember:  vi.fn(),
+  updateItemRecord:       vi.fn(),
+  deleteItemRecord:       vi.fn(),
+  getItemAllEntries:      vi.fn(),
+  updateEntryRecord:      vi.fn(),
+  deleteEntryRecord:      vi.fn(),
   getCategoryMonthlySpend: vi.fn(),
 }));
 
@@ -37,6 +38,7 @@ import {
   updateItem, deleteItem,
   updateEntry, deleteEntry,
   getItemDetail, getCategoryDetail,
+  createSpace,
 } from './actions';
 
 const SESSION  = { userId: 'u1', username: 'alice', expiresAt: new Date() };
@@ -137,6 +139,21 @@ describe('server action authorization', () => {
       mockFindCategory.mockResolvedValue(null);
       (queries.getCategoryMonthlySpend as Mock).mockResolvedValue([]);
       await expect(getCategoryDetail(99)).resolves.toBeNull();
+    });
+  });
+
+  // ── createSpace ────────────────────────────────────────────────────────────
+
+  describe('createSpace', () => {
+    it('throws Unauthorized when no session', async () => {
+      (getSession as Mock).mockResolvedValue(null);
+      await expect(createSpace('My Space', 'Alice')).rejects.toThrow('Unauthorized');
+    });
+
+    it('returns spaceId and memberId on success', async () => {
+      (queries.insertSpaceWithMember as Mock).mockResolvedValue({ spaceId: 'sp-1', memberId: 42 });
+      const result = await createSpace('My Space', 'Alice');
+      expect(result).toEqual({ spaceId: 'sp-1', memberId: 42 });
     });
   });
 });

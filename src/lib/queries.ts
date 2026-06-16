@@ -1,4 +1,5 @@
 import { eq, and, desc, sql, gte, lte, isNotNull } from 'drizzle-orm';
+import { v4 as uuid } from 'uuid';
 import { ENTRY_TYPE } from './constants';
 import type { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
 import * as schema from './db/schema';
@@ -387,4 +388,16 @@ export async function getSpaceMembers(db: Db, spaceId: string) {
     .from(schema.spaceMembers)
     .innerJoin(schema.users, eq(schema.spaceMembers.userId, schema.users.id))
     .where(eq(schema.spaceMembers.spaceId, spaceId));
+}
+
+export async function insertSpaceWithMember(
+  db: Db,
+  userId: string,
+  displayName: string,
+  spaceName: string,
+): Promise<{ spaceId: string; memberId: number }> {
+  const spaceId = uuid();
+  await db.insert(schema.spaces).values({ id: spaceId, name: spaceName });
+  const [member] = await db.insert(schema.spaceMembers).values({ spaceId, userId, displayName }).returning();
+  return { spaceId, memberId: member.id };
 }

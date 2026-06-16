@@ -220,3 +220,13 @@ export async function getSpaceMembers() {
   const { spaceId } = await requireSession();
   return queries.getSpaceMembers(db, spaceId);
 }
+
+// ── Space management ────────────────────────────────────────────────────────
+
+export async function createSpace(name: string, displayName: string) {
+  const session = await getSession();
+  if (!session) throw new Error('Unauthorized');
+  const result = await queries.insertSpaceWithMember(db, session.userId, displayName, name);
+  log.info('space.create', { spaceId: result.spaceId, userId: session.userId });
+  return result;
+}

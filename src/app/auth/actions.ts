@@ -1,14 +1,14 @@
 'use server';
 
 import { db } from '@/lib/db';
-import { users, spaces, spaceMembers } from '@/lib/db/schema';
+import { users } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
 import { hash, compare } from 'bcryptjs';
 import { createSession, deleteSession } from '@/lib/session';
 import { redirect } from 'next/navigation';
 import { z } from 'zod';
 import { ROUTES } from '@/lib/constants';
-import { v4 as uuidv4 } from 'uuid';
+import { insertSpaceWithMember, getActiveSpaceForUser } from '@/lib/queries';
 
 const signupSchema = z
 	.object({
@@ -47,19 +47,13 @@ export async function signup(prevState: { error?: string } | null, formData: For
 	}
 
 	const hashedPassword = await hash(password, 10);
+	const { v4: uuidv4 } = await import('uuid');
 	const userId = uuidv4();
 
-	await db.insert(users).values({
-		id: userId,
-		username,
-		passwordHash: hashedPassword,
-	});
+	await db.insert(users).values({ id: userId, username, passwordHash: hashedPassword });
+	const { spaceId, memberId } = await insertSpaceWithMember(db, userId, username, `${username}'s space`);
 
-	const spaceId = uuidv4();
-	await db.insert(spaces).values({ id: spaceId, name: `${username}'s space` });
-	await db.insert(spaceMembers).values({ spaceId, userId, displayName: username });
-
-	await createSession(userId, username);
+	await createSession(userId, username, spaceId, memberId);
 	redirect(ROUTES.STOCK);
 }
 
@@ -91,7 +85,8 @@ export async function login(prevState: { error?: string } | null, formData: Form
 		};
 	}
 
-	await createSession(user[0].id, user[0].username);
+	const space = await getActiveSpaceForUser(db, user[0].id);
+	await createSession(user[0].id, user[0].username, space?.spaceId, space?.memberId);
 	redirect(ROUTES.STOCK);
 }
 
