@@ -1,7 +1,7 @@
 'use server';
 
 import { db } from '@/lib/db';
-import { getSession } from '@/lib/session';
+import { getSession, createSession } from '@/lib/session';
 import { log } from '@/lib/logger';
 import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
@@ -229,4 +229,22 @@ export async function createSpace(name: string, displayName: string) {
   const result = await queries.insertSpaceWithMember(db, session.userId, displayName, name);
   log.info('space.create', { spaceId: result.spaceId, userId: session.userId });
   return result;
+}
+
+export async function switchSpace(spaceId: string) {
+  const session = await getSession();
+  if (!session) throw new Error('Unauthorized');
+  const member = await db.query.spaceMembers.findFirst({
+    where: (m, { and, eq }) => and(eq(m.spaceId, spaceId), eq(m.userId, session.userId)),
+  });
+  if (!member) throw new Error('Not a member');
+  await createSession(session.userId, session.username, spaceId, member.id);
+  log.info('space.switch', { spaceId, memberId: member.id, userId: session.userId });
+  revalidatePath('/app');
+}
+
+export async function getMySpaces() {
+  const session = await getSession();
+  if (!session) throw new Error('Unauthorized');
+  return queries.getUserSpaces(db, session.userId);
 }

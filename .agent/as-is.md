@@ -177,14 +177,21 @@ Record-level authorization: actions that accept an ID re-fetch the record and co
 | `removeItemFromGroup` | `(groupId, itemId)` | `void` | `revalidatePath('/app')` |
 | `getGroupItems` | `(groupId)` | `Item[]` | — |
 
+### Space management
+| Action | Signature | Returns | Notes |
+|---|---|---|---|
+| `createSpace` | `(name, displayName)` | `{ spaceId, memberId }` | creates space + member for current user; logs `space.create` |
+| `switchSpace` | `(spaceId)` | `void` | validates membership, updates session cookie, revalidates `/app`; throws `'Not a member'` |
+| `getMySpaces` | `()` | `Array<{ id, name, displayName, memberId }>` | all spaces current user belongs to |
+
 ### Query (read-only)
 | Action | Signature | Returns |
 |---|---|---|
 | `getItemDetail` | `(itemId)` | `{ item, allEntries, purchaseHistory } \| null` |
 | `getCategoryDetail` | `(categoryId)` | `{ category, items, monthlySpend } \| null` |
-| `getHouseholdSpend` | `(from, to)` | spend totals + byCategory breakdown |
+| `getSpaceSpend` | `(from, to)` | spend totals + byCategory breakdown |
 | `getRecentPurchases` | `(limit?)` | recent purchase entries with item + category names |
-| `getHouseholdMembers` | `()` | `Array<{ userId, username }>` |
+| `getSpaceMembers` | `()` | `Array<{ userId, username, memberId, displayName }>` |
 
 ---
 
@@ -446,7 +453,7 @@ interface Props {
 
 - **Session**: JWT stored in httpOnly cookie. `getSession()` → `{ userId, username } | null`.
 - **Login**: `POST /api/auth` with `{ action: 'login', username, password }` → sets cookie.
-- **Register**: `POST /api/auth` with `{ action: 'register', username, password }` → creates user + household + sets cookie.
+- **Register**: `POST /api/auth` with `{ action: 'register', username, password }` → creates user + space + space_member + sets cookie with `activeSpaceId` + `activeMemberId`.
 - **Passkey**: WebAuthn enrollment available in Settings. Not fully E2E tested (deferred, see `backlog.md`).
 - **Logout**: `src/app/auth/actions.ts` → clears cookie → redirects `/login`.
 

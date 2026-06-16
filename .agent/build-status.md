@@ -26,127 +26,16 @@
 | ✅ | **S1.3 — Rewrite Drizzle query helpers** | `src/lib/queries.ts` | Build clean, no references to old table names |
 | ✅ | **S1.0 — Update test helpers & factories** | `tests/helpers/factories.ts`, `tests/helpers/db.ts` | Unit: `makeSpace`, `makeSpaceMember` produce correct rows |
 
-<details for "S1.1 — Write new schema">
-
-Rewrite `src/lib/db/schema.ts` from scratch. Drop: `households`, `household_members`, `groups`, `group_items`. Create: `spaces`, `space_members`, `space_invites`. Update existing tables:
-
-**`spaces`** (replaces `households`)
-```ts
-id: text PK (uuid)
-name: text NOT NULL
-created_at: timestamp defaultNow
-```
-
-**`space_members`** (replaces `household_members`)
-```ts
-id: serial PK
-space_id: text FK→spaces cascade
-user_id: text FK→users cascade
-display_name: text NOT NULL
-avatar: text nullable
-joined_at: timestamp defaultNow
-UNIQUE (space_id, user_id)
-```
-
-**`space_invites`** (new)
-```ts
-id: serial PK
-space_id: text FK→spaces cascade
-code: text UNIQUE NOT NULL        -- 8-char alphanumeric
-created_by: integer FK→space_members cascade
-expires_at: timestamp NOT NULL
-used_at: timestamp nullable
-created_at: timestamp defaultNow
-```
-
-**`categories`** — change `household_id` → `space_id`
-
-**`items`** — change `household_id` → `space_id`, change `alert_enabled: integer` → `boolean`
-
-**`entries`** — change `household_id` → `space_id`, change `user_id` → `member_id FK→space_members`, change `date: text` → `date: date` (proper PostgreSQL date type)
-
-**TDD**: Schema itself has no test. Verify by: `bun run build` compiles clean, and migration in S1.2 runs without error.
-
-</details>
-
-<details for "S1.2 — Generate & apply migration">
-
-```bash
-bun run db:generate    # generates SQL file in drizzle/migrations/
-bun run db:migrate     # applies to local dev DB
-bun run db:migrate:test  # applies to local test DB
-```
-
-Commit the generated `.sql` file. Verify new tables exist with correct columns. **Never use drizzle-kit push.**
-
-**TDD**: Run `bun run test:integration` after — existing integration tests will fail (expected, they use old schema). That's the RED state before S1.3+.
-
-</details>
-
-<details for "S1.3 — Rewrite Drizzle query helpers">
-
-Rewrite `src/lib/queries.ts` to use new table/column names. All references to `householdId`, `household_members`, `groups`, `group_items` must be removed.
-
-Key queries to update:
-- `getSpaceItems()` (was `getHouseholdItems`) — join items + categories + last entry
-- `getItemDetail()` — entries now join `space_members` for display_name
-- `getCategoryDetail()` — space-scoped
-- `getHouseholdSpend()` → `getSpaceSpend()`
-- `getRecentPurchases()` — join space_members for display_name
-- `getSpaceMembers()` — from space_members, not users
-
-**TDD**: `bun run build` must be clean. No integration test yet — that comes in S3.7.
-
-</details>
-
-<details for "S1.0 — Update test helpers & factories">
-
-Update `tests/helpers/factories.ts`:
-- Rename `makeHousehold(db, userId)` → `makeSpace(db)` (space has no owner, members join separately)
-- Rename `makeHouseholdMember` → `makeSpaceMember(db, spaceId, userId, displayName)`
-- Update `makeCategory`, `makeItem`, `makeEntry` to use `spaceId` instead of `householdId`
-- `makeEntry` now takes `memberId` (FK→space_members) instead of `userId`
-
-**TDD (RED→GREEN)**:
-- Write a test in `tests/helpers/factories.test.ts` asserting each factory inserts the correct row and returns the expected shape
-- Run: `bun run test:integration` → RED (factories reference old columns) → fix → GREEN
-
-</details>
-
 ---
 
 ## Sprint 2 — Auth & Session
 
 | Status | Task | Key Files | Tests |
 |---|---|---|---|
-| 🔲 | **S2.1 — Update session shape** | `src/lib/session.ts`, `src/app/api/auth/route.ts` | Unit: session encodes/decodes `activeSpaceId` + `activeMemberId` |
-| 🔲 | **S2.2 — Space creation flow** | `src/app/app/actions.ts`, `src/app/api/auth/route.ts` | Integration: register → space + member created → session has activeSpaceId |
-| 🔲 | **S2.3 — Space switching** | `src/app/app/actions.ts` | Integration: switchSpace sets new activeSpaceId in session; throws if not a member |
+| ✅ | **S2.1 — Update session shape** | `src/lib/session.ts`, `src/app/api/auth/route.ts` | Unit: session encodes/decodes `activeSpaceId` + `activeMemberId` |
+| ✅ | **S2.2 — Space creation flow** | `src/app/app/actions.ts`, `src/app/api/auth/route.ts` | Integration: register → space + member created → session has activeSpaceId |
+| ✅ | **S2.3 — Space switching** | `src/app/app/actions.ts` | Integration: switchSpace sets new activeSpaceId in session; throws if not a member |
 | 🔲 | **S2.4 — Member profile management** | `src/app/app/actions.ts` | Integration: updateMemberProfile updates display_name; auth guard throws for wrong space |
-
-<details for "S2.1 — Update session shape">
-
-Update JWT payload and `getSession()` return type:
-```ts
-interface Session {
-  userId: string;
-  username: string;
-  activeSpaceId: string;
-  activeMemberId: number;
-}
-```
-
-Login flow logic:
-- User has 1 space → auto-select, set in session
-- User has 0 spaces → create default space inline (or redirect to onboarding)
-- User has 2+ spaces → return space list, client picks one, then call `switchSpace()`
-
-**TDD (RED→GREEN)**:
-- Unit test: `encodeSession(payload)` / `decodeSession(token)` roundtrip includes new fields
-- Unit test: `getSession()` returns null for missing/expired token
-- Run: `bun run test:unit` → RED → implement → GREEN
-
-</details>
 
 <details for "S2.2 — Space creation flow">
 

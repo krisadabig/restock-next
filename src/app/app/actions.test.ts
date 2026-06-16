@@ -3,21 +3,23 @@ import type { Mock } from 'vitest';
 
 // ── Hoisted mocks ────────────────────────────────────────────────────────────
 
-const { mockFindItem, mockFindEntry, mockFindCategory } = vi.hoisted(() => ({
-  mockFindItem:    vi.fn(),
-  mockFindEntry:   vi.fn(),
-  mockFindCategory: vi.fn(),
+const { mockFindItem, mockFindEntry, mockFindCategory, mockFindSpaceMember } = vi.hoisted(() => ({
+  mockFindItem:         vi.fn(),
+  mockFindEntry:        vi.fn(),
+  mockFindCategory:     vi.fn(),
+  mockFindSpaceMember:  vi.fn(),
 }));
 
 vi.mock('next/cache', () => ({ revalidatePath: vi.fn() }));
 vi.mock('@/lib/logger', () => ({ log: { info: vi.fn(), warn: vi.fn(), error: vi.fn() } }));
-vi.mock('@/lib/session', () => ({ getSession: vi.fn() }));
+vi.mock('@/lib/session', () => ({ getSession: vi.fn(), createSession: vi.fn() }));
 vi.mock('@/lib/db', () => ({
   db: {
     query: {
-      items:      { findFirst: mockFindItem },
-      entries:    { findFirst: mockFindEntry },
-      categories: { findFirst: mockFindCategory },
+      items:        { findFirst: mockFindItem },
+      entries:      { findFirst: mockFindEntry },
+      categories:   { findFirst: mockFindCategory },
+      spaceMembers: { findFirst: mockFindSpaceMember },
     },
   },
 }));
@@ -30,15 +32,17 @@ vi.mock('@/lib/queries', () => ({
   updateEntryRecord:      vi.fn(),
   deleteEntryRecord:      vi.fn(),
   getCategoryMonthlySpend: vi.fn(),
+  getUserSpaces:          vi.fn(),
 }));
 
-import { getSession } from '@/lib/session';
+import { getSession, createSession } from '@/lib/session';
 import * as queries from '@/lib/queries';
 import {
   updateItem, deleteItem,
   updateEntry, deleteEntry,
   getItemDetail, getCategoryDetail,
   createSpace,
+  switchSpace, getMySpaces,
 } from './actions';
 
 const SESSION  = { userId: 'u1', username: 'alice', expiresAt: new Date() };
@@ -154,6 +158,43 @@ describe('server action authorization', () => {
       (queries.insertSpaceWithMember as Mock).mockResolvedValue({ spaceId: 'sp-1', memberId: 42 });
       const result = await createSpace('My Space', 'Alice');
       expect(result).toEqual({ spaceId: 'sp-1', memberId: 42 });
+    });
+  });
+
+  // ── switchSpace ────────────────────────────────────────────────────────────
+
+  describe('switchSpace', () => {
+    it('throws Unauthorized when no session', async () => {
+      (getSession as Mock).mockResolvedValue(null);
+      await expect(switchSpace('space-2')).rejects.toThrow('Unauthorized');
+    });
+
+    it('throws Not a member when user has no membership in target space', async () => {
+      mockFindSpaceMember.mockResolvedValue(null);
+      await expect(switchSpace('space-other')).rejects.toThrow('Not a member');
+    });
+
+    it('calls createSession with new spaceId and memberId when member exists', async () => {
+      mockFindSpaceMember.mockResolvedValue({ id: 7, spaceId: MY_SPACE, userId: 'u1' });
+      await switchSpace(MY_SPACE);
+      expect(createSession as Mock).toHaveBeenCalledWith('u1', 'alice', MY_SPACE, 7);
+    });
+  });
+
+  // ── getMySpaces ────────────────────────────────────────────────────────────
+
+  describe('getMySpaces', () => {
+    it('throws Unauthorized when no session', async () => {
+      (getSession as Mock).mockResolvedValue(null);
+      await expect(getMySpaces()).rejects.toThrow('Unauthorized');
+    });
+
+    it('returns spaces from getUserSpaces query', async () => {
+      const fakeSpaces = [{ id: MY_SPACE, name: 'Home', displayName: 'Alice', memberId: 1 }];
+      (queries.getUserSpaces as Mock).mockResolvedValue(fakeSpaces);
+      const result = await getMySpaces();
+      expect(result).toEqual(fakeSpaces);
+      expect(queries.getUserSpaces as Mock).toHaveBeenCalledWith(expect.anything(), 'u1');
     });
   });
 });

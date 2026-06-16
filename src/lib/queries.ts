@@ -390,6 +390,19 @@ export async function getSpaceMembers(db: Db, spaceId: string) {
     .where(eq(schema.spaceMembers.spaceId, spaceId));
 }
 
+export async function getUserSpaces(db: Db, userId: string) {
+  return db
+    .select({
+      id: schema.spaces.id,
+      name: schema.spaces.name,
+      displayName: schema.spaceMembers.displayName,
+      memberId: schema.spaceMembers.id,
+    })
+    .from(schema.spaceMembers)
+    .innerJoin(schema.spaces, eq(schema.spaceMembers.spaceId, schema.spaces.id))
+    .where(eq(schema.spaceMembers.userId, userId));
+}
+
 export async function insertSpaceWithMember(
   db: Db,
   userId: string,
