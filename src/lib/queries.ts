@@ -403,6 +403,19 @@ export async function getUserSpaces(db: Db, userId: string) {
     .where(eq(schema.spaceMembers.userId, userId));
 }
 
+export async function updateSpaceMember(
+  db: Db,
+  memberId: number,
+  patch: { displayName?: string; avatar?: string | null },
+) {
+  const [updated] = await db
+    .update(schema.spaceMembers)
+    .set(patch)
+    .where(eq(schema.spaceMembers.id, memberId))
+    .returning();
+  return updated;
+}
+
 export async function insertSpaceWithMember(
   db: Db,
   userId: string,

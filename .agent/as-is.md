@@ -183,6 +183,7 @@ Record-level authorization: actions that accept an ID re-fetch the record and co
 | `createSpace` | `(name, displayName)` | `{ spaceId, memberId }` | creates space + member for current user; logs `space.create` |
 | `switchSpace` | `(spaceId)` | `void` | validates membership, updates session cookie, revalidates `/app`; throws `'Not a member'` |
 | `getMySpaces` | `()` | `Array<{ id, name, displayName, memberId }>` | all spaces current user belongs to |
+| `updateMemberProfile` | `({ displayName?, avatar? })` | `SpaceMember` | updates active member's row; logs `member.profile.update` |
 
 ### Query (read-only)
 | Action | Signature | Returns |

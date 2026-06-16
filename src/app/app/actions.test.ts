@@ -33,6 +33,7 @@ vi.mock('@/lib/queries', () => ({
   deleteEntryRecord:      vi.fn(),
   getCategoryMonthlySpend: vi.fn(),
   getUserSpaces:          vi.fn(),
+  updateSpaceMember:      vi.fn(),
 }));
 
 import { getSession, createSession } from '@/lib/session';
@@ -43,6 +44,7 @@ import {
   getItemDetail, getCategoryDetail,
   createSpace,
   switchSpace, getMySpaces,
+  updateMemberProfile,
 } from './actions';
 
 const SESSION  = { userId: 'u1', username: 'alice', expiresAt: new Date() };
@@ -195,6 +197,27 @@ describe('server action authorization', () => {
       const result = await getMySpaces();
       expect(result).toEqual(fakeSpaces);
       expect(queries.getUserSpaces as Mock).toHaveBeenCalledWith(expect.anything(), 'u1');
+    });
+  });
+
+  // ── updateMemberProfile ────────────────────────────────────────────────────
+
+  describe('updateMemberProfile', () => {
+    it('throws Unauthorized when no session', async () => {
+      (getSession as Mock).mockResolvedValue(null);
+      await expect(updateMemberProfile({ displayName: 'Alice' })).rejects.toThrow('Unauthorized');
+    });
+
+    it('throws when user has no space membership', async () => {
+      (queries.getActiveSpaceForUser as Mock).mockResolvedValue(null);
+      await expect(updateMemberProfile({ displayName: 'Alice' })).rejects.toThrow('No space found for user');
+    });
+
+    it('calls updateSpaceMember with memberId and patch when valid', async () => {
+      (queries.updateSpaceMember as Mock).mockResolvedValue({ id: 1, displayName: 'Alice', avatar: null });
+      const result = await updateMemberProfile({ displayName: 'Alice' });
+      expect(queries.updateSpaceMember as Mock).toHaveBeenCalledWith(expect.anything(), 1, { displayName: 'Alice' });
+      expect(result).toEqual({ id: 1, displayName: 'Alice', avatar: null });
     });
   });
 });

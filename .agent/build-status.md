@@ -35,7 +35,7 @@
 | ✅ | **S2.1 — Update session shape** | `src/lib/session.ts`, `src/app/api/auth/route.ts` | Unit: session encodes/decodes `activeSpaceId` + `activeMemberId` |
 | ✅ | **S2.2 — Space creation flow** | `src/app/app/actions.ts`, `src/app/api/auth/route.ts` | Integration: register → space + member created → session has activeSpaceId |
 | ✅ | **S2.3 — Space switching** | `src/app/app/actions.ts` | Integration: switchSpace sets new activeSpaceId in session; throws if not a member |
-| 🔲 | **S2.4 — Member profile management** | `src/app/app/actions.ts` | Integration: updateMemberProfile updates display_name; auth guard throws for wrong space |
+| ✅ | **S2.4 — Member profile management** | `src/app/app/actions.ts` | Integration: updateMemberProfile updates display_name; auth guard throws for wrong space |
 
 <details for "S2.2 — Space creation flow">
 

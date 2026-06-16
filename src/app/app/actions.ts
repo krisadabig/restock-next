@@ -231,6 +231,13 @@ export async function createSpace(name: string, displayName: string) {
   return result;
 }
 
+export async function updateMemberProfile(raw: { displayName?: string; avatar?: string | null }) {
+  const { memberId, spaceId } = await requireSession();
+  const updated = await queries.updateSpaceMember(db, memberId, raw);
+  log.info('member.profile.update', { memberId, spaceId, changes: Object.keys(raw) });
+  return updated;
+}
+
 export async function switchSpace(spaceId: string) {
   const session = await getSession();
   if (!session) throw new Error('Unauthorized');
