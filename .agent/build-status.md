@@ -236,7 +236,7 @@ Actions to cover: `updateItem`, `deleteItem`, `updateEntry`, `deleteEntry`, `upd
 | Status | Task | Key Files | Tests |
 |---|---|---|---|
 | ✅ | **S4.1 — SpaceContext provider** | `src/components/providers/SpaceContext.tsx` | Unit: useSpace() returns correct shape; throws outside provider |
-| 🔲 | **S4.2 — UIContext refactor** | `src/components/providers/` | Unit: each hook manages its own open/close state independently |
+| ✅ | **S4.2 — UIContext refactor** | `src/components/providers/` | Unit: each hook manages its own open/close state independently |
 | 🔲 | **S4.3 — Simplify offline layer** | `src/components/providers/OfflineContext.tsx`, `src/lib/sync.ts` | Unit: only entry mutations queued to IDB; others call server directly |
 
 <details for "S4.1 — SpaceContext provider">

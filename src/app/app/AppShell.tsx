@@ -8,7 +8,7 @@ import QuickLogSheet from '@/components/entry/QuickLogSheet';
 import EditItemSheet from '@/components/item/EditItemSheet';
 import DeleteItemModal from '@/components/item/DeleteItemModal';
 import { deleteItem } from '@/app/app/actions';
-import { useUI } from '@/components/providers/UIContext';
+import { useLogSheet, useQuickLog, useItemSheet } from '@/components/providers/UIContext';
 import type { Category } from '@/lib/db/schema';
 import { ROUTES } from '@/lib/constants';
 
@@ -19,17 +19,14 @@ interface Props {
 
 export default function AppShell({ categories, children }: Props) {
   const router = useRouter();
-  const {
-    isLogEntrySheetOpen, setLogEntrySheetOpen, logEntryPrefillItemId, logEntryPrefillType,
-    isQuickLogOpen, quickLogItemId, quickLogPrefill, setQuickLogOpen,
-    isEditItemSheetOpen, editItemTarget, editItemEntryCount, setEditItemSheetOpen,
-    isDeleteItemModalOpen, deleteItemTarget, setDeleteItemModalOpen,
-  } = useUI();
+  const { isOpen: isLogOpen, prefillItemId, prefillType, close: closeLog } = useLogSheet();
+  const { isOpen: isQuickOpen, itemId: quickItemId, prefill: quickPrefill, close: closeQuick } = useQuickLog();
+  const { isEditOpen, editTarget, editEntryCount, isDeleteOpen, deleteTarget, close: closeItem, openDelete } = useItemSheet();
 
   const handleDeleteItemConfirm = async () => {
-    if (!deleteItemTarget) return;
-    await deleteItem(deleteItemTarget.id);
-    setDeleteItemModalOpen(false);
+    if (!deleteTarget) return;
+    await deleteItem(deleteTarget.id);
+    closeItem();
     router.push(ROUTES.STOCK);
   };
 
@@ -43,36 +40,36 @@ export default function AppShell({ categories, children }: Props) {
       </div>
       <BottomNav />
       <LogEntrySheet
-        isOpen={isLogEntrySheetOpen}
-        onClose={() => setLogEntrySheetOpen(false)}
-        prefillItemId={logEntryPrefillItemId}
-        prefillType={logEntryPrefillType}
+        isOpen={isLogOpen}
+        onClose={closeLog}
+        prefillItemId={prefillItemId}
+        prefillType={prefillType}
       />
       <QuickLogSheet
-        isOpen={isQuickLogOpen}
-        onClose={() => setQuickLogOpen(false)}
-        itemId={quickLogItemId}
-        prefill={quickLogPrefill}
+        isOpen={isQuickOpen}
+        onClose={closeQuick}
+        itemId={quickItemId}
+        prefill={quickPrefill}
       />
-      {editItemTarget && (
+      {editTarget && (
         <EditItemSheet
-          item={editItemTarget}
+          item={editTarget}
           categories={categories}
-          hasEntries={editItemEntryCount > 0}
-          isOpen={isEditItemSheetOpen}
-          onClose={() => setEditItemSheetOpen(false)}
+          hasEntries={editEntryCount > 0}
+          isOpen={isEditOpen}
+          onClose={closeItem}
           onDeleteClick={(item) => {
-            setEditItemSheetOpen(false);
-            setDeleteItemModalOpen(true, item);
+            closeItem();
+            openDelete(item);
           }}
         />
       )}
-      {deleteItemTarget && (
+      {deleteTarget && (
         <DeleteItemModal
-          item={deleteItemTarget}
-          entryCount={editItemEntryCount}
-          isOpen={isDeleteItemModalOpen}
-          onClose={() => setDeleteItemModalOpen(false)}
+          item={deleteTarget}
+          entryCount={editEntryCount}
+          isOpen={isDeleteOpen}
+          onClose={closeItem}
           onConfirm={handleDeleteItemConfirm}
         />
       )}
