@@ -127,6 +127,8 @@ async function release() {
 	// 5. Run prod migration BEFORE pushing — old code tolerates new schema (additive migrations)
 	//    If your migration drops columns or renames tables, stop here and coordinate manually.
 	log('Running prod DB migration...');
+	const dbUrl = new URL(process.env.DATABASE_URL!);
+	log(`  DB host: ${dbUrl.host} · user: ${dbUrl.username} · db: ${dbUrl.pathname.slice(1)}`);
 	run('bun run db:migrate:prod', 'Prod Migration');
 
 	// 6. Tag + push — Vercel auto-deploys on push to main
