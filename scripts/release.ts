@@ -64,6 +64,16 @@ async function preflight() {
 	log('Checking schema drift...');
 	run('bun run db:check-drift', 'Schema Drift Check');
 
+	// Prod DB connectivity check via psql
+	log('Checking prod DB connectivity...');
+	try {
+		execSync(`/opt/homebrew/opt/libpq/bin/psql "${dbUrl}" -c "SELECT 1" --no-psqlrc -q`, { stdio: 'pipe' });
+		success('Prod DB reachable');
+	} catch {
+		error('Cannot connect to prod DB — check DATABASE_URL in .env');
+		process.exit(1);
+	}
+
 	// Ping Sentry API
 	await pingService('Sentry', 'https://sentry.io/api/0/', {
 		Authorization: `Bearer ${sentryToken}`,
