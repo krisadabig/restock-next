@@ -1,5 +1,6 @@
 import type { NextConfig } from 'next';
 import { withSentryConfig } from '@sentry/nextjs';
+import { withAxiom } from 'next-axiom';
 import { version } from './package.json';
 
 const nextConfig: NextConfig = {
@@ -46,7 +47,7 @@ const nextConfig: NextConfig = {
 	},
 };
 
-export default withSentryConfig(nextConfig, {
+export default withAxiom(withSentryConfig(nextConfig, {
 	org: process.env.SENTRY_ORG,
 	project: process.env.SENTRY_PROJECT,
 	silent: !process.env.CI,
@@ -56,4 +57,4 @@ export default withSentryConfig(nextConfig, {
 		treeshake: { removeDebugLogging: true },
 		automaticVercelMonitors: true,
 	},
-});
+}));
