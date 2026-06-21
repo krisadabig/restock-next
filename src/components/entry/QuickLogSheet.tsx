@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { ShoppingBag, ArrowDownRight } from 'lucide-react';
 import BottomSheetContainer from '@/components/ui/BottomSheetContainer';
 import { useTranslation } from '@/lib/i18n';
@@ -26,6 +26,15 @@ export default function QuickLogSheet({ isOpen, onClose, itemId, prefill }: Prop
   const [price, setPrice] = useState(String(prefill?.lastPrice ?? ''));
   const [store, setStore] = useState(prefill?.lastStore ?? '');
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    setType(ENTRY_TYPE.PURCHASE);
+    setQty(prefill?.lastQty ?? 1);
+    setPriceChanged(false);
+    setPrice(String(prefill?.lastPrice ?? ''));
+    setStore(prefill?.lastStore ?? '');
+  }, [isOpen, itemId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleSave = async () => {
     if (!itemId) return;
@@ -119,9 +128,9 @@ export default function QuickLogSheet({ isOpen, onClose, itemId, prefill }: Prop
                   type="button"
                   data-testid="change-price-btn"
                   onClick={() => setPriceChanged(true)}
-                  className="text-xs font-bold text-primary hover:underline"
+                  className="text-xs font-bold text-primary bg-primary/10 px-2.5 py-1 rounded-lg hover:bg-primary/20 transition-all"
                 >
-                  [{t('app.change')}]
+                  {t('app.change')}
                 </button>
               </div>
             ) : (

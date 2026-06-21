@@ -5,7 +5,6 @@ import { X, Trash2, ShoppingBag, ArrowDownRight } from 'lucide-react';
 import BottomSheetContainer from '@/components/ui/BottomSheetContainer';
 import { useTranslation } from '@/lib/i18n';
 import { useOffline } from '@/components/providers/OfflineContext';
-import PillSelector from '@/components/ui/PillSelector';
 import type { Entry } from '@/lib/db/schema';
 import { ENTRY_TYPE, UNIT_OPTIONS } from '@/lib/constants';
 import type { EntryType } from '@/lib/constants';
@@ -98,7 +97,13 @@ export default function EditEntrySheet({ entry, isOpen, onClose, onDelete }: Pro
             </div>
             <div className="space-y-1.5">
               <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">{t('app.unit')}</label>
-              <PillSelector options={UNIT_OPTIONS} value={unit} onChange={setUnit} />
+              <select
+                value={unit}
+                onChange={(e) => setUnit(e.target.value)}
+                className="input-premium"
+              >
+                {UNIT_OPTIONS.map((u) => <option key={u} value={u}>{u}</option>)}
+              </select>
             </div>
           </div>
 

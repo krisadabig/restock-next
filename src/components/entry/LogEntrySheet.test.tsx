@@ -154,6 +154,16 @@ describe('LogEntrySheet', () => {
     expect(onClose).toHaveBeenCalled();
   });
 
+  it('unit override shows a <select> element (not pill strip) when [≠ unit] is clicked', async () => {
+    await act(async () => {
+      wrap(<LogEntrySheet isOpen={true} onClose={vi.fn()} />);
+    });
+    await act(async () => { fireEvent.click(screen.getByTestId('item-chip-1')); });
+    await act(async () => { fireEvent.click(screen.getByTestId('change-unit-btn')); });
+    const unitSelect = screen.getByTestId('unit-select');
+    expect(unitSelect.tagName).toBe('SELECT');
+  });
+
   it('pre-fills type when prefillType is provided', async () => {
     await act(async () => {
       wrap(<LogEntrySheet isOpen={true} onClose={vi.fn()} prefillType="consume" />);

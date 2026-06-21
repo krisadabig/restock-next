@@ -2,11 +2,12 @@
 
 import { useState, useEffect } from 'react';
 import { useTranslation } from '@/lib/i18n';
-import { Moon, Sun, Globe, LogOut, Trash2, Fingerprint, ShieldCheck, ChevronRight, Users, Store, Tag, UserCircle, Link } from 'lucide-react';
+import { Moon, Sun, Globe, LogOut, Trash2, Fingerprint, ShieldCheck, ChevronRight, Users, Store, Tag, UserCircle, Link, Copy, Check } from 'lucide-react';
 import { logout } from '@/app/auth/actions';
 import { registerPasskey } from '@/lib/auth';
-import { createInvite, updateMemberProfile, leaveSpace } from '@/app/app/actions';
+import { createInvite, updateMemberProfile, leaveSpace, switchSpace } from '@/app/app/actions';
 import { useSpace } from '@/components/providers/SpaceContext';
+import { useRouter } from 'next/navigation';
 import { useTheme } from 'next-themes';
 import type { Category } from '@/lib/db/schema';
 
@@ -18,6 +19,7 @@ interface Props {
 export default function SettingsClient({ categories, stores }: Props) {
   const { t, locale, setLocale } = useTranslation();
   const { theme, setTheme } = useTheme();
+  const router = useRouter();
   const { spaceId, memberId, displayName, members, mySpaces } = useSpace();
   const [mounted, setMounted] = useState(false);
 
@@ -28,6 +30,9 @@ export default function SettingsClient({ categories, stores }: Props) {
   // profile edit state
   const [profileName, setProfileName] = useState(displayName);
   const [profileSaving, setProfileSaving] = useState(false);
+
+  // invite copy state
+  const [inviteCopied, setInviteCopied] = useState(false);
 
   // leave space state
   const [showLeaveConfirm, setShowLeaveConfirm] = useState(false);
@@ -176,9 +181,23 @@ export default function SettingsClient({ categories, stores }: Props) {
               {t('settings.inviteMember')}
             </button>
             {inviteCode && (
-              <div className="bg-secondary/30 rounded-2xl p-4 space-y-1">
+              <div className="bg-secondary/30 rounded-2xl p-4 space-y-3">
                 <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">{t('settings.inviteCode')}</p>
                 <p data-testid="invite-code" className="text-2xl font-mono font-bold tracking-widest text-primary">{inviteCode}</p>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const url = `${window.location.origin}/join/${inviteCode}`;
+                    navigator.clipboard.writeText(url).then(() => {
+                      setInviteCopied(true);
+                      setTimeout(() => setInviteCopied(false), 2000);
+                    });
+                  }}
+                  className="flex items-center gap-2 text-xs font-bold text-primary bg-primary/10 px-3 py-1.5 rounded-lg hover:bg-primary/20 transition-all"
+                >
+                  {inviteCopied ? <Check size={12} /> : <Copy size={12} />}
+                  {inviteCopied ? 'Copied!' : 'Copy invite link'}
+                </button>
               </div>
             )}
           </div>
@@ -191,9 +210,19 @@ export default function SettingsClient({ categories, stores }: Props) {
           <h2 className="text-[10px] font-bold text-muted-foreground/50 uppercase tracking-[0.2em] px-2">{t('settings.switchSpace')}</h2>
           <div className="glass-card overflow-hidden rounded-[2rem] divide-y divide-primary/5">
             {mySpaces.map((s) => (
-              <div key={s.id} className="flex items-center justify-between p-5">
+              <button
+                key={s.id}
+                data-testid={`switch-space-${s.id}`}
+                type="button"
+                disabled={s.id === spaceId}
+                onClick={async () => { await switchSpace(s.id); router.refresh(); }}
+                className="w-full flex items-center justify-between p-5 hover:bg-white/5 transition-all disabled:opacity-50 text-left"
+              >
                 <span className="text-sm font-semibold">{s.name}</span>
-              </div>
+                {s.id === spaceId && (
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-primary">Active</span>
+                )}
+              </button>
             ))}
           </div>
         </section>

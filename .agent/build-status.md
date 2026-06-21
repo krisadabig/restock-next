@@ -420,9 +420,7 @@ Delete:
 
 ## Backlog — UX Revamp
 
-> Not yet scheduled. Audit the full app for friction before implementing.
-
 | Status | Task | Notes |
 |---|---|---|
-| 🔲 | **B2.1 — Unit selection redesign** | Current horizontal scroll strip is poor UX. Replace with a compact dropdown or bottom-sheet picker. Applies everywhere a unit is selected (log entry, add item, category default). |
-| 🔲 | **B2.2 — Full UX audit** | Walk every screen and collect friction points before building fixes. Produce a prioritised list in `.agent/ux-spec.md`. |
+| ✅ | **B2.1 — Unit selection redesign** | Replaced PillSelector (horizontal scroll, 9 pills) with `<select>` in LogEntrySheet, EditEntrySheet, NewItemInlineFields. Deleted PillSelector.tsx. |
+| ✅ | **B2.2 — Full UX audit + fixes** | Audit complete. Fixed: QuickLogSheet state reset bug, unit/price/date affordance restyle (chips instead of `[text]` links), switchSpace wired in Settings, invite copy-link button added. |

@@ -117,6 +117,19 @@ describe('SettingsClient — profile edit', () => {
   });
 });
 
+describe('SettingsClient — switch space', () => {
+  beforeEach(() => { mockSwitchSpace.mockReset(); });
+
+  it('clicking a non-active space calls switchSpace with its id', async () => {
+    mockSwitchSpace.mockResolvedValue(undefined);
+    wrap(<SettingsClient categories={categories} stores={stores} />);
+    await act(async () => {
+      fireEvent.click(screen.getByTestId('switch-space-sp2'));
+    });
+    expect(mockSwitchSpace).toHaveBeenCalledWith('sp2');
+  });
+});
+
 describe('SettingsClient — leave space', () => {
   beforeEach(() => { mockLeaveSpace.mockReset(); });
 

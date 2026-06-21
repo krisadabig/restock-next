@@ -6,7 +6,6 @@ import BottomSheetContainer from '@/components/ui/BottomSheetContainer';
 import { useTranslation } from '@/lib/i18n';
 import { useOffline } from '@/components/providers/OfflineContext';
 import type { ItemSuggestion } from '@/components/ui/Autocomplete';
-import PillSelector from '@/components/ui/PillSelector';
 import { getItemsForAutocomplete, getCategories, addItem, addCategory } from '@/app/app/actions';
 import type { Category } from '@/lib/db/schema';
 import { ENTRY_TYPE, DEFAULTS, UNIT_OPTIONS } from '@/lib/constants';
@@ -283,15 +282,20 @@ export default function LogEntrySheet({ isOpen, onClose, prefillItemId, prefillT
                 type="button"
                 data-testid="change-unit-btn"
                 onClick={() => setShowUnitPicker((v) => !v)}
-                className="text-xs font-bold text-primary hover:underline shrink-0"
+                className="text-xs font-bold text-primary bg-primary/10 px-2.5 py-1 rounded-lg hover:bg-primary/20 transition-all shrink-0"
               >
-                [≠ unit]
+                ≠ unit
               </button>
             </div>
             {showUnitPicker && (
-              <div className="pt-1">
-                <PillSelector options={UNIT_OPTIONS} value={unit} onChange={(u) => { setUnit(u); setShowUnitPicker(false); }} />
-              </div>
+              <select
+                data-testid="unit-select"
+                value={unit}
+                onChange={(e) => { setUnit(e.target.value); setShowUnitPicker(false); }}
+                className="input-premium text-sm"
+              >
+                {UNIT_OPTIONS.map((u) => <option key={u} value={u}>{u}</option>)}
+              </select>
             )}
           </div>
 
@@ -311,9 +315,9 @@ export default function LogEntrySheet({ isOpen, onClose, prefillItemId, prefillT
                       type="button"
                       data-testid="change-price-btn"
                       onClick={() => setPriceMode('input')}
-                      className="text-xs font-bold text-primary hover:underline"
+                      className="text-xs font-bold text-primary bg-primary/10 px-2.5 py-1 rounded-lg hover:bg-primary/20 transition-all"
                     >
-                      [{t('app.change')}]
+                      {t('app.change')}
                     </button>
                   </div>
                 ) : (
@@ -368,9 +372,9 @@ export default function LogEntrySheet({ isOpen, onClose, prefillItemId, prefillT
                   type="button"
                   data-testid="change-date-btn"
                   onClick={() => setShowDatePicker(true)}
-                  className="text-xs font-bold text-primary hover:underline"
+                  className="text-xs font-bold text-primary bg-primary/10 px-2.5 py-1 rounded-lg hover:bg-primary/20 transition-all"
                 >
-                  [≠]
+                  ≠
                 </button>
               </div>
             )}
@@ -476,7 +480,13 @@ function NewItemInlineFields({ categories, onCreated, onCancel }: NewItemInlineF
           className="input-premium text-sm"
         />
       )}
-      <PillSelector options={UNIT_OPTIONS} value={unit} onChange={setUnit} />
+      <select
+        value={unit}
+        onChange={(e) => setUnit(e.target.value)}
+        className="input-premium text-sm"
+      >
+        {UNIT_OPTIONS.map((u) => <option key={u} value={u}>{u}</option>)}
+      </select>
       <div className="flex gap-2">
         <button
           type="button"

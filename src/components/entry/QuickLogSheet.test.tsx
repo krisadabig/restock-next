@@ -105,4 +105,28 @@ describe('QuickLogSheet', () => {
     expect(screen.queryByTestId('unit-input')).toBeNull();
     expect(screen.getByTestId('unit-label')).toBeDefined();
   });
+
+  it('resets qty and price when reopened with a new item', async () => {
+    const newPrefill = { ...prefill, lastQty: 7, lastPrice: 120, lastStore: 'CJ' };
+    const { rerender } = render(
+      <I18nProvider initialLocale="en">
+        <QuickLogSheet isOpen={true} onClose={vi.fn()} itemId={1} prefill={prefill} />
+      </I18nProvider>
+    );
+    expect(screen.getByTestId('qty-value').textContent).toBe('2');
+
+    rerender(
+      <I18nProvider initialLocale="en">
+        <QuickLogSheet isOpen={false} onClose={vi.fn()} itemId={2} prefill={newPrefill} />
+      </I18nProvider>
+    );
+    rerender(
+      <I18nProvider initialLocale="en">
+        <QuickLogSheet isOpen={true} onClose={vi.fn()} itemId={2} prefill={newPrefill} />
+      </I18nProvider>
+    );
+
+    expect(screen.getByTestId('qty-value').textContent).toBe('7');
+    expect(screen.getByTestId('price-preconfirm').textContent).toContain('120');
+  });
 });
