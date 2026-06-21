@@ -403,3 +403,26 @@ Delete:
 | 🔲 | **S6.1 — Integration tests** | `tests/integration/spaces.test.ts` | Integration: full happy paths for spaces + invites |
 | 🔲 | **S6.2 — i18n update** | `src/lib/i18n.tsx`, `src/lib/i18n.test.ts` | Unit: no-missing-keys guard passes with new keys |
 | 🔲 | **S6.3 — Update agent docs** | `.agent/as-is.md`, `.agent/data-model-spec.md`, `.agent/ux-spec.md` | Docs reflect new schema, actions, context |
+
+---
+
+## Backlog — Space Management UX
+
+> Not yet scheduled. Pick up after Sprint 6.
+
+| Status | Task | Notes |
+|---|---|---|
+| 🔲 | **B1.1 — Space switcher UI** | Active space shown in header; tap to switch between user's spaces. `getMySpaces()` exists, UI does not. |
+| 🔲 | **B1.2 — Create new space flow** | User can create a second (or nth) space from settings. `createSpace()` action exists, no UI entry point. |
+| 🔲 | **B1.3 — Join space flow** | `joinByInviteCode()` exists but there is no `/join/[code]` page or UI to enter a code. Needs a public route + form. |
+
+---
+
+## Backlog — UX Revamp
+
+> Not yet scheduled. Audit the full app for friction before implementing.
+
+| Status | Task | Notes |
+|---|---|---|
+| 🔲 | **B2.1 — Unit selection redesign** | Current horizontal scroll strip is poor UX. Replace with a compact dropdown or bottom-sheet picker. Applies everywhere a unit is selected (log entry, add item, category default). |
+| 🔲 | **B2.2 — Full UX audit** | Walk every screen and collect friction points before building fixes. Produce a prioritised list in `.agent/ux-spec.md`. |
