@@ -262,6 +262,26 @@ export async function switchSpace(spaceId: string) {
   revalidatePath('/app');
 }
 
+export async function createInvite() {
+  const { spaceId, memberId } = await requireSession();
+  const invite = await queries.createInviteRecord(db, spaceId, memberId);
+  log.info('invite.create', { spaceId, memberId, code: invite.code });
+  return { code: invite.code };
+}
+
+export async function joinByInviteCode(code: string) {
+  const session = await getSession();
+  if (!session) throw new Error('Unauthorized');
+  try {
+    const member = await queries.joinByCode(db, code, session.userId, session.username);
+    log.info('invite.join', { spaceId: member.spaceId, memberId: member.id, userId: session.userId });
+    return { spaceId: member.spaceId };
+  } catch (e) {
+    log.warn('invite.join.failed', { code, error: (e as Error).message, userId: session.userId });
+    throw e;
+  }
+}
+
 export async function renameSpace(spaceId: string, name: string) {
   const session = await getSession();
   if (!session) throw new Error('Unauthorized');

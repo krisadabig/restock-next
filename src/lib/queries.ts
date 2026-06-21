@@ -433,6 +433,39 @@ export async function updateSpaceMember(
   return updated;
 }
 
+// ── Invites ──────────────────────────────────────────────────────────────────
+
+function randomCode(): string {
+  return Math.random().toString(36).slice(2, 10).toUpperCase().slice(0, 8).padEnd(8, '0');
+}
+
+export async function createInviteRecord(
+  db: Db,
+  spaceId: string,
+  createdBy: number,
+  opts?: { expiresAt?: Date },
+) {
+  const expiresAt = opts?.expiresAt ?? new Date(Date.now() + 48 * 60 * 60 * 1000);
+  const [invite] = await db.insert(schema.spaceInvites).values({ spaceId, createdBy, code: randomCode(), expiresAt }).returning();
+  return invite;
+}
+
+export async function joinByCode(db: Db, code: string, userId: string, displayName: string) {
+  const invite = await db.query.spaceInvites.findFirst({ where: (i, { eq }) => eq(i.code, code) });
+  if (!invite) throw new Error('Invalid code');
+  if (invite.usedAt) throw new Error('Already used');
+  if (invite.expiresAt < new Date()) throw new Error('Code expired');
+
+  const existing = await db.query.spaceMembers.findFirst({
+    where: (m, { and, eq }) => and(eq(m.spaceId, invite.spaceId), eq(m.userId, userId)),
+  });
+  if (existing) throw new Error('Already a member');
+
+  const [member] = await db.insert(schema.spaceMembers).values({ spaceId: invite.spaceId, userId, displayName }).returning();
+  await db.update(schema.spaceInvites).set({ usedAt: new Date() }).where(eq(schema.spaceInvites.id, invite.id));
+  return member;
+}
+
 export async function renameSpaceRecord(db: Db, spaceId: string, name: string) {
   const [updated] = await db.update(schema.spaces).set({ name }).where(eq(schema.spaces.id, spaceId)).returning();
   return updated;
