@@ -433,6 +433,20 @@ export async function updateSpaceMember(
   return updated;
 }
 
+export async function renameSpaceRecord(db: Db, spaceId: string, name: string) {
+  const [updated] = await db.update(schema.spaces).set({ name }).where(eq(schema.spaces.id, spaceId)).returning();
+  return updated;
+}
+
+export async function removeSpaceMember(db: Db, memberId: number, opts?: { enforceMinOne?: boolean }) {
+  if (opts?.enforceMinOne) {
+    const [{ spaceId }] = await db.select({ spaceId: schema.spaceMembers.spaceId }).from(schema.spaceMembers).where(eq(schema.spaceMembers.id, memberId));
+    const count = await db.$count(schema.spaceMembers, eq(schema.spaceMembers.spaceId, spaceId));
+    if (count <= 1) throw new Error('Last member');
+  }
+  await db.delete(schema.spaceMembers).where(eq(schema.spaceMembers.id, memberId));
+}
+
 export async function insertSpaceWithMember(
   db: Db,
   userId: string,

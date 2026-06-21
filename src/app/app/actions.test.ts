@@ -37,6 +37,8 @@ vi.mock('@/lib/queries', () => ({
   updateSpaceMember:       vi.fn(),
   updateCategoryRecord:    vi.fn(),
   deleteCategoryRecord:    vi.fn(),
+  renameSpaceRecord:       vi.fn(),
+  removeSpaceMember:       vi.fn(),
 }));
 
 import { getSession, createSession, requireSession } from '@/lib/session';
@@ -47,6 +49,7 @@ import {
   getItemDetail, getCategoryDetail,
   createSpace,
   switchSpace, getMySpaces,
+  renameSpace, leaveSpace,
   updateMemberProfile,
   updateCategory, deleteCategory,
 } from './actions';
@@ -249,6 +252,48 @@ describe('server action authorization', () => {
       mockFindCategory.mockResolvedValue({ id: 5, spaceId: MY_SPACE });
       (queries.deleteCategoryRecord as Mock).mockResolvedValue(undefined);
       await expect(deleteCategory(5)).resolves.not.toThrow();
+    });
+  });
+
+  // ── renameSpace ────────────────────────────────────────────────────────────
+
+  describe('renameSpace', () => {
+    it('throws Unauthorized when no session', async () => {
+      (getSession as Mock).mockResolvedValue(null);
+      await expect(renameSpace(MY_SPACE, 'New Name')).rejects.toThrow('Unauthorized');
+    });
+
+    it('throws Not a member when user is not in the target space', async () => {
+      mockFindSpaceMember.mockResolvedValue(null);
+      await expect(renameSpace(OTHER_SPACE, 'New Name')).rejects.toThrow('Not a member');
+    });
+
+    it('calls renameSpaceRecord when user is a member', async () => {
+      mockFindSpaceMember.mockResolvedValue({ id: 1, spaceId: MY_SPACE, userId: 'u1' });
+      (queries.renameSpaceRecord as Mock).mockResolvedValue({ id: MY_SPACE, name: 'New Name' });
+      await expect(renameSpace(MY_SPACE, 'New Name')).resolves.not.toThrow();
+      expect(queries.renameSpaceRecord as Mock).toHaveBeenCalledWith(expect.anything(), MY_SPACE, 'New Name');
+    });
+  });
+
+  // ── leaveSpace ─────────────────────────────────────────────────────────────
+
+  describe('leaveSpace', () => {
+    it('throws Unauthorized when no session', async () => {
+      (getSession as Mock).mockResolvedValue(null);
+      await expect(leaveSpace(MY_SPACE)).rejects.toThrow('Unauthorized');
+    });
+
+    it('throws Not a member when user is not in the target space', async () => {
+      mockFindSpaceMember.mockResolvedValue(null);
+      await expect(leaveSpace(OTHER_SPACE)).rejects.toThrow('Not a member');
+    });
+
+    it('calls removeSpaceMember with enforceMinOne when user is a member', async () => {
+      mockFindSpaceMember.mockResolvedValue({ id: 7, spaceId: MY_SPACE, userId: 'u1' });
+      (queries.removeSpaceMember as Mock).mockResolvedValue(undefined);
+      await expect(leaveSpace(MY_SPACE)).resolves.not.toThrow();
+      expect(queries.removeSpaceMember as Mock).toHaveBeenCalledWith(expect.anything(), 7, { enforceMinOne: true });
     });
   });
 

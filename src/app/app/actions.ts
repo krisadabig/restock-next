@@ -262,6 +262,30 @@ export async function switchSpace(spaceId: string) {
   revalidatePath('/app');
 }
 
+export async function renameSpace(spaceId: string, name: string) {
+  const session = await getSession();
+  if (!session) throw new Error('Unauthorized');
+  const member = await db.query.spaceMembers.findFirst({
+    where: (m, { and, eq }) => and(eq(m.spaceId, spaceId), eq(m.userId, session.userId)),
+  });
+  if (!member) throw new Error('Not a member');
+  await queries.renameSpaceRecord(db, spaceId, name);
+  log.info('space.rename', { spaceId, userId: session.userId });
+  revalidatePath('/app');
+}
+
+export async function leaveSpace(spaceId: string) {
+  const session = await getSession();
+  if (!session) throw new Error('Unauthorized');
+  const member = await db.query.spaceMembers.findFirst({
+    where: (m, { and, eq }) => and(eq(m.spaceId, spaceId), eq(m.userId, session.userId)),
+  });
+  if (!member) throw new Error('Not a member');
+  await queries.removeSpaceMember(db, member.id, { enforceMinOne: true });
+  log.info('space.leave', { spaceId, memberId: member.id, userId: session.userId });
+  revalidatePath('/app');
+}
+
 export async function getMySpaces() {
   const session = await getSession();
   if (!session) throw new Error('Unauthorized');
