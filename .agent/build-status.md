@@ -97,7 +97,7 @@ Standalone action `createSpace(name, displayName)`:
 
 | Status | Task | Key Files | Tests |
 |---|---|---|---|
-| 🔲 | **S3.1 — Update requireSession()** | `src/lib/session.ts` | Unit: returns spaceId+memberId; throws on no session; throws on no active space |
+| ✅ | **S3.1 — Update requireSession()** | `src/lib/session.ts` | Unit: returns spaceId+memberId; throws on no session; throws on no active space |
 | 🔲 | **S3.2 — Category actions** | `src/app/app/actions.ts` | Integration: CRUD + auth guard (wrong spaceId throws) |
 | 🔲 | **S3.3 — Item actions** | `src/app/app/actions.ts` | Integration: CRUD + auth guard + getSpaceItems returns correct shape |
 | 🔲 | **S3.4 — Entry actions** | `src/app/app/actions.ts` | Integration: add/update/delete recalculates currentStock; memberId attribution |

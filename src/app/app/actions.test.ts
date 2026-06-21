@@ -12,7 +12,7 @@ const { mockFindItem, mockFindEntry, mockFindCategory, mockFindSpaceMember } = v
 
 vi.mock('next/cache', () => ({ revalidatePath: vi.fn() }));
 vi.mock('@/lib/logger', () => ({ log: { info: vi.fn(), warn: vi.fn(), error: vi.fn() } }));
-vi.mock('@/lib/session', () => ({ getSession: vi.fn(), createSession: vi.fn() }));
+vi.mock('@/lib/session', () => ({ getSession: vi.fn(), createSession: vi.fn(), requireSession: vi.fn() }));
 vi.mock('@/lib/db', () => ({
   db: {
     query: {
@@ -36,7 +36,7 @@ vi.mock('@/lib/queries', () => ({
   updateSpaceMember:      vi.fn(),
 }));
 
-import { getSession, createSession } from '@/lib/session';
+import { getSession, createSession, requireSession } from '@/lib/session';
 import * as queries from '@/lib/queries';
 import {
   updateItem, deleteItem,
@@ -56,7 +56,7 @@ describe('server action authorization', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     (getSession as Mock).mockResolvedValue(SESSION);
-    (queries.getActiveSpaceForUser as Mock).mockResolvedValue(MEMBERSHIP);
+    (requireSession as Mock).mockResolvedValue({ userId: SESSION.userId, spaceId: MY_SPACE, memberId: MEMBERSHIP.memberId });
   });
 
   // ── updateItem ─────────────────────────────────────────────────────────────
@@ -204,13 +204,13 @@ describe('server action authorization', () => {
 
   describe('updateMemberProfile', () => {
     it('throws Unauthorized when no session', async () => {
-      (getSession as Mock).mockResolvedValue(null);
+      (requireSession as Mock).mockRejectedValue(new Error('Unauthorized'));
       await expect(updateMemberProfile({ displayName: 'Alice' })).rejects.toThrow('Unauthorized');
     });
 
-    it('throws when user has no space membership', async () => {
-      (queries.getActiveSpaceForUser as Mock).mockResolvedValue(null);
-      await expect(updateMemberProfile({ displayName: 'Alice' })).rejects.toThrow('No space found for user');
+    it('throws No active space when session has no activeSpaceId', async () => {
+      (requireSession as Mock).mockRejectedValue(new Error('No active space'));
+      await expect(updateMemberProfile({ displayName: 'Alice' })).rejects.toThrow('No active space');
     });
 
     it('calls updateSpaceMember with memberId and patch when valid', async () => {

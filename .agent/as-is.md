@@ -135,10 +135,10 @@ Index: `idx_groups_household(household_id)`
 
 File: `src/app/app/actions.ts`
 
-All actions call `requireSession()` first, which:
+All actions call `requireSession()` first (exported from `src/lib/session.ts`), which:
 1. Calls `getSession()` — throws `'Unauthorized'` if no session
-2. Calls `getHouseholdForUser(db, userId)` — throws `'No household found for user'` if not in a household
-3. Returns `{ userId, username, householdId }`
+2. Checks `session.activeSpaceId` — throws `'No active space'` if missing
+3. Returns `{ userId: string, spaceId: string, memberId: number }` — no DB query
 
 Record-level authorization: actions that accept an ID re-fetch the record and compare its `householdId` to the session's `householdId`, throwing `'Not found'` if mismatched.
 

@@ -1,7 +1,7 @@
 'use server';
 
 import { db } from '@/lib/db';
-import { getSession, createSession } from '@/lib/session';
+import { getSession, createSession, requireSession } from '@/lib/session';
 import { log } from '@/lib/logger';
 import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
@@ -9,18 +9,6 @@ import * as queries from '@/lib/queries';
 import { ENTRY_TYPE, DEFAULTS } from '@/lib/constants';
 
 export type { Entry, Item, Category } from '@/lib/db/schema';
-
-// ── Auth helper ─────────────────────────────────────────────────────────────
-
-async function requireSession() {
-  const session = await getSession();
-  if (!session) throw new Error('Unauthorized');
-
-  const membership = await queries.getActiveSpaceForUser(db, session.userId);
-  if (!membership) throw new Error('No space found for user');
-
-  return { userId: session.userId, username: session.username, spaceId: membership.spaceId, memberId: membership.memberId };
-}
 
 // ── Category actions ────────────────────────────────────────────────────────
 
