@@ -60,6 +60,10 @@ async function preflight() {
 		process.exit(1);
 	}
 
+	// Schema drift check — fail if schema.ts has changes not reflected in a migration file
+	log('Checking schema drift...');
+	run('bun run db:check-drift', 'Schema Drift Check');
+
 	// Ping Sentry API
 	await pingService('Sentry', 'https://sentry.io/api/0/', {
 		Authorization: `Bearer ${sentryToken}`,

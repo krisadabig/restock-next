@@ -56,6 +56,6 @@ jobs:
         run: bun run db:migrate:test
         env:
           DATABASE_URL: postgres://postgres:postgres@localhost:5432/restock_test
-      - run: bun run test:integration
-        env:
-          DATABASE_URL_TEST: postgres://postgres:postgres@localhost:5432/restock_test
+      - name: Run integration tests
+        # Override dotenv-cli's .env.test lookup — the file is gitignored, so we inject inline
+        run: DATABASE_URL_TEST=postgres://postgres:postgres@localhost:5432/restock_test bun run test:integration
