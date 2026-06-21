@@ -11,7 +11,8 @@ if (!['major', 'minor', 'patch'].includes(type)) {
 }
 
 // Load .env only — intentionally skip .env.local (points to localhost postgres)
-dotenv.config({ path: '.env' });
+// override: true forces file values over any shell-inherited env vars
+dotenv.config({ path: '.env', override: true });
 
 // ── Pre-flight checks ────────────────────────────────────────────────────────
 
