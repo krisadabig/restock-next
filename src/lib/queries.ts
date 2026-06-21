@@ -401,6 +401,7 @@ export async function getSpaceMembers(db: Db, spaceId: string) {
       username: schema.users.username,
       memberId: schema.spaceMembers.id,
       displayName: schema.spaceMembers.displayName,
+      avatar: schema.spaceMembers.avatar,
     })
     .from(schema.spaceMembers)
     .innerJoin(schema.users, eq(schema.spaceMembers.userId, schema.users.id))

@@ -27,7 +27,7 @@
 - `/app/inventory/[item]` → `/app`
 - `/app/trends` → `/app/price`
 
-**Layout:** `src/app/app/layout.tsx` wraps all `/app/*` routes with `HouseholdProvider` (initialized server-side from session) and `AppShell` (renders `BottomNav` + `ClientLayout`).
+**Layout:** `src/app/app/layout.tsx` wraps all `/app/*` routes with `SpaceProvider` + `HouseholdProvider` (initialized server-side from session + DB queries) and `AppShell`. `SpaceProvider` receives a `SpaceContextValue` built from `getSpaceMembers` + `getUserSpaces` fetched in the server component.
 
 ---
 
@@ -194,17 +194,34 @@ Record-level authorization: actions that accept an ID re-fetch the record and co
 | `getCategoryDetail` | `(categoryId)` | `{ category, items, monthlySpend } \| null` |
 | `getSpaceSpend` | `(from, to)` | spend totals + byCategory breakdown |
 | `getRecentPurchases` | `(limit?)` | recent purchase entries with item + category names |
-| `getSpaceMembers` | `()` | `Array<{ userId, username, memberId, displayName }>` |
+| `getSpaceMembers` | `()` | `Array<{ userId, username, memberId, displayName, avatar }>` |
 
 ---
 
 ## 4. Context Providers
 
-Provider tree (outermost → innermost): `ThemeProvider → OfflineProvider → UIProvider → HouseholdProvider`
+Provider tree (outermost → innermost): `SpaceProvider → HouseholdProvider → OfflineProvider → UIProvider`
 
-Mounted in: `src/components/Providers.tsx` (client), `HouseholdProvider` initialized in `src/app/app/layout.tsx` (server → client boundary).
+Mounted in: `src/app/app/ClientLayout.tsx`. Both `SpaceProvider` and `HouseholdProvider` initialized server-side in `src/app/app/layout.tsx`.
 
-### `HouseholdContext`
+### `SpaceContext` ← **new (S4.1)**
+File: `src/components/providers/SpaceContext.tsx`
+
+```ts
+interface SpaceContextValue {
+  spaceId: string;
+  memberId: number;
+  displayName: string;
+  avatar: string | null;
+  members: Array<{ memberId: number; displayName: string; avatar: string | null }>;
+  mySpaces: Array<{ id: string; name: string }>;
+}
+// Hook: useSpace() — throws outside SpaceProvider
+```
+
+Initialized server-side in `layout.tsx` from `requireSession()` + `getSpaceMembers` + `getUserSpaces`. Read-only — no setters.
+
+### `HouseholdContext` ← **deprecated, remove in S5.2**
 File: `src/components/providers/HouseholdContext.tsx`
 
 ```ts
@@ -216,7 +233,7 @@ interface HouseholdContextValue {
 // Hook: useHousehold()
 ```
 
-Initialized server-side from session data in `app/app/layout.tsx`. Read-only — no setters.
+Still used by `StockClient`. Will be removed when StockClient migrates to `useSpace()` in S5.2.
 `currentUserId` comes from `session.userId` threaded through `layout.tsx` → `ClientLayout` → `HouseholdProvider`.
 
 ### `UIContext`

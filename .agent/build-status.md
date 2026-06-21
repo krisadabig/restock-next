@@ -103,7 +103,7 @@ Standalone action `createSpace(name, displayName)`:
 | ✅ | **S3.4 — Entry actions** | `src/app/app/actions.ts` | Integration: add/update/delete recalculates currentStock; memberId attribution |
 | ✅ | **S3.5 — Space actions** | `src/app/app/actions.ts` | Integration: getMySpaces, renameSpace, leaveSpace |
 | ✅ | **S3.6 — Invite actions** | `src/app/app/actions.ts` | Integration: createInvite → joinByInviteCode happy path; expired/used/duplicate errors |
-| 🔲 | **S3.7 — Authorization tests** | `src/app/app/actions.test.ts` | Unit: every ID-accepting action throws when spaceId doesn't own the record |
+| ✅ | **S3.7 — Authorization tests** | `src/app/app/actions.test.ts` | Unit: every ID-accepting action throws when spaceId doesn't own the record |
 
 <details for "S3.1 — Update requireSession()">
 
@@ -235,7 +235,7 @@ Actions to cover: `updateItem`, `deleteItem`, `updateEntry`, `deleteEntry`, `upd
 
 | Status | Task | Key Files | Tests |
 |---|---|---|---|
-| 🔲 | **S4.1 — SpaceContext provider** | `src/components/providers/SpaceContext.tsx` | Unit: useSpace() returns correct shape; throws outside provider |
+| ✅ | **S4.1 — SpaceContext provider** | `src/components/providers/SpaceContext.tsx` | Unit: useSpace() returns correct shape; throws outside provider |
 | 🔲 | **S4.2 — UIContext refactor** | `src/components/providers/` | Unit: each hook manages its own open/close state independently |
 | 🔲 | **S4.3 — Simplify offline layer** | `src/components/providers/OfflineContext.tsx`, `src/lib/sync.ts` | Unit: only entry mutations queued to IDB; others call server directly |
 
