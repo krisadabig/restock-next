@@ -5,8 +5,8 @@ import { useRouter } from 'next/navigation';
 import { Search, Package } from 'lucide-react';
 import { useTranslation } from '@/lib/i18n';
 import { stockStatus } from '@/lib/stock';
-import { useHousehold } from '@/components/providers/HouseholdContext';
-import { useUI } from '@/components/providers/UIContext';
+import { useSpace } from '@/components/providers/SpaceContext';
+import { useQuickLog } from '@/components/providers/UIContext';
 import { THRESHOLDS, DEFAULTS } from '@/lib/constants';
 import LowStockRail from './LowStockRail';
 import CategoryGroup from './CategoryGroup';
@@ -24,15 +24,8 @@ interface CategoryData {
   items: StockEntry[];
 }
 
-interface GroupFilter {
-  id: number;
-  name: string;
-  itemIds: number[];
-}
-
 interface Props {
   itemsByCategory: CategoryData[];
-  groups?: GroupFilter[];
 }
 
 type Filter = 'all' | 'out' | 'low' | 'az' | 'recent';
@@ -41,21 +34,20 @@ function relativeHours(now: number, date: Date): number {
   return (now - date.getTime()) / (1000 * 60 * 60);
 }
 
-function formatPartnerTag(now: number, username: string, lastEntryAt: Date): string {
+function formatPartnerTag(now: number, displayName: string, lastEntryAt: Date): string {
   const hours = Math.floor(relativeHours(now, lastEntryAt));
-  if (hours < 1) return `${username}·now`;
-  if (hours < 24) return `${username}·${hours}h`;
-  return `${username}·yesterday`;
+  if (hours < 1) return `${displayName}·now`;
+  if (hours < 24) return `${displayName}·${hours}h`;
+  return `${displayName}·yesterday`;
 }
 
-export default function StockClient({ itemsByCategory, groups }: Props) {
+export default function StockClient({ itemsByCategory }: Props) {
   const { t } = useTranslation();
   const router = useRouter();
-  const { currentUserId, members } = useHousehold();
-  const { setQuickLogOpen } = useUI();
+  const { memberId, members } = useSpace();
+  const quickLog = useQuickLog();
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState<Filter>('all');
-  const [selectedGroupId, setSelectedGroupId] = useState<number | null>(null);
   const [now] = useState(() => Date.now());
 
   const allItems: StockEntry[] = useMemo(
@@ -63,13 +55,11 @@ export default function StockClient({ itemsByCategory, groups }: Props) {
     [itemsByCategory],
   );
 
-  // Derive partner member (the other household member)
   const partner = useMemo(
-    () => members.find((m) => m.userId !== currentUserId) ?? null,
-    [members, currentUserId],
+    () => members.find((m) => m.memberId !== memberId) ?? null,
+    [members, memberId],
   );
 
-  // Items the partner logged as their most recent entry within 24h → ActivityStrip data
   const partnerActivityItems = useMemo(() => {
     if (!partner) return [];
     const cutoff = THRESHOLDS.ACTIVITY_STRIP_HOURS * 60 * 60 * 1000;
@@ -90,7 +80,6 @@ export default function StockClient({ itemsByCategory, groups }: Props) {
     );
   }, [partnerActivityItems]);
 
-  // Partner tags per item (shown on card when partner was last to log this item within 48h)
   const partnerTags = useMemo<Record<number, string>>(() => {
     if (!partner) return {};
     const cutoff = THRESHOLDS.PARTNER_TAG_HOURS * 60 * 60 * 1000;
@@ -99,13 +88,12 @@ export default function StockClient({ itemsByCategory, groups }: Props) {
       if (!lastEntry || lastEntry.memberId !== partner.memberId) continue;
       const age = now - new Date(lastEntry.createdAt!).getTime();
       if (age <= cutoff) {
-        tags[item.id] = formatPartnerTag(now, partner.username, new Date(lastEntry.createdAt!));
+        tags[item.id] = formatPartnerTag(now, partner.displayName, new Date(lastEntry.createdAt!));
       }
     }
     return tags;
   }, [allItems, partner, now]);
 
-  // Recent items for QuickLogStrip — sorted by lastEntryAt descending, top RECENT_CHIPS_STRIP
   const recentItems = useMemo(() => {
     return [...allItems]
       .filter(({ item }) => item.lastEntryAt != null)
@@ -116,27 +104,17 @@ export default function StockClient({ itemsByCategory, groups }: Props) {
       .map(({ item }) => ({ id: item.id, name: item.name }));
   }, [allItems]);
 
-  // Group filter set (null = all)
-  const groupItemIdSet = useMemo<Set<number> | null>(() => {
-    if (selectedGroupId === null || !groups) return null;
-    const g = groups.find((g) => g.id === selectedGroupId);
-    return g ? new Set(g.itemIds) : null;
-  }, [selectedGroupId, groups]);
-
-  // Apply group → search → status/sort filter
   const filtered: CategoryData[] = useMemo(() => {
     const query = search.toLowerCase();
 
-    let items = allItems.filter((e) => {
-      if (groupItemIdSet && !groupItemIdSet.has(e.item.id)) return false;
-      return query ? e.item.name.toLowerCase().includes(query) : true;
-    });
+    let items = allItems.filter((e) =>
+      query ? e.item.name.toLowerCase().includes(query) : true,
+    );
 
     if (filter === 'out') items = items.filter(({ item }) => stockStatus(item) === 'out');
     if (filter === 'low') items = items.filter(({ item }) => stockStatus(item) === 'low');
     if (filter === 'az') items = [...items].sort((a, b) => a.item.name.localeCompare(b.item.name));
 
-    // Re-group filtered items by category
     const grouped = new Map<string, CategoryData>();
     for (const e of items) {
       const key = e.item.categoryId != null ? String(e.item.categoryId) : 'null';
@@ -149,7 +127,7 @@ export default function StockClient({ itemsByCategory, groups }: Props) {
       grouped.get(key)!.items.push(e);
     }
     return Array.from(grouped.values());
-  }, [allItems, itemsByCategory, search, filter, groupItemIdSet]);
+  }, [allItems, itemsByCategory, search, filter]);
 
   const urgentItems = useMemo(
     () => allItems.filter(({ item }) => {
@@ -182,7 +160,6 @@ export default function StockClient({ itemsByCategory, groups }: Props) {
 
   return (
     <div className="pb-32 space-y-6">
-      {/* Header */}
       <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-xl border-b border-border/50 px-5 py-4 space-y-3">
         <div className="flex items-center gap-3">
           <div className="relative flex-1">
@@ -198,7 +175,6 @@ export default function StockClient({ itemsByCategory, groups }: Props) {
           </div>
         </div>
 
-        {/* Filter chips */}
         <div className="flex gap-2 overflow-x-auto pb-0.5 scrollbar-hide">
           {FILTERS.map(({ key, label }) => (
             <button
@@ -215,39 +191,17 @@ export default function StockClient({ itemsByCategory, groups }: Props) {
             </button>
           ))}
         </div>
-
-        {/* Group filter chips — only rendered when groups exist */}
-        {groups && groups.length > 0 && (
-          <div data-testid="group-filter-strip" className="flex gap-2 overflow-x-auto pb-0.5 scrollbar-hide">
-            {groups.map((g) => (
-              <button
-                key={g.id}
-                type="button"
-                onClick={() => setSelectedGroupId(selectedGroupId === g.id ? null : g.id)}
-                className={`shrink-0 h-8 px-3.5 rounded-xl text-[10px] font-bold uppercase tracking-wider transition-all border ${
-                  selectedGroupId === g.id
-                    ? 'bg-primary text-white border-primary'
-                    : 'bg-secondary/50 border-primary/10 text-muted-foreground hover:text-foreground'
-                }`}
-              >
-                {g.name}
-              </button>
-            ))}
-          </div>
-        )}
       </header>
 
-      {/* Activity strip — partner's recent logged items */}
       {partner && partnerActivityItems.length > 0 && partnerLastActivityAt && (
         <ActivityStrip
-          partnerName={partner.username}
+          partnerName={partner.displayName}
           items={partnerActivityItems}
           lastActivityAt={partnerLastActivityAt}
           onChipTap={(id) => router.push(`/app/item/${id}`)}
         />
       )}
 
-      {/* Quick log strip */}
       <QuickLogStrip
         items={recentItems}
         onSelect={(id) => {
@@ -256,7 +210,7 @@ export default function StockClient({ itemsByCategory, groups }: Props) {
           const catGroup = itemsByCategory.find((g) =>
             g.items.some(({ item }) => item.id === id),
           );
-          setQuickLogOpen(true, id, {
+          quickLog.open(id, {
             itemName: entry.item.name,
             categoryName: catGroup?.category?.name ?? null,
             unit: entry.item.unit,
@@ -268,12 +222,10 @@ export default function StockClient({ itemsByCategory, groups }: Props) {
       />
 
       <div className="px-5 space-y-6">
-        {/* Low stock rail (pinned, always shows if items qualify, regardless of filter) */}
         {filter === 'all' && urgentItems.length > 0 && (
           <LowStockRail items={urgentItems} onItemTap={handleItemTap} />
         )}
 
-        {/* Category groups */}
         {filtered.length === 0 ? (
           <p className="text-sm text-muted-foreground text-center py-8">{t('app.noResults')}</p>
         ) : (
