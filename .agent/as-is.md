@@ -287,16 +287,13 @@ interface OfflineContextType {
   addEntryOffline:    (data: AddEntryPayload) => Promise<void>;
   updateEntryOffline: (id: number, data: Partial<Omit<AddEntryPayload, 'itemId'>>) => Promise<void>;
   deleteEntryOffline: (id: number) => Promise<void>;
-  addItemOffline:     (data: Partial<Item>) => Promise<void>;
-  updateItemOffline:  (id: number, data: Partial<Item>) => Promise<void>;
-  deleteItemOffline:  (id: number) => Promise<void>;
-  addCategoryOffline: (data: Partial<Category>) => Promise<void>;
   lastAction: number; // epoch ms, bumped on every mutation — use as useEffect dep to re-render
 }
 // Hook: useOffline()
 ```
 
-All mutations queue to IndexedDB via `addPendingMutation()` then call `SyncEngine.sync()` if online.
+Entry mutations queue to IndexedDB via `addPendingMutation()` then call `SyncEngine.sync()` if online.
+Item/category mutations call server actions directly (no offline queue).
 
 ---
 
@@ -486,13 +483,10 @@ File: `src/lib/idb.ts`
 IDB store: `pending_mutations` — queue of `{ id: uuid, type: MutationType, payload, timestamp }`.
 
 ```ts
-type MutationType =
-  | 'entry.add' | 'entry.update' | 'entry.delete'
-  | 'item.add'  | 'item.update'  | 'item.delete'
-  | 'category.add';
+type MutationType = 'entry.add' | 'entry.update' | 'entry.delete';
 ```
 
-`SyncEngine` (`src/lib/sync.ts`) drains the queue when online, calling the corresponding server action for each mutation type. On success the mutation is removed from IDB.
+`SyncEngine` (`src/lib/sync.ts`) drains the queue when online, calling the corresponding entry server action. On success the mutation is removed from IDB.
 
 ---
 

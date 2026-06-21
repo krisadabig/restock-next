@@ -5,7 +5,6 @@ import { SyncEngine, SyncStatus } from '@/lib/sync';
 import { addPendingMutation } from '@/lib/idb';
 import type { MutationType } from '@/lib/idb';
 import { v4 as uuidv4 } from 'uuid';
-import type { Item, Category } from '@/lib/db/schema';
 import type { EntryType } from '@/lib/constants';
 
 // ── Payload types matching new schema ────────────────────────────────────────
@@ -27,10 +26,6 @@ export interface OfflineContextType {
   addEntryOffline: (data: AddEntryPayload) => Promise<void>;
   updateEntryOffline: (id: number, data: Partial<Omit<AddEntryPayload, 'itemId'>>) => Promise<void>;
   deleteEntryOffline: (id: number) => Promise<void>;
-  addItemOffline: (data: Partial<Item>) => Promise<void>;
-  updateItemOffline: (id: number, data: Partial<Item>) => Promise<void>;
-  deleteItemOffline: (id: number) => Promise<void>;
-  addCategoryOffline: (data: Partial<Category>) => Promise<void>;
   lastAction: number;
 }
 
@@ -72,10 +67,6 @@ export function OfflineProvider({ children }: { children: ReactNode }) {
       addEntryOffline: (data) => queue('entry.add', data),
       updateEntryOffline: (id, data) => queue('entry.update', { id, data }),
       deleteEntryOffline: (id) => queue('entry.delete', { id }),
-      addItemOffline: (data) => queue('item.add', data),
-      updateItemOffline: (id, data) => queue('item.update', { id, data }),
-      deleteItemOffline: (id) => queue('item.delete', { id }),
-      addCategoryOffline: (data) => queue('category.add', data),
       lastAction,
     }}>
       {children}

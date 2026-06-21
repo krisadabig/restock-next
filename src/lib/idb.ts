@@ -4,11 +4,7 @@ import type { Item, Category, Entry } from './db/schema';
 export type MutationType =
   | 'entry.add'
   | 'entry.update'
-  | 'entry.delete'
-  | 'item.add'
-  | 'item.update'
-  | 'item.delete'
-  | 'category.add';
+  | 'entry.delete';
 
 export interface PendingMutation {
   id: string;

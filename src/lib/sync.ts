@@ -70,18 +70,6 @@ export class SyncEngine {
       case 'entry.delete':
         await actions.deleteEntry(mutation.payload.id);
         break;
-      case 'item.add':
-        await actions.addItem(mutation.payload);
-        break;
-      case 'item.update':
-        await actions.updateItem(mutation.payload.id, mutation.payload.data);
-        break;
-      case 'item.delete':
-        await actions.deleteItem(mutation.payload.id);
-        break;
-      case 'category.add':
-        await actions.addCategory(mutation.payload);
-        break;
     }
   }
 }
