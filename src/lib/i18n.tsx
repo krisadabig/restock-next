@@ -211,6 +211,7 @@ export const translations = {
 			renameGroup: 'Rename',
 			deleteGroup: 'Delete',
 			confirmDeleteGroup: 'Confirm delete',
+			manageItems: 'Manage items',
 			saving: 'Saving...',
 		}
 	},
@@ -421,6 +422,7 @@ export const translations = {
 			renameGroup: 'เปลี่ยนชื่อ',
 			deleteGroup: 'ลบ',
 			confirmDeleteGroup: 'ยืนยันการลบ',
+			manageItems: 'จัดการสินค้า',
 			saving: 'กำลังบันทึก...',
 		}
 	}

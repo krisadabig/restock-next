@@ -432,10 +432,12 @@ interface Props {
   categories: Category[];
   stores: string[];
   groups: Array<{ id: number; name: string; items: Array<{ id: number; name: string }> }>;
-  allItems: Array<{ id: number; name: string }>; // full household item list for future assignment UI
+  allItems: Array<{ id: number; name: string }>; // full household item list for assignment UI
 }
 // Groups section: create/rename/delete groups with inline confirm.
-// Calls addGroup/renameGroup/deleteGroup server actions, then router.refresh().
+// Each group row has a "Manage items" toggle that expands a checkbox list of allItems.
+// Checking an item calls assignItemToGroup(groupId, itemId); unchecking calls removeItemFromGroup.
+// Calls addGroup/renameGroup/deleteGroup/assignItemToGroup/removeItemFromGroup server actions, then router.refresh().
 ```
 
 ---
