@@ -23,7 +23,7 @@ export default async function DashboardLayout({ children }: { children: ReactNod
 
   if (!membership) {
     return (
-      <ClientLayout householdId="" currentUserId={session.userId} members={[]} categories={[]} spaceValue={emptySpace}>
+      <ClientLayout categories={[]} spaceValue={emptySpace}>
         {children}
       </ClientLayout>
     );
@@ -46,7 +46,7 @@ export default async function DashboardLayout({ children }: { children: ReactNod
   };
 
   return (
-    <ClientLayout householdId={membership.spaceId} currentUserId={session.userId} members={members} categories={categories} spaceValue={spaceValue}>
+    <ClientLayout categories={categories} spaceValue={spaceValue}>
       {children}
     </ClientLayout>
   );
