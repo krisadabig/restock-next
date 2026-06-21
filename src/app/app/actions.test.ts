@@ -39,6 +39,8 @@ vi.mock('@/lib/queries', () => ({
   deleteCategoryRecord:    vi.fn(),
   renameSpaceRecord:       vi.fn(),
   removeSpaceMember:       vi.fn(),
+  createInviteRecord:      vi.fn(),
+  joinByCode:              vi.fn(),
 }));
 
 import { getSession, createSession, requireSession } from '@/lib/session';
@@ -48,6 +50,7 @@ import {
   addEntry, updateEntry, deleteEntry,
   getItemDetail, getCategoryDetail,
   createSpace,
+  createInvite, joinByInviteCode,
   switchSpace, getMySpaces,
   renameSpace, leaveSpace,
   updateMemberProfile,
@@ -294,6 +297,42 @@ describe('server action authorization', () => {
       (queries.removeSpaceMember as Mock).mockResolvedValue(undefined);
       await expect(leaveSpace(MY_SPACE)).resolves.not.toThrow();
       expect(queries.removeSpaceMember as Mock).toHaveBeenCalledWith(expect.anything(), 7, { enforceMinOne: true });
+    });
+  });
+
+  // ── createInvite ───────────────────────────────────────────────────────────
+
+  describe('createInvite', () => {
+    it('throws No active space when session has no space', async () => {
+      (requireSession as Mock).mockRejectedValue(new Error('No active space'));
+      await expect(createInvite()).rejects.toThrow('No active space');
+    });
+
+    it('returns code from createInviteRecord on success', async () => {
+      (queries.createInviteRecord as Mock).mockResolvedValue({ id: 1, code: 'ABCD1234', spaceId: MY_SPACE });
+      const result = await createInvite();
+      expect(result).toEqual({ code: 'ABCD1234' });
+      expect(queries.createInviteRecord as Mock).toHaveBeenCalledWith(expect.anything(), MY_SPACE, MEMBERSHIP.memberId);
+    });
+  });
+
+  // ── joinByInviteCode ────────────────────────────────────────────────────────
+
+  describe('joinByInviteCode', () => {
+    it('throws Unauthorized when no session', async () => {
+      (getSession as Mock).mockResolvedValue(null);
+      await expect(joinByInviteCode('ABCD1234')).rejects.toThrow('Unauthorized');
+    });
+
+    it('propagates Already used error from joinByCode', async () => {
+      (queries.joinByCode as Mock).mockRejectedValue(new Error('Already used'));
+      await expect(joinByInviteCode('USEDCODE')).rejects.toThrow('Already used');
+    });
+
+    it('returns spaceId on successful join', async () => {
+      (queries.joinByCode as Mock).mockResolvedValue({ id: 5, spaceId: 'sp-new', userId: 'u1', displayName: 'alice' });
+      const result = await joinByInviteCode('VALIDCOD');
+      expect(result).toEqual({ spaceId: 'sp-new' });
     });
   });
 
