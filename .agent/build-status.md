@@ -99,8 +99,8 @@ Standalone action `createSpace(name, displayName)`:
 |---|---|---|---|
 | ✅ | **S3.1 — Update requireSession()** | `src/lib/session.ts` | Unit: returns spaceId+memberId; throws on no session; throws on no active space |
 | ✅ | **S3.2 — Category actions** | `src/app/app/actions.ts` | Integration: CRUD + auth guard (wrong spaceId throws) |
-| 🔲 | **S3.3 — Item actions** | `src/app/app/actions.ts` | Integration: CRUD + auth guard + getSpaceItems returns correct shape |
-| 🔲 | **S3.4 — Entry actions** | `src/app/app/actions.ts` | Integration: add/update/delete recalculates currentStock; memberId attribution |
+| ✅ | **S3.3 — Item actions** | `src/app/app/actions.ts` | Integration: CRUD + auth guard + getSpaceItems returns correct shape |
+| ✅ | **S3.4 — Entry actions** | `src/app/app/actions.ts` | Integration: add/update/delete recalculates currentStock; memberId attribution |
 | 🔲 | **S3.5 — Space actions** | `src/app/app/actions.ts` | Integration: getMySpaces, renameSpace, leaveSpace |
 | 🔲 | **S3.6 — Invite actions** | `src/app/app/actions.ts` | Integration: createInvite → joinByInviteCode happy path; expired/used/duplicate errors |
 | 🔲 | **S3.7 — Authorization tests** | `src/app/app/actions.test.ts` | Unit: every ID-accepting action throws when spaceId doesn't own the record |
