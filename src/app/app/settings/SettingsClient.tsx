@@ -145,7 +145,7 @@ export default function SettingsClient({ categories, stores }: Props) {
       <section className="space-y-4">
         <h2 className="text-[10px] font-bold text-muted-foreground/50 uppercase tracking-[0.2em] px-2 flex items-center gap-2">
           <Users size={12} />
-          {t('settings.household')}
+          {t('settings.members')}
         </h2>
         <div className="glass-card overflow-hidden rounded-[2rem] divide-y divide-primary/5">
           {members.map((m) => (
