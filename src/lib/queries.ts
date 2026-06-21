@@ -123,13 +123,17 @@ export async function getSpaceItems(db: Db, spaceId: string) {
     .where(and(eq(schema.entries.spaceId, spaceId), eq(schema.entries.type, ENTRY_TYPE.PURCHASE)))
     .orderBy(schema.entries.itemId, desc(schema.entries.date));
 
-  const lastEntryMap = new Map(lastEntryRows.map((r) => [r.entry.itemId, { ...r.entry, memberDisplayName: r.memberDisplayName }]));
+  const lastEntryMap = new Map(lastEntryRows.map((r) => [r.entry.itemId, r]));
 
-  return itemRows.map((r) => ({
-    item: r.item,
-    category: r.category,
-    lastEntry: lastEntryMap.get(r.item.id) ?? null,
-  }));
+  return itemRows.map((r) => {
+    const last = lastEntryMap.get(r.item.id);
+    return {
+      item: r.item,
+      category: r.category,
+      lastEntry: last?.entry ?? null,
+      lastMember: last ? { displayName: last.memberDisplayName } : null,
+    };
+  });
 }
 
 // ── Entry mutations ─────────────────────────────────────────────────────────

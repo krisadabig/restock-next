@@ -76,6 +76,7 @@ export async function updateItem(
   const existing = await db.query.items.findFirst({ where: (i, { eq }) => eq(i.id, id) });
   if (!existing || existing.spaceId !== spaceId) throw new Error('Not found');
   const item = await queries.updateItemRecord(db, id, raw);
+  log.info('item.update', { itemId: id, spaceId });
   revalidatePath('/app');
   revalidatePath(`/app/item/${id}`);
   return item;
