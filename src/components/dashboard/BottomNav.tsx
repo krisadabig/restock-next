@@ -4,13 +4,13 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useTranslation } from '@/lib/i18n';
 import { Package, TrendingUp, Settings, Plus } from 'lucide-react';
-import { useUI } from '@/components/providers/UIContext';
+import { useLogSheet } from '@/components/providers/UIContext';
 import { ROUTES } from '@/lib/constants';
 
 export default function BottomNav() {
   const pathname = usePathname();
   const { t } = useTranslation();
-  const { setLogEntrySheetOpen } = useUI();
+  const logSheet = useLogSheet();
 
   const isStock    = pathname === ROUTES.STOCK;
   const isPrice    = pathname.startsWith(ROUTES.PRICE);
@@ -47,7 +47,7 @@ export default function BottomNav() {
       <button
         data-testid="fab-btn"
         type="button"
-        onClick={() => setLogEntrySheetOpen(true)}
+        onClick={() => logSheet.open()}
         className="fixed bottom-[calc(5.5rem+env(safe-area-inset-bottom))] right-5 z-50 h-14 w-14 rounded-2xl bg-primary text-white flex items-center justify-center shadow-2xl login-glow hover:scale-105 active:scale-95 transition-all duration-200"
         aria-label="Log entry"
       >

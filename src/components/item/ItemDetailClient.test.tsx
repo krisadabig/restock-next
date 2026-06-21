@@ -13,12 +13,8 @@ vi.mock('next/navigation', () => ({
 }));
 
 vi.mock('@/components/providers/UIContext', () => ({
-  useUI: () => ({
-    setLogEntrySheetOpen: vi.fn(),
-    setEditItemSheetOpen: vi.fn(),
-    setEditEntrySheetOpen: vi.fn(),
-    setDeleteItemModalOpen: vi.fn(),
-  }),
+  useLogSheet: () => ({ open: vi.fn(), close: vi.fn(), isOpen: false, prefillItemId: undefined, prefillType: undefined }),
+  useItemSheet: () => ({ openEdit: vi.fn(), openDelete: vi.fn(), close: vi.fn(), isEditOpen: false, editTarget: null, editEntryCount: 0, isDeleteOpen: false, deleteTarget: null }),
 }));
 
 vi.mock('@/components/providers/OfflineContext', () => ({

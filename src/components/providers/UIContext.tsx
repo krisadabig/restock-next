@@ -1,7 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useState, ReactNode } from 'react';
-import type { Item, Entry } from '@/lib/db/schema';
+import type { Item } from '@/lib/db/schema';
 import type { EntryType } from '@/lib/constants';
 
 export interface QuickLogPrefill {
@@ -70,16 +70,6 @@ export function useItemSheet(): ItemSheetValue {
   return ctx;
 }
 
-// ── EditEntry (compat only) ───────────────────────────────────────────────────
-
-interface EditEntryValue {
-  isOpen: boolean;
-  target: Entry | null;
-  set(open: boolean, entry?: Entry): void;
-}
-
-const EditEntryCtx = createContext<EditEntryValue | undefined>(undefined);
-
 // ── UIProvider ────────────────────────────────────────────────────────────────
 
 export function UIProvider({ children }: { children: ReactNode }) {
@@ -96,9 +86,6 @@ export function UIProvider({ children }: { children: ReactNode }) {
   const [editCount, setEditCount] = useState(0);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<Item | null>(null);
-
-  const [editEntryOpen, setEditEntryOpen] = useState(false);
-  const [editEntryTarget, setEditEntryTarget] = useState<Entry | null>(null);
 
   const logSheet: LogSheetValue = {
     isOpen: logOpen,
@@ -127,65 +114,13 @@ export function UIProvider({ children }: { children: ReactNode }) {
     close() { setEditOpen(false); setDeleteOpen(false); setEditTarget(null); setDeleteTarget(null); setEditCount(0); },
   };
 
-  const editEntry: EditEntryValue = {
-    isOpen: editEntryOpen,
-    target: editEntryTarget,
-    set(open, entry?) { setEditEntryOpen(open); setEditEntryTarget(open && entry ? entry : null); },
-  };
-
   return (
     <LogSheetCtx.Provider value={logSheet}>
       <QuickLogCtx.Provider value={quickLog}>
         <ItemSheetCtx.Provider value={itemSheet}>
-          <EditEntryCtx.Provider value={editEntry}>
-            {children}
-          </EditEntryCtx.Provider>
+          {children}
         </ItemSheetCtx.Provider>
       </QuickLogCtx.Provider>
     </LogSheetCtx.Provider>
   );
-}
-
-// ── Legacy useUI (compat shim — remove after S5 migration) ───────────────────
-
-export function useUI() {
-  const log = useLogSheet();
-  const quick = useQuickLog();
-  const item = useItemSheet();
-  const editEntry = useContext(EditEntryCtx);
-  if (!editEntry) throw new Error('useUI must be used within UIProvider');
-
-  return {
-    // LogSheet
-    isLogEntrySheetOpen: log.isOpen,
-    logEntryPrefillItemId: log.prefillItemId,
-    logEntryPrefillType: log.prefillType,
-    setLogEntrySheetOpen: (open: boolean, prefillItemId?: number, prefillType?: EntryType) =>
-      open ? log.open(prefillItemId, prefillType) : log.close(),
-
-    // QuickLog
-    isQuickLogOpen: quick.isOpen,
-    quickLogItemId: quick.itemId,
-    quickLogPrefill: quick.prefill,
-    setQuickLogOpen: (open: boolean, itemId?: number, prefill?: QuickLogPrefill) =>
-      open && itemId != null && prefill ? quick.open(itemId, prefill) : quick.close(),
-
-    // ItemSheet (edit)
-    isEditItemSheetOpen: item.isEditOpen,
-    editItemTarget: item.editTarget,
-    editItemEntryCount: item.editEntryCount,
-    setEditItemSheetOpen: (open: boolean, i?: Item, entryCount?: number) =>
-      open && i ? item.openEdit(i, entryCount) : item.close(),
-
-    // EditEntry (compat)
-    isEditEntrySheetOpen: editEntry.isOpen,
-    editEntryTarget: editEntry.target,
-    setEditEntrySheetOpen: (open: boolean, entry?: Entry) => editEntry.set(open, entry),
-
-    // ItemSheet (delete)
-    isDeleteItemModalOpen: item.isDeleteOpen,
-    deleteItemTarget: item.deleteTarget,
-    setDeleteItemModalOpen: (open: boolean, i?: Item) =>
-      open && i ? item.openDelete(i) : item.close(),
-  };
 }

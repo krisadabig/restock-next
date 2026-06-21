@@ -10,7 +10,7 @@ vi.mock('next/navigation', () => ({
 }));
 
 vi.mock('@/components/providers/UIContext', () => ({
-  useUI: () => ({ setLogEntrySheetOpen: vi.fn() }),
+  useLogSheet: () => ({ open: vi.fn(), close: vi.fn(), isOpen: false, prefillItemId: undefined, prefillType: undefined }),
 }));
 
 const wrap = (ui: React.ReactNode) =>

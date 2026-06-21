@@ -4,7 +4,7 @@ import { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { ChevronLeft, Edit2, ShoppingBag, ArrowDownRight } from 'lucide-react';
 import { useTranslation } from '@/lib/i18n';
-import { useUI } from '@/components/providers/UIContext';
+import { useLogSheet, useItemSheet } from '@/components/providers/UIContext';
 import { useOffline } from '@/components/providers/OfflineContext';
 import PriceIntelligencePanel from './PriceIntelligencePanel';
 import ItemHistoryRow from './ItemHistoryRow';
@@ -25,7 +25,8 @@ interface Props {
 export default function ItemDetailClient({ item, category, allEntries, purchaseHistory }: Props) {
   const { t } = useTranslation();
   const router = useRouter();
-  const { setLogEntrySheetOpen, setEditItemSheetOpen } = useUI();
+  const logSheet = useLogSheet();
+  const itemSheet = useItemSheet();
   const { deleteEntryOffline } = useOffline();
 
   const [historyFilter, setHistoryFilter] = useState<HistoryFilter>('all');
@@ -81,7 +82,7 @@ export default function ItemDetailClient({ item, category, allEntries, purchaseH
 
           <button
             type="button"
-            onClick={() => setEditItemSheetOpen(true, item, allEntries.length)}
+            onClick={() => itemSheet.openEdit(item, allEntries.length)}
             className="h-9 w-9 flex items-center justify-center rounded-xl hover:bg-secondary/60 transition-all shrink-0"
           >
             <Edit2 size={16} />
@@ -104,7 +105,7 @@ export default function ItemDetailClient({ item, category, allEntries, purchaseH
           <div className="flex gap-3">
             <button
               type="button"
-              onClick={() => setLogEntrySheetOpen(true, item.id, ENTRY_TYPE.PURCHASE)}
+              onClick={() => logSheet.open(item.id, ENTRY_TYPE.PURCHASE)}
               className="flex-1 h-11 flex items-center justify-center gap-2 rounded-2xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold text-sm hover:bg-emerald-500/20 transition-all active:scale-95"
             >
               <ShoppingBag size={16} />
@@ -112,7 +113,7 @@ export default function ItemDetailClient({ item, category, allEntries, purchaseH
             </button>
             <button
               type="button"
-              onClick={() => setLogEntrySheetOpen(true, item.id, ENTRY_TYPE.CONSUME)}
+              onClick={() => logSheet.open(item.id, ENTRY_TYPE.CONSUME)}
               className="flex-1 h-11 flex items-center justify-center gap-2 rounded-2xl bg-orange-500/10 text-orange-600 dark:text-orange-400 font-bold text-sm hover:bg-orange-500/20 transition-all active:scale-95"
             >
               <ArrowDownRight size={16} />
