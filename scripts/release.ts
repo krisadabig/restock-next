@@ -42,7 +42,8 @@ async function pingService(name: string, url: string, headers: Record<string, st
 async function preflight() {
 	log('Running pre-flight checks...');
 
-	const dbUrl      = await checkEnvVar('DATABASE_URL');
+	const dbUrl       = await checkEnvVar('DATABASE_URL');
+	const dbUrlDirect = await checkEnvVar('DATABASE_URL_DIRECT');
 	const sentryDsn  = await checkEnvVar('NEXT_PUBLIC_SENTRY_DSN');
 	const sentryToken = await checkEnvVar('SENTRY_AUTH_TOKEN');
 	const axiomToken  = await checkEnvVar('NEXT_AXIOM_TOKEN');
@@ -64,13 +65,32 @@ async function preflight() {
 	log('Checking schema drift...');
 	run('bun run db:check-drift', 'Schema Drift Check');
 
-	// Prod DB connectivity check via psql
-	log('Checking prod DB connectivity...');
+	// Prod DB connectivity + schema check via psql (direct connection — pooler blocks DDL introspection)
+	log('Checking prod DB connectivity and schema...');
+	const PSQL = '/opt/homebrew/opt/libpq/bin/psql';
+	const EXPECTED_TABLES = [
+		'users', 'authenticators', 'spaces', 'space_members',
+		'space_invites', 'categories', 'items', 'entries',
+	];
 	try {
-		execSync(`/opt/homebrew/opt/libpq/bin/psql "${dbUrl}" -c "SELECT 1" --no-psqlrc -q`, { stdio: 'pipe' });
+		execSync(`${PSQL} "${dbUrlDirect}" -c "SELECT 1" --no-psqlrc -q`, { stdio: 'pipe' });
 		success('Prod DB reachable');
 	} catch {
-		error('Cannot connect to prod DB — check DATABASE_URL in .env');
+		error('Cannot connect to prod DB — check DATABASE_URL_DIRECT in .env');
+		process.exit(1);
+	}
+	const tableQuery = `SELECT table_name FROM information_schema.tables WHERE table_schema='public' AND table_name IN (${EXPECTED_TABLES.map(t => `'${t}'`).join(',')})`;
+	try {
+		const out = execSync(`${PSQL} "${dbUrlDirect}" -t -A -c "${tableQuery}" --no-psqlrc`, { stdio: 'pipe' }).toString().trim();
+		const found = out.split('\n').map(r => r.trim()).filter(Boolean);
+		const missing = EXPECTED_TABLES.filter(t => !found.includes(t));
+		if (missing.length > 0) {
+			error(`Prod DB is missing tables: ${missing.join(', ')} — run bun run db:migrate:prod`);
+			process.exit(1);
+		}
+		success(`All ${EXPECTED_TABLES.length} tables verified in prod DB`);
+	} catch (e) {
+		error(`Schema check failed: ${(e as Error).message}`);
 		process.exit(1);
 	}
 
@@ -141,8 +161,8 @@ async function release() {
 	// 5. Run prod migration BEFORE pushing — old code tolerates new schema (additive migrations)
 	//    If your migration drops columns or renames tables, stop here and coordinate manually.
 	log('Running prod DB migration...');
-	const dbUrl = new URL(process.env.DATABASE_URL!);
-	log(`  DB host: ${dbUrl.host} · user: ${dbUrl.username} · db: ${dbUrl.pathname.slice(1)}`);
+	const directUrl = new URL(process.env.DATABASE_URL_DIRECT!);
+	log(`  DB host: ${directUrl.host} · user: ${directUrl.username} · db: ${directUrl.pathname.slice(1)}`);
 	run('bun run db:migrate:prod', 'Prod Migration');
 
 	// 6. Tag + push — Vercel auto-deploys on push to main
