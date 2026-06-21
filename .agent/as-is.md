@@ -147,6 +147,8 @@ Record-level authorization: actions that accept an ID re-fetch the record and co
 |---|---|---|---|
 | `addCategory` | `(raw: { name, defaultUnit? })` | `Category` | `revalidatePath('/app')` |
 | `getCategories` | `()` | `Category[]` | — |
+| `updateCategory` | `(id, raw: { name?, defaultUnit? })` | `Category` | revalidates `/app`; auth guard throws `'Not found'` |
+| `deleteCategory` | `(id)` | `void` | revalidates `/app` + `/app/settings`; auth guard throws `'Not found'` |
 
 ### Item
 | Action | Signature | Returns | Side effects |

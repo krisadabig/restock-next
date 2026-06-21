@@ -20,6 +20,19 @@ export async function getCategories(db: Db, spaceId: string) {
   return db.select().from(schema.categories).where(eq(schema.categories.spaceId, spaceId));
 }
 
+export async function updateCategoryRecord(
+  db: Db,
+  id: number,
+  patch: { name?: string; defaultUnit?: string },
+) {
+  const [updated] = await db.update(schema.categories).set(patch).where(eq(schema.categories.id, id)).returning();
+  return updated;
+}
+
+export async function deleteCategoryRecord(db: Db, id: number) {
+  await db.delete(schema.categories).where(eq(schema.categories.id, id));
+}
+
 // ── Item ────────────────────────────────────────────────────────────────────
 
 export async function insertItem(

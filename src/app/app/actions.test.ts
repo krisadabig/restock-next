@@ -24,16 +24,18 @@ vi.mock('@/lib/db', () => ({
   },
 }));
 vi.mock('@/lib/queries', () => ({
-  getActiveSpaceForUser:  vi.fn(),
-  insertSpaceWithMember:  vi.fn(),
-  updateItemRecord:       vi.fn(),
-  deleteItemRecord:       vi.fn(),
-  getItemAllEntries:      vi.fn(),
-  updateEntryRecord:      vi.fn(),
-  deleteEntryRecord:      vi.fn(),
+  getActiveSpaceForUser:   vi.fn(),
+  insertSpaceWithMember:   vi.fn(),
+  updateItemRecord:        vi.fn(),
+  deleteItemRecord:        vi.fn(),
+  getItemAllEntries:       vi.fn(),
+  updateEntryRecord:       vi.fn(),
+  deleteEntryRecord:       vi.fn(),
   getCategoryMonthlySpend: vi.fn(),
-  getUserSpaces:          vi.fn(),
-  updateSpaceMember:      vi.fn(),
+  getUserSpaces:           vi.fn(),
+  updateSpaceMember:       vi.fn(),
+  updateCategoryRecord:    vi.fn(),
+  deleteCategoryRecord:    vi.fn(),
 }));
 
 import { getSession, createSession, requireSession } from '@/lib/session';
@@ -45,6 +47,7 @@ import {
   createSpace,
   switchSpace, getMySpaces,
   updateMemberProfile,
+  updateCategory, deleteCategory,
 } from './actions';
 
 const SESSION  = { userId: 'u1', username: 'alice', expiresAt: new Date() };
@@ -197,6 +200,36 @@ describe('server action authorization', () => {
       const result = await getMySpaces();
       expect(result).toEqual(fakeSpaces);
       expect(queries.getUserSpaces as Mock).toHaveBeenCalledWith(expect.anything(), 'u1');
+    });
+  });
+
+  // ── updateCategory ─────────────────────────────────────────────────────────
+
+  describe('updateCategory', () => {
+    it('throws Not found when category belongs to a different space', async () => {
+      mockFindCategory.mockResolvedValue({ id: 5, spaceId: OTHER_SPACE });
+      await expect(updateCategory(5, { name: 'Hacked' })).rejects.toThrow('Not found');
+    });
+
+    it('proceeds when category belongs to the callers space', async () => {
+      mockFindCategory.mockResolvedValue({ id: 5, spaceId: MY_SPACE });
+      (queries.updateCategoryRecord as Mock).mockResolvedValue({ id: 5, name: 'Updated' });
+      await expect(updateCategory(5, { name: 'Updated' })).resolves.not.toThrow();
+    });
+  });
+
+  // ── deleteCategory ─────────────────────────────────────────────────────────
+
+  describe('deleteCategory', () => {
+    it('throws Not found when category belongs to a different space', async () => {
+      mockFindCategory.mockResolvedValue({ id: 5, spaceId: OTHER_SPACE });
+      await expect(deleteCategory(5)).rejects.toThrow('Not found');
+    });
+
+    it('proceeds when category belongs to the callers space', async () => {
+      mockFindCategory.mockResolvedValue({ id: 5, spaceId: MY_SPACE });
+      (queries.deleteCategoryRecord as Mock).mockResolvedValue(undefined);
+      await expect(deleteCategory(5)).resolves.not.toThrow();
     });
   });
 

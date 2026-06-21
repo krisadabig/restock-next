@@ -31,6 +31,26 @@ export async function getCategories() {
   return queries.getCategories(db, spaceId);
 }
 
+export async function updateCategory(id: number, raw: { name?: string; defaultUnit?: string }) {
+  const { spaceId } = await requireSession();
+  const existing = await db.query.categories.findFirst({ where: (c, { eq }) => eq(c.id, id) });
+  if (!existing || existing.spaceId !== spaceId) throw new Error('Not found');
+  const category = await queries.updateCategoryRecord(db, id, raw);
+  log.info('category.update', { categoryId: id, spaceId });
+  revalidatePath('/app');
+  return category;
+}
+
+export async function deleteCategory(id: number) {
+  const { spaceId } = await requireSession();
+  const existing = await db.query.categories.findFirst({ where: (c, { eq }) => eq(c.id, id) });
+  if (!existing || existing.spaceId !== spaceId) throw new Error('Not found');
+  await queries.deleteCategoryRecord(db, id);
+  log.info('category.delete', { categoryId: id, spaceId });
+  revalidatePath('/app');
+  revalidatePath('/app/settings');
+}
+
 // ── Item actions ────────────────────────────────────────────────────────────
 
 const itemSchema = z.object({
