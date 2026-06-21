@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterAll } from 'vitest';
-import { createTestDb, resetDb, runMigrations } from '../helpers/db';
+import { createTestDb, resetDb } from '../helpers/db';
 import { makeUser, makeSpace, makeSpaceMember, makeCategory, makeItem, makeEntry } from '../helpers/factories';
 import { insertItem, getSpaceItems, deleteItemRecord } from '@/lib/queries';
 

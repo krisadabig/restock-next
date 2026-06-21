@@ -1,9 +1,7 @@
 import { describe, it, expect, beforeEach, afterAll } from 'vitest';
-import { eq } from 'drizzle-orm';
 import { createTestDb, resetDb } from '../helpers/db';
 import { makeUser, makeSpace, makeSpaceMember, makeCategory, makeItem, makeEntry } from '../helpers/factories';
 import { insertEntry, updateEntryRecord, deleteEntryRecord } from '@/lib/queries';
-import { items } from '@/lib/db/schema';
 
 const { db, client } = createTestDb();
 

@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, afterAll } from 'vitest';
 import { eq } from 'drizzle-orm';
 import { createTestDb, resetDb } from '../helpers/db';
-import { makeUser, makeSpace, makeCategory } from '../helpers/factories';
+import { makeSpace, makeCategory } from '../helpers/factories';
 import { insertCategory, getCategories, updateCategoryRecord, deleteCategoryRecord } from '@/lib/queries';
 import * as schema from '@/lib/db/schema';
 

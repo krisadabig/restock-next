@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterAll } from 'vitest';
 import { createTestDb, resetDb } from '../helpers/db';
-import { makeUser, makeSpace, makeSpaceMember, makeCategory, makeItem, makeEntry } from '../helpers/factories';
+import { makeUser, makeSpace, makeSpaceMember, makeCategory, makeItem } from '../helpers/factories';
 import { insertCategory, insertItem, insertEntry, deleteEntryRecord, getSpaceItems } from '@/lib/queries';
 
 const { db, client } = createTestDb();
