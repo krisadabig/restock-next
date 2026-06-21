@@ -119,6 +119,9 @@ export async function addEntry(raw: z.input<typeof entrySchema>) {
   const { userId, spaceId, memberId } = await requireSession();
   const data = entrySchema.parse(raw);
 
+  const existing = await db.query.items.findFirst({ where: (i, { eq }) => eq(i.id, data.itemId) });
+  if (!existing || existing.spaceId !== spaceId) throw new Error('Not found');
+
   const price = data.type === ENTRY_TYPE.CONSUME ? null : (data.price ?? null);
   const store = data.type === ENTRY_TYPE.CONSUME ? null : (data.store ?? null);
 

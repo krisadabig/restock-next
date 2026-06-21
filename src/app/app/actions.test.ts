@@ -26,6 +26,7 @@ vi.mock('@/lib/db', () => ({
 vi.mock('@/lib/queries', () => ({
   getActiveSpaceForUser:   vi.fn(),
   insertSpaceWithMember:   vi.fn(),
+  insertEntry:             vi.fn(),
   updateItemRecord:        vi.fn(),
   deleteItemRecord:        vi.fn(),
   getItemAllEntries:       vi.fn(),
@@ -42,7 +43,7 @@ import { getSession, createSession, requireSession } from '@/lib/session';
 import * as queries from '@/lib/queries';
 import {
   updateItem, deleteItem,
-  updateEntry, deleteEntry,
+  addEntry, updateEntry, deleteEntry,
   getItemDetail, getCategoryDetail,
   createSpace,
   switchSpace, getMySpaces,
@@ -120,6 +121,24 @@ describe('server action authorization', () => {
       mockFindEntry.mockResolvedValue({ id: 7, itemId: 1, spaceId: MY_SPACE });
       (queries.deleteEntryRecord as Mock).mockResolvedValue(undefined);
       await expect(deleteEntry(7)).resolves.not.toThrow();
+    });
+  });
+
+  // ── addEntry ───────────────────────────────────────────────────────────────
+
+  describe('addEntry', () => {
+    const validEntry = { itemId: 1, type: 'purchase' as const, price: 10, quantity: 2, unit: 'pcs', store: null, date: '2025-01-01', note: null };
+
+    it('throws when item belongs to a different space', async () => {
+      mockFindItem.mockResolvedValue({ id: 1, spaceId: OTHER_SPACE });
+      await expect(addEntry(validEntry)).rejects.toThrow('Not found');
+    });
+
+    it('calls insertEntry when item belongs to the callers space', async () => {
+      mockFindItem.mockResolvedValue({ id: 1, spaceId: MY_SPACE });
+      (queries.insertEntry as Mock).mockResolvedValue({ id: 99 });
+      await expect(addEntry(validEntry)).resolves.not.toThrow();
+      expect(queries.insertEntry as Mock).toHaveBeenCalled();
     });
   });
 
