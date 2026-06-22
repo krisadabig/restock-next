@@ -35,7 +35,7 @@ yarn-error.log*
 !.env.example
 
 # agent + local scripts
-.agent/
+.agent/*
 !.agent/build-status.md
 bin/
 
