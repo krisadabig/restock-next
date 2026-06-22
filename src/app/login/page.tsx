@@ -1,22 +1,28 @@
 'use client';
 
-import { useActionState, useState } from 'react';
+import { useActionState, useState, Suspense } from 'react';
 import { useTranslation } from '@/lib/i18n';
 import ThemeToggle from '@/components/ThemeToggle';
 import LanguageToggle from '@/components/LanguageToggle';
 import { loginPasskey } from '@/lib/auth';
 import { ROUTES } from '@/lib/constants';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { login, signup } from '../auth/actions';
 
 export default function LoginPage() {
+  return <Suspense><LoginPageInner /></Suspense>;
+}
+
+function LoginPageInner() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const returnUrl = searchParams.get('returnUrl') ?? ROUTES.STOCK;
   const { t } = useTranslation();
   const [isSignup, setIsSignup] = useState(false);
   const [method, setMethod] = useState<'password' | 'passkey'>('password');
   const [passkeyError, setPasskeyError] = useState<string | null>(null);
   const [isPasskeyLoading, setIsPasskeyLoading] = useState(false);
-  
+
   const [loginState, loginAction, isLoginPending] = useActionState(login, null);
   const [signupState, signupAction, isSignupPending] = useActionState(signup, null);
 
@@ -28,7 +34,7 @@ export default function LoginPage() {
       setIsPasskeyLoading(true);
       try {
           await loginPasskey();
-          router.push(ROUTES.STOCK);
+          router.push(returnUrl);
       } catch (err) {
           setPasskeyError((err as Error).message);
           setIsPasskeyLoading(false);
@@ -77,7 +83,7 @@ export default function LoginPage() {
                     <div className="flex flex-col items-center">
                         <span className="h-1 w-12 bg-primary/30 rounded-full mb-4" />
                         <p className="text-[10px] font-bold text-primary uppercase tracking-[0.4em]">
-                            {isSignup ? "Create Account" : "Secure Portal"}
+                            {isSignup ? "Create Account" : "Welcome back"}
                         </p>
                     </div>
                 </div>
@@ -115,6 +121,7 @@ export default function LoginPage() {
                     <div className="space-y-6">
                         {method === 'password' ? (
                             <form action={isSignup ? signupAction : loginAction} className="space-y-6">
+                                <input type="hidden" name="returnUrl" value={returnUrl} />
                                 <div className="space-y-4">
                                     <div className="group space-y-1.5 transition-all duration-300">
                                         <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-[0.2em] ml-2 opacity-80">Username</label>
@@ -130,7 +137,6 @@ export default function LoginPage() {
                                     <div className="group space-y-1.5 transition-all duration-300">
                                         <div className="flex justify-between items-center px-2">
                                             <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-[0.2em] opacity-80">Password</label>
-                                            {!isSignup && <button type="button" className="text-[10px] font-bold text-primary hover:underline uppercase tracking-widest">Forgot?</button>}
                                         </div>
                                         <input
                                             name="password"
@@ -252,11 +258,6 @@ export default function LoginPage() {
                 </div>
             </div>
 
-            {/* Hint Footer */}
-            <div className="text-center space-y-2 opacity-30">
-                <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-[0.4em]">Integrated Security Protocol</p>
-                <p className="text-[9px] font-mono text-muted-foreground/60 uppercase">Version 2.0.4-premium</p>
-            </div>
         </div>
     </div>
   );

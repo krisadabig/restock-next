@@ -157,6 +157,10 @@ export const translations = {
 			change: 'Change',
 			typeToSearch: 'or type to search...',
 		},
+		onboarding: {
+			title: 'Welcome to Restock',
+			hint: 'Tap + to log your first item and start tracking prices.',
+		},
 		trends: {
 			title: 'Spending Trends',
 			totalSpending: 'Total Spending',
@@ -212,6 +216,30 @@ export const translations = {
 			noStores: 'No stores logged yet.',
 			youLabel: 'you',
 			saving: 'Saving...',
+			createSpace: 'Create new space',
+			createSpacePlaceholder: 'e.g. Holiday Home',
+			yourNameInSpace: 'Your name in this space',
+			createSpaceSuccess: 'Space created!',
+			passkeyDesc: 'Secure your account with a passkey (Face ID, fingerprint, or PIN).',
+		},
+		join: {
+			title: "You've been invited to join a space.",
+			accept: 'Accept Invitation',
+			invalid: 'This invite link is invalid or has already been used.',
+			expired: 'This invite link has expired.',
+			alreadyMember: "You're already a member of this space.",
+		},
+		notFound: {
+			title: 'Page not found',
+			body: "This page doesn't exist or has been moved.",
+			home: 'Go home',
+		},
+		error: {
+			title: 'Something went wrong',
+			retry: 'Try again',
+		},
+		a11y: {
+			skipToContent: 'Skip to content',
 		}
 	},
 	th: {
@@ -368,6 +396,10 @@ export const translations = {
 			typeToSearch: 'หรือพิมพ์เพื่อค้นหา...',
 			editEntry: 'แก้ไขรายการ',
 		},
+		onboarding: {
+			title: 'ยินดีต้อนรับสู่ Restock',
+			hint: 'กด + เพื่อบันทึกสินค้าแรกและเริ่มติดตามราคา',
+		},
 		trends: {
 			title: 'แนวโน้มการใช้จ่าย',
 			totalSpending: 'ยอดรวมรายเดือน',
@@ -422,6 +454,30 @@ export const translations = {
 			noStores: 'ยังไม่มีร้านค้าที่บันทึก',
 			youLabel: 'คุณ',
 			saving: 'กำลังบันทึก...',
+			createSpace: 'สร้างพื้นที่ใหม่',
+			createSpacePlaceholder: 'เช่น บ้านพักวันหยุด',
+			yourNameInSpace: 'ชื่อของคุณในพื้นที่นี้',
+			createSpaceSuccess: 'สร้างพื้นที่สำเร็จ!',
+			passkeyDesc: 'รักษาความปลอดภัยบัญชีด้วยพาสคีย์ (Face ID, ลายนิ้วมือ หรือ PIN)',
+		},
+		join: {
+			title: 'คุณได้รับคำเชิญให้เข้าร่วมพื้นที่',
+			accept: 'ยอมรับคำเชิญ',
+			invalid: 'ลิงก์เชิญนี้ไม่ถูกต้องหรือถูกใช้งานแล้ว',
+			expired: 'ลิงก์เชิญนี้หมดอายุแล้ว',
+			alreadyMember: 'คุณเป็นสมาชิกของพื้นที่นี้อยู่แล้ว',
+		},
+		notFound: {
+			title: 'ไม่พบหน้านี้',
+			body: 'หน้านี้ไม่มีอยู่หรือถูกย้ายไปแล้ว',
+			home: 'กลับหน้าหลัก',
+		},
+		error: {
+			title: 'เกิดข้อผิดพลาด',
+			retry: 'ลองอีกครั้ง',
+		},
+		a11y: {
+			skipToContent: 'ข้ามไปยังเนื้อหา',
 		}
 	}
 };

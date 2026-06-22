@@ -39,10 +39,16 @@ export default function RootLayout({
       <body
         className={`${jakarta.variable} antialiased font-sans bg-background text-foreground`}
       >
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:top-4 focus:left-4 focus:rounded focus:bg-background focus:px-4 focus:py-2 focus:text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+        >
+          Skip to content
+        </a>
         <NextTopLoader color="#7f13ec" showSpinner={false} />
         <Providers>
           <PWARegistry />
-          <main className="min-h-screen">
+          <main id="main-content" className="min-h-screen">
               {children}
           </main>
         </Providers>

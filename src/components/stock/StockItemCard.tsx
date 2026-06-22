@@ -35,7 +35,7 @@ export default function StockItemCard({ item, lastEntry, onTap, partnerTag }: Pr
         <h3 className="font-bold text-base text-foreground leading-snug truncate">{item.name}</h3>
 
         <div data-testid="stock-qty" className="flex items-center gap-2 mt-1">
-          <span className="text-2xl font-black text-foreground">{item.currentStock}</span>
+          <span className="text-2xl font-black text-foreground tabular-nums">{item.currentStock}</span>
           <span className="text-sm text-muted-foreground font-medium">{item.unit}</span>
           <StockStatusBadge status={status} />
         </div>
