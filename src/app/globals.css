@@ -112,6 +112,10 @@ body {
     min-height: 100dvh;
 }
 
+h1, h2, h3 {
+    text-wrap: balance;
+}
+
 ::selection {
     @apply bg-primary/30 text-white;
 }
