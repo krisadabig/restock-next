@@ -77,7 +77,7 @@ export default function LoginPage() {
                     <div className="flex flex-col items-center">
                         <span className="h-1 w-12 bg-primary/30 rounded-full mb-4" />
                         <p className="text-[10px] font-bold text-primary uppercase tracking-[0.4em]">
-                            {isSignup ? "Create Account" : "Secure Portal"}
+                            {isSignup ? "Create Account" : "Welcome back"}
                         </p>
                     </div>
                 </div>
@@ -130,7 +130,6 @@ export default function LoginPage() {
                                     <div className="group space-y-1.5 transition-all duration-300">
                                         <div className="flex justify-between items-center px-2">
                                             <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-[0.2em] opacity-80">Password</label>
-                                            {!isSignup && <button type="button" className="text-[10px] font-bold text-primary hover:underline uppercase tracking-widest">Forgot?</button>}
                                         </div>
                                         <input
                                             name="password"
@@ -252,11 +251,6 @@ export default function LoginPage() {
                 </div>
             </div>
 
-            {/* Hint Footer */}
-            <div className="text-center space-y-2 opacity-30">
-                <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-[0.4em]">Integrated Security Protocol</p>
-                <p className="text-[9px] font-mono text-muted-foreground/60 uppercase">Version 2.0.4-premium</p>
-            </div>
         </div>
     </div>
   );
