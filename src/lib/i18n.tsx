@@ -157,6 +157,10 @@ export const translations = {
 			change: 'Change',
 			typeToSearch: 'or type to search...',
 		},
+		onboarding: {
+			title: 'Welcome to Restock',
+			hint: 'Tap + to log your first item and start tracking prices.',
+		},
 		trends: {
 			title: 'Spending Trends',
 			totalSpending: 'Total Spending',
@@ -390,6 +394,10 @@ export const translations = {
 			change: 'เปลี่ยน',
 			typeToSearch: 'หรือพิมพ์เพื่อค้นหา...',
 			editEntry: 'แก้ไขรายการ',
+		},
+		onboarding: {
+			title: 'ยินดีต้อนรับสู่ Restock',
+			hint: 'กด + เพื่อบันทึกสินค้าแรกและเริ่มติดตามราคา',
 		},
 		trends: {
 			title: 'แนวโน้มการใช้จ่าย',

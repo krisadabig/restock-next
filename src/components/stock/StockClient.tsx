@@ -151,9 +151,10 @@ export default function StockClient({ itemsByCategory }: Props) {
     return (
       <div className="flex flex-col items-center justify-center gap-4 py-24 px-8 text-center">
         <Package size={48} className="text-muted-foreground/40" />
-        <p data-testid="stock-empty" className="text-sm text-muted-foreground font-medium">
-          {t('app.stockEmpty')}
-        </p>
+        <div data-testid="onboarding-hint" className="glass-card rounded-2xl px-6 py-5 space-y-2 max-w-xs w-full">
+          <h2 className="text-base font-semibold text-foreground">{t('onboarding.title')}</h2>
+          <p className="text-sm text-muted-foreground">{t('onboarding.hint')}</p>
+        </div>
       </div>
     );
   }

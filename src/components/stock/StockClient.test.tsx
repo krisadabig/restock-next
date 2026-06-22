@@ -53,7 +53,7 @@ const makeEntry = (overrides: Partial<Entry> = {}): Entry => ({
 describe('StockClient', () => {
   it('shows empty state when no items', () => {
     wrap(<StockClient itemsByCategory={[]} />);
-    expect(screen.getByTestId('stock-empty')).toBeDefined();
+    expect(screen.getByTestId('onboarding-hint')).toBeDefined();
   });
 
   it('renders a category group per category', () => {
@@ -114,5 +114,17 @@ describe('StockClient', () => {
   it('never renders group filter strip', () => {
     wrap(<StockClient itemsByCategory={[]} />);
     expect(screen.queryByTestId('group-filter-strip')).toBeNull();
+  });
+
+  it('shows onboarding hint when itemsByCategory is empty', () => {
+    wrap(<StockClient itemsByCategory={[]} />);
+    expect(screen.getByTestId('onboarding-hint')).toBeDefined();
+    expect(screen.getByText('Tap + to log your first item and start tracking prices.')).toBeDefined();
+  });
+
+  it('does not show onboarding hint when there is at least one item', () => {
+    const data = [{ category: cat, items: [{ item: makeItem(), lastEntry: null }] }];
+    wrap(<StockClient itemsByCategory={data} />);
+    expect(screen.queryByTestId('onboarding-hint')).toBeNull();
   });
 });
