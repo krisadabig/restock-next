@@ -212,6 +212,10 @@ export const translations = {
 			noStores: 'No stores logged yet.',
 			youLabel: 'you',
 			saving: 'Saving...',
+		},
+		error: {
+			title: 'Something went wrong',
+			retry: 'Try again',
 		}
 	},
 	th: {
@@ -422,6 +426,10 @@ export const translations = {
 			noStores: 'ยังไม่มีร้านค้าที่บันทึก',
 			youLabel: 'คุณ',
 			saving: 'กำลังบันทึก...',
+		},
+		error: {
+			title: 'เกิดข้อผิดพลาด',
+			retry: 'ลองอีกครั้ง',
 		}
 	}
 };
