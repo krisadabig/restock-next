@@ -18,7 +18,7 @@
 | Status | ID | Task | Key Files |
 |---|---|---|---|
 | ✅ | T1.2 | **Define or remove bg-blob** | `src/app/app/AppShell.tsx` | build clean · 2026-06-22 |
-| 🔲 | U1.1 | **Add error boundary for /app** | `src/app/app/error.tsx` |
+| ✅ | U1.1 | **Add error boundary for /app** | `src/app/app/error.tsx` | 2 tests pass · build clean · 2026-06-22 |
 | 🔲 | U1.2 | **Remove dead "Forgot?" button** | `src/app/login/page.tsx` |
 | 🔲 | U1.3 | **Fix login page copy** | `src/app/login/page.tsx` |
 | 🔲 | B1.1 | **Space switcher UI** | `src/app/app/AppShell.tsx` |
