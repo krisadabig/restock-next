@@ -22,7 +22,6 @@
     --secondary-foreground: #475569;
     /* Slate 600 */
     --muted: #f1f5f9;
-    --muted: #f1f5f9;
     --muted-foreground: #475569;
     /* Slate 600 (Darker for Contrast) */
     --accent: #f8fafc;
@@ -87,7 +86,6 @@
     --secondary: #1a1a25;
     --secondary-foreground: #d8b4fe;
     /* Lavender */
-    --muted: #1a1a25;
     --muted: #1a1a25;
     --muted-foreground: #e9d5ff;
     /* Lighter Lavender for Contrast against Dark Card */
