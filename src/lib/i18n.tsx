@@ -224,6 +224,11 @@ export const translations = {
 			expired: 'This invite link has expired.',
 			alreadyMember: "You're already a member of this space.",
 		},
+		notFound: {
+			title: 'Page not found',
+			body: "This page doesn't exist or has been moved.",
+			home: 'Go home',
+		},
 		error: {
 			title: 'Something went wrong',
 			retry: 'Try again',
@@ -451,6 +456,11 @@ export const translations = {
 			invalid: 'ลิงก์เชิญนี้ไม่ถูกต้องหรือถูกใช้งานแล้ว',
 			expired: 'ลิงก์เชิญนี้หมดอายุแล้ว',
 			alreadyMember: 'คุณเป็นสมาชิกของพื้นที่นี้อยู่แล้ว',
+		},
+		notFound: {
+			title: 'ไม่พบหน้านี้',
+			body: 'หน้านี้ไม่มีอยู่หรือถูกย้ายไปแล้ว',
+			home: 'กลับหน้าหลัก',
 		},
 		error: {
 			title: 'เกิดข้อผิดพลาด',
