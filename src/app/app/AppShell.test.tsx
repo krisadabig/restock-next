@@ -3,6 +3,7 @@ import { render, screen, fireEvent, cleanup, act } from '@testing-library/react'
 import { I18nProvider } from '@/lib/i18n';
 import { UIProvider, useItemSheet } from '@/components/providers/UIContext';
 import { OfflineProvider } from '@/components/providers/OfflineContext';
+import { SpaceProvider } from '@/components/providers/SpaceContext';
 import type { Item, Category } from '@/lib/db/schema';
 
 afterEach(cleanup);
@@ -42,12 +43,16 @@ function Trigger({ item, entryCount }: { item: Item; entryCount: number }) {
   );
 }
 
+const spaceStub = { spaceId: 'sp1', mySpaces: [{ id: 'sp1', name: 'Home' }], switchSpace: vi.fn(), activeMember: null };
+
 const wrap = (ui: React.ReactNode) =>
   render(
     <I18nProvider initialLocale="en">
-      <OfflineProvider>
-        <UIProvider>{ui}</UIProvider>
-      </OfflineProvider>
+      <SpaceProvider initialValue={spaceStub}>
+        <OfflineProvider>
+          <UIProvider>{ui}</UIProvider>
+        </OfflineProvider>
+      </SpaceProvider>
     </I18nProvider>
   );
 

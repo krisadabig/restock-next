@@ -6,31 +6,33 @@
 > **What this file is not**: A plan, a wishlist, or a spec. Those live in `ux-spec.md`, `data-model-spec.md`, and `build-status.md`.
 >
 > **Update rule**: Any session that adds, removes, or changes a route / server action / schema column / context API / component interface must update the relevant section here before marking the task done.
+>
+> **Grep guide**: Each section has a machine-greppable anchor comment `<!-- AS-IS.<DOMAIN> -->`.
+> Subagents: grep for `AS-IS.ROUTE`, `AS-IS.SCHEMA`, `AS-IS.ACTION`, `AS-IS.CONTEXT`, `AS-IS.COMPONENT`, `AS-IS.IDB`, `AS-IS.UTIL` to find the relevant section fast.
 
 ---
 
+<!-- AS-IS.ROUTE -->
 ## 1. Routes
 
 | Route | Page File | Client Component | Auth Guard | Data Fetched |
 |---|---|---|---|---|
-| `/` | `src/app/page.tsx` | `HeroSection`, `FeatureSection` | None | None |
+| `/` | `src/app/page.tsx` | `HeroSection`, `FeatureSection`, `InstallAppSection`, `Footer` | None | None |
 | `/login` | `src/app/login/page.tsx` | inline | None | None |
-| `/app` | `src/app/app/page.tsx` | `StockClient` | Session → redirect `/login` | `getHouseholdItems()` — items grouped by category with last entry |
-| `/app/item/[id]` | `src/app/app/item/[id]/page.tsx` | `ItemDetailClient` | Session + householdId ownership | item, category, allEntries, purchaseHistory |
-| `/app/category/[id]` | `src/app/app/category/[id]/page.tsx` | `CategoryClient` | Session + householdId ownership | category, items, purchaseEntries, monthlySpend |
+| `/app` | `src/app/app/page.tsx` | `StockClient` | Session → redirect `/login` | `getSpaceItems()` — items grouped by category with last entry |
+| `/app/item/[id]` | `src/app/app/item/[id]/page.tsx` | `ItemDetailClient` | Session + spaceId ownership | item, category, allEntries, purchaseHistory |
+| `/app/category/[id]` | `src/app/app/category/[id]/page.tsx` | `CategoryClient` | Session + spaceId ownership | category, items, purchaseEntries, monthlySpend |
 | `/app/price` | `src/app/app/price/page.tsx` | `PriceClient` | Session | spend by range, categorySpend, recentPurchases, storeSpend |
-| `/app/settings` | `src/app/app/settings/page.tsx` | `SettingsClient` | Session | members, categories, stores, groups (with items), allItems |
+| `/app/settings` | `src/app/app/settings/page.tsx` | `SettingsClient` | Session | members, categories, stores |
 | `/api/auth` | `src/app/api/auth/route.ts` | — | None | Handles login / register / passkey |
 
-**Deprecated routes still present (redirect only):**
-- `/app/inventory` → `/app`
-- `/app/inventory/[item]` → `/app`
-- `/app/trends` → `/app/price`
+**Layout:** `src/app/app/layout.tsx` (server component) — calls `requireSession()`, fetches `getActiveSpaceForUser`, `getSpaceMembers`, `getCategories`, `getUserSpaces`, builds `SpaceContextValue`, passes to `ClientLayout`.
 
-**Layout:** `src/app/app/layout.tsx` wraps all `/app/*` routes with `SpaceProvider` + `HouseholdProvider` (initialized server-side from session + DB queries) and `AppShell`. `SpaceProvider` receives a `SpaceContextValue` built from `getSpaceMembers` + `getUserSpaces` fetched in the server component.
+`src/app/app/ClientLayout.tsx` (client) — mounts provider tree: `SpaceProvider → OfflineProvider → UIProvider → AppShell`.
 
 ---
 
+<!-- AS-IS.SCHEMA -->
 ## 2. Database Schema
 
 File: `src/lib/db/schema.ts`
@@ -52,27 +54,40 @@ File: `src/lib/db/schema.ts`
 | `transports` | `text` | nullable |
 | `user_id` | `text` FK→users | cascade delete |
 
-### `households`
+### `spaces`
 | Column | Type | Notes |
 |---|---|---|
 | `id` | `text` PK | uuid |
 | `name` | `text` NOT NULL | |
 | `created_at` | `timestamp` | defaultNow |
 
-### `household_members`
+### `space_members`
 | Column | Type | Notes |
 |---|---|---|
 | `id` | `serial` PK | |
-| `household_id` | `text` FK→households | cascade delete |
+| `space_id` | `text` FK→spaces | cascade delete |
 | `user_id` | `text` FK→users | cascade delete |
+| `display_name` | `text` NOT NULL | per-space identity |
+| `avatar` | `text` | nullable |
 | `joined_at` | `timestamp` | defaultNow |
-| — | UNIQUE | `(household_id, user_id)` |
+| — | UNIQUE | `(space_id, user_id)` |
+
+### `space_invites`
+| Column | Type | Notes |
+|---|---|---|
+| `id` | `serial` PK | |
+| `space_id` | `text` FK→spaces | cascade delete |
+| `code` | `text` UNIQUE NOT NULL | 8-char alphanumeric |
+| `created_by` | `integer` FK→space_members | cascade delete |
+| `expires_at` | `timestamp` NOT NULL | now() + 48h |
+| `used_at` | `timestamp` | nullable; set when claimed |
+| `created_at` | `timestamp` | defaultNow |
 
 ### `categories`
 | Column | Type | Notes |
 |---|---|---|
 | `id` | `serial` PK | |
-| `household_id` | `text` FK→households | cascade delete |
+| `space_id` | `text` FK→spaces | cascade delete |
 | `name` | `text` NOT NULL | |
 | `default_unit` | `text` NOT NULL | default `'pcs'` |
 | `created_at` | `timestamp` | defaultNow |
@@ -81,111 +96,91 @@ File: `src/lib/db/schema.ts`
 | Column | Type | Notes |
 |---|---|---|
 | `id` | `serial` PK | |
-| `household_id` | `text` FK→households | cascade delete |
+| `space_id` | `text` FK→spaces | cascade delete |
 | `category_id` | `integer` FK→categories | set null on delete; nullable |
 | `name` | `text` NOT NULL | |
-| `unit` | `text` NOT NULL | default `'pcs'`; the item's canonical unit |
-| `current_stock` | `real` NOT NULL | default `0`; updated by entry mutations atomically |
+| `unit` | `text` NOT NULL | default `'pcs'` |
+| `current_stock` | `real` NOT NULL | default `0`; updated atomically by entry mutations |
 | `low_stock_threshold` | `real` | nullable; null = no alert |
-| `alert_enabled` | `integer` NOT NULL | default `1`; `0` = alerts muted |
+| `alert_enabled` | `boolean` NOT NULL | default `true` |
 | `last_entry_at` | `timestamp` | nullable; set on every entry mutation |
 | `created_at` | `timestamp` | defaultNow |
 | `updated_at` | `timestamp` | defaultNow |
 
-Indexes: `idx_items_household(household_id)`, `idx_items_category(category_id)`
+Indexes: `idx_items_space(space_id)`, `idx_items_category(category_id)`
 
 ### `entries`
 | Column | Type | Notes |
 |---|---|---|
 | `id` | `serial` PK | |
-| `household_id` | `text` FK→households | cascade delete |
+| `space_id` | `text` FK→spaces | cascade delete |
 | `item_id` | `integer` FK→items | set null on delete; nullable |
+| `member_id` | `integer` FK→space_members | cascade delete; attribution |
 | `type` | `text` NOT NULL | `'purchase'` or `'consume'`; default `'purchase'` |
 | `price` | `real` | null for consume entries |
 | `quantity` | `real` NOT NULL | default `1` |
-| `unit` | `text` NOT NULL | default `'pcs'`; per-entry unit (may differ from item unit) |
-| `store` | `text` | free text ("Big C", "CJ"); null for consume |
-| `date` | `text` NOT NULL | `YYYY-MM-DD` string |
+| `unit` | `text` NOT NULL | default `'pcs'`; per-entry unit |
+| `store` | `text` | free text; null for consume |
+| `date` | `date` NOT NULL | `YYYY-MM-DD` |
 | `note` | `text` | nullable |
-| `user_id` | `text` FK→users | cascade delete; attribution |
 | `created_at` | `timestamp` | defaultNow |
 
-Indexes: `idx_entries_item_id`, `idx_entries_household_date`, `idx_entries_household_created`
+Indexes: `idx_entries_item_id`, `idx_entries_space_date`, `idx_entries_space_created`
 
-### `groups`
-| Column | Type | Notes |
-|---|---|---|
-| `id` | `serial` PK | |
-| `household_id` | `text` FK→households | cascade delete |
-| `name` | `text` NOT NULL | |
-| `created_at` | `timestamp` | defaultNow |
-
-Index: `idx_groups_household(household_id)`
-
-### `group_items`
-| Column | Type | Notes |
-|---|---|---|
-| `group_id` | `integer` FK→groups | cascade delete |
-| `item_id` | `integer` FK→items | cascade delete |
-| — | UNIQUE | `(group_id, item_id)` |
+**Removed tables:** `households`, `household_members`, `groups`, `group_items` — deleted in redesign migration.
 
 ---
 
+<!-- AS-IS.ACTION -->
 ## 3. Server Actions
 
 File: `src/app/app/actions.ts`
 
-All actions call `requireSession()` first (exported from `src/lib/session.ts`), which:
-1. Calls `getSession()` — throws `'Unauthorized'` if no session
-2. Checks `session.activeSpaceId` — throws `'No active space'` if missing
-3. Returns `{ userId: string, spaceId: string, memberId: number }` — no DB query
+All actions call `requireSession()` first (`src/lib/session.ts`), which returns `{ userId, spaceId, memberId }` or throws `'Unauthorized'` / `'No active space'`.
 
-Record-level authorization: actions that accept an ID re-fetch the record and compare its `householdId` to the session's `householdId`, throwing `'Not found'` if mismatched.
+Record-level auth guard: fetch record, compare `record.spaceId !== spaceId` → throw `'Not found'`.
 
 ### Category
 | Action | Signature | Returns | Side effects |
 |---|---|---|---|
 | `addCategory` | `(raw: { name, defaultUnit? })` | `Category` | `revalidatePath('/app')` |
 | `getCategories` | `()` | `Category[]` | — |
-| `updateCategory` | `(id, raw: { name?, defaultUnit? })` | `Category` | revalidates `/app`; auth guard throws `'Not found'` |
-| `deleteCategory` | `(id)` | `void` | revalidates `/app` + `/app/settings`; auth guard throws `'Not found'` |
+| `updateCategory` | `(id, raw: { name?, defaultUnit? })` | `Category` | revalidates `/app`; auth guard |
+| `deleteCategory` | `(id)` | `void` | revalidates `/app` + `/app/settings`; auth guard |
 
 ### Item
 | Action | Signature | Returns | Side effects |
 |---|---|---|---|
 | `addItem` | `(raw: { name, unit?, categoryId? })` | `Item` | `revalidatePath('/app')` |
-| `updateItem` | `(id, raw: { name?, unit?, categoryId?, lowStockThreshold?, alertEnabled? })` | `Item` | revalidates `/app` + `/app/item/[id]` |
-| `deleteItem` | `(id)` | `void` | revalidates `/app`; also deletes all entries (cascade) |
-| `getHouseholdItems` | `()` | `Array<{ item, category, lastEntry }>` | — |
-| `getItemsForAutocomplete` | `()` | `Array<{ id, name, unit, categoryName, lastQty, lastPrice, lastStore }>` — ordered by `lastEntryAt DESC NULLS LAST` | — |
+| `updateItem` | `(id, raw: { name?, unit?, categoryId?, lowStockThreshold?, alertEnabled? })` | `Item` | revalidates `/app` + `/app/item/[id]`; auth guard |
+| `deleteItem` | `(id)` | `void` | revalidates `/app`; cascade deletes entries; auth guard |
+| `getSpaceItems` | `()` | `Array<{ item, category, lastEntry, lastMember: { displayName } }>` | — |
+| `getItemsForAutocomplete` | `()` | `Array<{ id, name, unit, categoryName, lastQty, lastPrice, lastStore }>` ordered by `lastEntryAt DESC` | — |
 
 ### Entry
 | Action | Signature | Returns | Side effects |
 |---|---|---|---|
-| `addEntry` | `(raw: { itemId, type, price?, quantity, unit, store?, date, note? })` | `Entry` | Updates `item.currentStock` atomically; revalidates `/app` + `/app/item/[id]` |
-| `updateEntry` | `(entryId, raw: { type?, price?, quantity?, unit?, store?, date?, note? })` | `Entry` | Recalculates `item.currentStock`; revalidates `/app` + `/app/item/[id]` |
-| `deleteEntry` | `(entryId)` | `void` | Recalculates `item.currentStock`; revalidates `/app` + `/app/item/[id]` |
+| `addEntry` | `(raw: { itemId, type, price?, quantity, unit, store?, date, note? })` | `Entry` | Updates `item.currentStock` atomically; revalidates `/app` + `/app/item/[id]`; uses `memberId` from session |
+| `updateEntry` | `(entryId, raw: { type?, price?, quantity?, unit?, store?, date?, note? })` | `Entry` | Recalculates `item.currentStock`; auth guard |
+| `deleteEntry` | `(entryId)` | `void` | Reverses `item.currentStock`; auth guard |
 
-**Note on consume entries:** `addEntry` strips `price` and `store` to `null` when `type === 'consume'`, regardless of what was passed.
+**Consume rule:** `addEntry` strips `price` and `store` to `null` when `type === 'consume'`.
 
-### Group
-| Action | Signature | Returns | Side effects |
-|---|---|---|---|
-| `addGroup` | `(raw: { name })` | `Group` | `revalidatePath('/app/settings')` |
-| `renameGroup` | `(id, raw: { name })` | `Group` | `revalidatePath('/app/settings')` |
-| `deleteGroup` | `(id)` | `void` | revalidates `/app/settings` + `/app` |
-| `getGroups` | `()` | `Group[]` | — |
-| `assignItemToGroup` | `(groupId, itemId)` | `void` | `revalidatePath('/app')` |
-| `removeItemFromGroup` | `(groupId, itemId)` | `void` | `revalidatePath('/app')` |
-| `getGroupItems` | `(groupId)` | `Item[]` | — |
-
-### Space management
+### Space & member
 | Action | Signature | Returns | Notes |
 |---|---|---|---|
-| `createSpace` | `(name, displayName)` | `{ spaceId, memberId }` | creates space + member for current user; logs `space.create` |
-| `switchSpace` | `(spaceId)` | `void` | validates membership, updates session cookie, revalidates `/app`; throws `'Not a member'` |
-| `getMySpaces` | `()` | `Array<{ id, name, displayName, memberId }>` | all spaces current user belongs to |
-| `updateMemberProfile` | `({ displayName?, avatar? })` | `SpaceMember` | updates active member's row; logs `member.profile.update` |
+| `createSpace` | `(name, displayName)` | `{ spaceId, memberId }` | Creates space + space_member; logs `space.create` |
+| `switchSpace` | `(spaceId)` | `void` | Validates membership, updates session, `revalidatePath('/app')`; throws `'Not a member'` |
+| `getMySpaces` | `()` | `Array<{ id, name, displayName, memberId }>` | All spaces the current user belongs to |
+| `updateMemberProfile` | `({ displayName?, avatar? })` | `SpaceMember` | Updates active member row; logs `member.profile.update` |
+| `renameSpace` | `(spaceId, name)` | `Space` | Auth: user must be a member; logs `space.rename` |
+| `leaveSpace` | `(spaceId)` | `void` | Removes `space_members` row; throws if last member; logs `space.leave` |
+
+### Invite
+| Action | Signature | Returns | Notes |
+|---|---|---|---|
+| `createInvite` | `()` | `{ code }` | Generates 8-char code; `expires_at = now() + 48h`; logs `invite.create` |
+| `joinByInviteCode` | `(code)` | `{ spaceId }` | Validates code (not expired, not used); inserts `space_members`; marks `used_at`; throws `'Invalid code'` / `'Code expired'` / `'Already used'` / `'Already a member'` |
 
 ### Query (read-only)
 | Action | Signature | Returns |
@@ -198,13 +193,14 @@ Record-level authorization: actions that accept an ID re-fetch the record and co
 
 ---
 
+<!-- AS-IS.CONTEXT -->
 ## 4. Context Providers
 
-Provider tree (outermost → innermost): `SpaceProvider → HouseholdProvider → OfflineProvider → UIProvider`
+Provider tree (outermost → innermost): `SpaceProvider → OfflineProvider → UIProvider`
 
-Mounted in: `src/app/app/ClientLayout.tsx`. Both `SpaceProvider` and `HouseholdProvider` initialized server-side in `src/app/app/layout.tsx`.
+Mounted in: `src/app/app/ClientLayout.tsx`. `SpaceProvider` initialized server-side in `src/app/app/layout.tsx`.
 
-### `SpaceContext` ← **new (S4.1)**
+### `SpaceContext`
 File: `src/components/providers/SpaceContext.tsx`
 
 ```ts
@@ -217,64 +213,25 @@ interface SpaceContextValue {
   mySpaces: Array<{ id: string; name: string }>;
 }
 // Hook: useSpace() — throws outside SpaceProvider
+// Provider: SpaceProvider({ initialValue, children }) — read-only, no setters
 ```
-
-Initialized server-side in `layout.tsx` from `requireSession()` + `getSpaceMembers` + `getUserSpaces`. Read-only — no setters.
-
-### `HouseholdContext` ← **deprecated, remove in S5.2**
-File: `src/components/providers/HouseholdContext.tsx`
-
-```ts
-interface HouseholdContextValue {
-  householdId: string;
-  currentUserId: string;
-  members: Array<{ userId: string; username: string }>;
-}
-// Hook: useHousehold()
-```
-
-Still used by `StockClient`. Will be removed when StockClient migrates to `useSpace()` in S5.2.
-`currentUserId` comes from `session.userId` threaded through `layout.tsx` → `ClientLayout` → `HouseholdProvider`.
 
 ### `UIContext`
 File: `src/components/providers/UIContext.tsx`
 
+Three focused hooks, each with its own context:
+
 ```ts
-interface UIContextType {
-  // Log entry sheet (FAB / quick actions)
-  isLogEntrySheetOpen: boolean;
-  logEntryPrefillItemId: number | undefined;
-  logEntryPrefillType: 'purchase' | 'consume' | undefined;
-  setLogEntrySheetOpen: (open: boolean, prefillItemId?: number, prefillType?: 'purchase' | 'consume') => void;
+// useLogSheet() — FAB / log entry sheet
+{ isOpen, prefillItemId, prefillType, open(itemId?, type?), close() }
 
-  // Quick Log sheet (chip tap from QuickLogStrip)
-  isQuickLogOpen: boolean;
-  quickLogItemId: number | null;
-  quickLogPrefill: QuickLogPrefill | null; // { itemName, categoryName, unit, lastQty, lastPrice, lastStore }
-  setQuickLogOpen: (open: boolean, itemId?: number, prefill?: QuickLogPrefill) => void;
+// useQuickLog() — quick log sheet from QuickLogStrip chips
+{ isOpen, itemId, prefill: QuickLogPrefill | null, open(itemId, prefill), close() }
 
-  // Edit item sheet
-  isEditItemSheetOpen: boolean;
-  editItemTarget: Item | null;
-  editItemEntryCount: number;
-  setEditItemSheetOpen: (open: boolean, item?: Item, entryCount?: number) => void;
+// useItemSheet() — edit/delete item sheets
+{ isEditOpen, editTarget, editEntryCount, isDeleteOpen, deleteTarget, openEdit(item, entryCount?), openDelete(item), close() }
 
-  // Edit entry sheet
-  isEditEntrySheetOpen: boolean;
-  editEntryTarget: Entry | null;
-  setEditEntrySheetOpen: (open: boolean, entry?: Entry) => void;
-
-  // Delete item modal
-  isDeleteItemModalOpen: boolean;
-  deleteItemTarget: Item | null;
-  setDeleteItemModalOpen: (open: boolean, item?: Item) => void;
-
-  // Legacy alias (points to setLogEntrySheetOpen)
-  isAddModalOpen: boolean;
-  setAddModalOpen: (open: boolean) => void;
-}
-// Hook: useUI()
-// QuickLogPrefill exported from UIContext.tsx for use by StockClient + QuickLogSheet
+// UIProvider wraps all three — all consumers must be inside UIProvider
 ```
 
 ### `OfflineContext`
@@ -287,19 +244,20 @@ interface OfflineContextType {
   addEntryOffline:    (data: AddEntryPayload) => Promise<void>;
   updateEntryOffline: (id: number, data: Partial<Omit<AddEntryPayload, 'itemId'>>) => Promise<void>;
   deleteEntryOffline: (id: number) => Promise<void>;
-  lastAction: number; // epoch ms, bumped on every mutation — use as useEffect dep to re-render
+  lastAction: number; // epoch ms — bump as useEffect dep to re-render after sync
 }
 // Hook: useOffline()
 ```
 
-Entry mutations queue to IndexedDB via `addPendingMutation()` then call `SyncEngine.sync()` if online.
-Item/category mutations call server actions directly (no offline queue).
+Entry mutations queue to IDB via `addPendingMutation()` then call `SyncEngine.sync()` if online.
+Item/category mutations call server actions directly — no offline queue.
 
 ---
 
+<!-- AS-IS.COMPONENT -->
 ## 5. Key Component Interfaces
 
-Only top-level data-boundary components are listed. Internal presentational components are omitted.
+Only top-level data-boundary components. Presentational sub-components omitted.
 
 ### Stock screen
 ```ts
@@ -309,11 +267,10 @@ interface Props {
     category: Category | null;
     items: Array<{ item: Item; lastEntry: Entry | null }>;
   }>;
-  groups?: Array<{ id: number; name: string; itemIds: number[] }>; // omit when no groups exist
 }
-// Internally uses useHousehold() to derive partnerActivityItems, partnerTags, recentItems.
-// Renders group filter chip strip (data-testid="group-filter-strip") when groups prop is present.
-// Group filter composes with existing status/sort filters.
+// Uses useSpace() for memberId + members (partner detection)
+// Uses useQuickLog() to open quick log sheet
+// Renders: ActivityStrip, QuickLogStrip, LowStockRail, CategoryGroup
 ```
 
 ```ts
@@ -322,28 +279,8 @@ interface Props {
   item: Item;
   lastEntry: Entry | null;
   onTap: () => void;
-  partnerTag?: string; // e.g. "Sam·2h" — pre-computed by StockClient
+  partnerTag?: string; // e.g. "Alex·2h" — pre-computed by StockClient
 }
-```
-
-```ts
-// src/components/stock/ActivityStrip.tsx
-interface Props {
-  partnerName: string;
-  items: Array<{ id: number; name: string }>;
-  lastActivityAt: Date;
-  onChipTap: (itemId: number) => void;
-}
-// Hidden (returns null) when items is empty.
-```
-
-```ts
-// src/components/stock/QuickLogStrip.tsx
-interface Props {
-  items: Array<{ id: number; name: string }>; // pass up to DEFAULTS.RECENT_CHIPS_STRIP items
-  onSelect: (itemId: number) => void;
-}
-// Hidden (returns null) when items is empty.
 ```
 
 ### Item Detail
@@ -380,102 +317,86 @@ interface Props {
 }
 ```
 
+### Settings
+```ts
+// src/app/app/settings/SettingsClient.tsx
+interface Props {
+  categories: Category[];
+  stores: string[];
+}
+// Uses useSpace() for spaceId, memberId, displayName, members, mySpaces
+// Features: profile edit (updateMemberProfile), invite (createInvite + copy link),
+//   space switcher (switchSpace, shown when mySpaces.length > 1),
+//   leave space, passkey enrollment, theme/language toggle, logout
+```
+
 ### Entry sheets
 ```ts
 // src/components/entry/QuickLogSheet.tsx
 interface Props {
-  isOpen: boolean;
-  onClose: () => void;
-  itemId: number | null;      // item to log
-  prefill: QuickLogPrefill | null; // pre-fills qty/price/store/unit from last entry
+  isOpen: boolean; onClose: () => void;
+  itemId: number | null;
+  prefill: QuickLogPrefill | null;
 }
-// Purchase/Consume toggle, qty stepper, price pre-confirm with [Change], store input.
-// Consume mode hides price + store. Mounted in AppShell via UIContext.isQuickLogOpen.
 
 // src/components/entry/LogEntrySheet.tsx
 interface Props {
-  isOpen: boolean;
-  onClose: () => void;
-  prefillItemId?: number; // auto-selects item on open; pre-fills from last entry
-  prefillType?: EntryType; // import from '@/lib/constants'
+  isOpen: boolean; onClose: () => void;
+  prefillItemId?: number;
+  prefillType?: EntryType;
 }
-// UX: chip grid (6 recent items), qty stepper, unit as label + [≠ unit] picker,
-//     price pre-confirm + [Change], date label + [≠] picker, search input for all items.
 
 // src/components/entry/EditEntrySheet.tsx
 interface Props {
-  entry: Entry;
-  isOpen: boolean;
-  onClose: () => void;
+  entry: Entry; isOpen: boolean; onClose: () => void;
   onDelete: (entry: Entry) => void;
 }
 ```
 
-### Item / Delete sheets
+### Item sheets / modals
 ```ts
 // src/components/item/EditItemSheet.tsx
 interface Props {
-  item: Item;
-  categories: Category[];
-  hasEntries?: boolean;
-  isOpen: boolean;
-  onClose: () => void;
+  item: Item; categories: Category[]; hasEntries?: boolean;
+  isOpen: boolean; onClose: () => void;
   onDeleteClick: (item: Item) => void;
 }
 
-// src/components/ui/BottomSheetContainer.tsx
-interface Props {
-  isOpen: boolean;
-  onClose: () => void;
-  testId?: string;
-  children: ReactNode;
-}
-// Handles mounted guard, createPortal, backdrop, and container styling.
-// Use this for all bottom sheets — do NOT repeat the portal pattern manually.
-
 // src/components/item/DeleteItemModal.tsx
 interface Props {
-  item: Item;
-  entryCount: number;
-  onConfirm: () => void;
-  onCancel: () => void;
+  item: Item; entryCount: number;
+  onConfirm: () => void; onCancel: () => void;
 }
 
 // src/components/entry/DeleteEntryModal.tsx
 interface Props {
-  entry: Entry;
-  itemName: string;
-  onConfirm: () => void;
-  onCancel: () => void;
+  entry: Entry; itemName: string;
+  onConfirm: () => void; onCancel: () => void;
 }
 
-// src/app/app/settings/SettingsClient.tsx
+// src/components/ui/BottomSheetContainer.tsx
 interface Props {
-  currentUserId: string;
-  members: Array<{ userId: string; username: string }>;
-  categories: Category[];
-  stores: string[];
-  groups: Array<{ id: number; name: string; items: Array<{ id: number; name: string }> }>;
-  allItems: Array<{ id: number; name: string }>; // full household item list for assignment UI
+  isOpen: boolean; onClose: () => void;
+  testId?: string; children: ReactNode;
 }
-// Groups section: create/rename/delete groups with inline confirm.
-// Each group row has a "Manage items" toggle that expands a checkbox list of allItems.
-// Checking an item calls assignItemToGroup(groupId, itemId); unchecking calls removeItemFromGroup.
-// Calls addGroup/renameGroup/deleteGroup/assignItemToGroup/removeItemFromGroup server actions, then router.refresh().
+// Handles portal, backdrop, animation. Use for ALL bottom sheets — do not repeat the pattern.
 ```
 
 ---
 
+<!-- AS-IS.AUTH -->
 ## 6. Auth Flow
 
-- **Session**: JWT stored in httpOnly cookie. `getSession()` → `{ userId, username } | null`.
-- **Login**: `POST /api/auth` with `{ action: 'login', username, password }` → sets cookie.
-- **Register**: `POST /api/auth` with `{ action: 'register', username, password }` → creates user + space + space_member + sets cookie with `activeSpaceId` + `activeMemberId`.
-- **Passkey**: WebAuthn enrollment available in Settings. Not fully E2E tested (deferred, see `backlog.md`).
-- **Logout**: `src/app/auth/actions.ts` → clears cookie → redirects `/login`.
+- **Session**: JWT in httpOnly cookie. `getSession()` → `{ userId, username, activeSpaceId, activeMemberId } | null`
+- **requireSession()**: Returns `{ userId, spaceId, memberId }` or throws `'Unauthorized'` / `'No active space'`
+- **Login**: `POST /api/auth { action: 'login', username, password }` → sets cookie
+- **Register**: `POST /api/auth { action: 'register', username, password }` → creates user + space ("My Home") + space_member + sets cookie with `activeSpaceId` + `activeMemberId`
+- **Passkey**: WebAuthn enrollment in Settings (`registerPasskey()`). Login via `loginPasskey()`.
+- **Logout**: `src/app/auth/actions.ts` → clears cookie → redirects `/login`
 
 ---
 
+<!-- AS-IS.IDB -->
 ## 7. Offline / IndexedDB
 
 File: `src/lib/idb.ts`
@@ -490,15 +411,17 @@ type MutationType = 'entry.add' | 'entry.update' | 'entry.delete';
 
 ---
 
+<!-- AS-IS.UTIL -->
 ## 8. Utilities
 
 | File | What it exports |
 |---|---|
-| `src/lib/constants.ts` | `ENTRY_TYPE`, `EntryType`, `ROUTES`, `THRESHOLDS`, `DEFAULTS`, `UNIT_OPTIONS` — **import from here, never hardcode these values** |
-| `src/components/ui/Autocomplete.tsx` | `ItemSuggestion` — `{ id, name, categoryName, unit?, lastQty?, lastPrice?, lastStore? }` |
+| `src/lib/constants.ts` | `ENTRY_TYPE`, `EntryType`, `ROUTES`, `THRESHOLDS`, `DEFAULTS`, `UNIT_OPTIONS` — import from here, never hardcode |
 | `src/lib/price.ts` | `calculatePriceStats(purchases)` → `{ avg, best, last, dealSignal }`, `compareStores(purchases)` → `Record<store, { avg, count }>` |
 | `src/lib/stock.ts` | `stockStatus({ currentStock, lowStockThreshold })` → `'out' \| 'low' \| 'ok'` |
 | `src/lib/queries.ts` | All raw Drizzle queries; consumed by server actions and page components |
 | `src/lib/logger.ts` | `log.info(event, payload)`, `log.warn(...)`, `log.error(...)` — wraps Axiom + console |
-| `src/lib/i18n.tsx` | `useTranslation()` hook + `t(key)` — EN and TH strings; all UI-visible strings must have keys here. `translations` object is exported for test access. |
-| `src/lib/i18n.test.ts` | No-missing-keys guard — asserts EN and TH have identical key sets (3 tests) |
+| `src/lib/i18n.tsx` | `useTranslation()` hook + `t(key)` — EN and TH strings; all UI-visible strings must have keys here |
+| `src/lib/i18n.test.ts` | No-missing-keys guard — asserts EN and TH have identical key sets |
+| `src/components/ui/Autocomplete.tsx` | `ItemSuggestion` type + autocomplete component for item search |
+| `src/lib/session.ts` | `getSession()`, `requireSession()`, `setSession()`, `clearSession()` |

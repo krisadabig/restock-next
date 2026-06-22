@@ -5,7 +5,7 @@ import { useTranslation } from '@/lib/i18n';
 import { Moon, Sun, Globe, LogOut, Trash2, Fingerprint, ShieldCheck, ChevronRight, Users, Store, Tag, UserCircle, Link, Copy, Check } from 'lucide-react';
 import { logout } from '@/app/auth/actions';
 import { registerPasskey } from '@/lib/auth';
-import { createInvite, updateMemberProfile, leaveSpace, switchSpace } from '@/app/app/actions';
+import { createInvite, updateMemberProfile, leaveSpace, switchSpace, createSpace } from '@/app/app/actions';
 import { useSpace } from '@/components/providers/SpaceContext';
 import { useRouter } from 'next/navigation';
 import { useTheme } from 'next-themes';
@@ -33,6 +33,13 @@ export default function SettingsClient({ categories, stores }: Props) {
 
   // invite copy state
   const [inviteCopied, setInviteCopied] = useState(false);
+
+  // create space state
+  const [showCreateSpace, setShowCreateSpace] = useState(false);
+  const [newSpaceName, setNewSpaceName] = useState('');
+  const [newSpaceDisplayName, setNewSpaceDisplayName] = useState(displayName);
+  const [createSpaceLoading, setCreateSpaceLoading] = useState(false);
+  const [createSpaceSuccess, setCreateSpaceSuccess] = useState(false);
 
   // leave space state
   const [showLeaveConfirm, setShowLeaveConfirm] = useState(false);
@@ -64,6 +71,19 @@ export default function SettingsClient({ categories, stores }: Props) {
       await updateMemberProfile({ displayName: profileName });
     } finally {
       setProfileSaving(false);
+    }
+  };
+
+  const handleCreateSpace = async () => {
+    if (!newSpaceName.trim()) return;
+    setCreateSpaceLoading(true);
+    try {
+      const { spaceId: newSpaceId } = await createSpace(newSpaceName.trim(), newSpaceDisplayName);
+      await switchSpace(newSpaceId);
+      setCreateSpaceSuccess(true);
+      setTimeout(() => { router.refresh(); }, 800);
+    } finally {
+      setCreateSpaceLoading(false);
     }
   };
 
@@ -227,6 +247,67 @@ export default function SettingsClient({ categories, stores }: Props) {
           </div>
         </section>
       )}
+
+      {/* Create new space */}
+      <section className="space-y-4">
+        <h2 className="text-[10px] font-bold text-muted-foreground/50 uppercase tracking-[0.2em] px-2 flex items-center gap-2">
+          <Users size={12} />
+          {t('settings.createSpace')}
+        </h2>
+        <div className="glass-card overflow-hidden rounded-[2rem] p-5 space-y-3">
+          {!showCreateSpace ? (
+            <button
+              data-testid="create-space-btn"
+              onClick={() => setShowCreateSpace(true)}
+              className="text-sm font-bold text-primary hover:underline"
+            >
+              + {t('settings.createSpace')}
+            </button>
+          ) : createSpaceSuccess ? (
+            <p className="text-sm font-bold text-emerald-500">{t('settings.createSpaceSuccess')}</p>
+          ) : (
+            <div className="space-y-3">
+              <div className="space-y-1.5">
+                <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">{t('settings.createSpacePlaceholder')}</p>
+                <input
+                  data-testid="create-space-name-input"
+                  type="text"
+                  value={newSpaceName}
+                  onChange={(e) => setNewSpaceName(e.target.value)}
+                  placeholder={t('settings.createSpacePlaceholder')}
+                  className="input-premium"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">{t('settings.yourNameInSpace')}</p>
+                <input
+                  data-testid="create-space-displayname-input"
+                  type="text"
+                  value={newSpaceDisplayName}
+                  onChange={(e) => setNewSpaceDisplayName(e.target.value)}
+                  className="input-premium"
+                />
+              </div>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => { setShowCreateSpace(false); setNewSpaceName(''); setNewSpaceDisplayName(displayName); }}
+                  className="flex-1 h-11 rounded-2xl bg-secondary/50 font-bold text-sm"
+                >
+                  {t('settings.cancel')}
+                </button>
+                <button
+                  data-testid="create-space-submit-btn"
+                  onClick={handleCreateSpace}
+                  disabled={!newSpaceName.trim() || createSpaceLoading}
+                  className="flex-1 h-11 rounded-2xl bg-primary text-white font-bold text-sm disabled:opacity-50"
+                >
+                  {createSpaceLoading ? '...' : t('settings.createSpace')}
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      </section>
 
       {/* My Stores */}
       <section className="space-y-4">

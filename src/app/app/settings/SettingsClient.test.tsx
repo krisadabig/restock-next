@@ -9,6 +9,7 @@ const mockCreateInvite = vi.hoisted(() => vi.fn());
 const mockUpdateMemberProfile = vi.hoisted(() => vi.fn());
 const mockLeaveSpace = vi.hoisted(() => vi.fn());
 const mockSwitchSpace = vi.hoisted(() => vi.fn());
+const mockCreateSpace = vi.hoisted(() => vi.fn());
 
 vi.mock('next/navigation', () => ({
   useRouter: () => ({ push: vi.fn(), back: vi.fn(), refresh: vi.fn() }),
@@ -23,6 +24,7 @@ vi.mock('@/app/app/actions', () => ({
   updateMemberProfile: mockUpdateMemberProfile,
   leaveSpace: mockLeaveSpace,
   switchSpace: mockSwitchSpace,
+  createSpace: mockCreateSpace,
 }));
 vi.mock('@/components/providers/SpaceContext', () => ({
   useSpace: () => ({
@@ -127,6 +129,34 @@ describe('SettingsClient — switch space', () => {
       fireEvent.click(screen.getByTestId('switch-space-sp2'));
     });
     expect(mockSwitchSpace).toHaveBeenCalledWith('sp2');
+  });
+});
+
+describe('SettingsClient — create new space', () => {
+  beforeEach(() => {
+    mockCreateSpace.mockReset();
+    mockSwitchSpace.mockReset();
+  });
+
+  it('submit with name + displayName calls createSpace then switchSpace with returned spaceId', async () => {
+    mockCreateSpace.mockResolvedValue({ spaceId: 'sp3', memberId: 5 });
+    mockSwitchSpace.mockResolvedValue(undefined);
+    wrap(<SettingsClient categories={categories} stores={stores} />);
+    fireEvent.click(screen.getByTestId('create-space-btn'));
+    fireEvent.change(screen.getByTestId('create-space-name-input'), { target: { value: 'Holiday Home' } });
+    fireEvent.change(screen.getByTestId('create-space-displayname-input'), { target: { value: 'Alex H' } });
+    await act(async () => {
+      fireEvent.click(screen.getByTestId('create-space-submit-btn'));
+    });
+    expect(mockCreateSpace).toHaveBeenCalledWith('Holiday Home', 'Alex H');
+    expect(mockSwitchSpace).toHaveBeenCalledWith('sp3');
+  });
+
+  it('empty space name keeps submit button disabled', () => {
+    wrap(<SettingsClient categories={categories} stores={stores} />);
+    fireEvent.click(screen.getByTestId('create-space-btn'));
+    const submitBtn = screen.getByTestId('create-space-submit-btn') as HTMLButtonElement;
+    expect(submitBtn.disabled).toBe(true);
   });
 });
 

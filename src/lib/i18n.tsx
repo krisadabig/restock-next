@@ -212,6 +212,21 @@ export const translations = {
 			noStores: 'No stores logged yet.',
 			youLabel: 'you',
 			saving: 'Saving...',
+			createSpace: 'Create new space',
+			createSpacePlaceholder: 'e.g. Holiday Home',
+			yourNameInSpace: 'Your name in this space',
+			createSpaceSuccess: 'Space created!',
+		},
+		join: {
+			title: "You've been invited to join a space.",
+			accept: 'Accept Invitation',
+			invalid: 'This invite link is invalid or has already been used.',
+			expired: 'This invite link has expired.',
+			alreadyMember: "You're already a member of this space.",
+		},
+		error: {
+			title: 'Something went wrong',
+			retry: 'Try again',
 		}
 	},
 	th: {
@@ -422,6 +437,21 @@ export const translations = {
 			noStores: 'ยังไม่มีร้านค้าที่บันทึก',
 			youLabel: 'คุณ',
 			saving: 'กำลังบันทึก...',
+			createSpace: 'สร้างพื้นที่ใหม่',
+			createSpacePlaceholder: 'เช่น บ้านพักวันหยุด',
+			yourNameInSpace: 'ชื่อของคุณในพื้นที่นี้',
+			createSpaceSuccess: 'สร้างพื้นที่สำเร็จ!',
+		},
+		join: {
+			title: 'คุณได้รับคำเชิญให้เข้าร่วมพื้นที่',
+			accept: 'ยอมรับคำเชิญ',
+			invalid: 'ลิงก์เชิญนี้ไม่ถูกต้องหรือถูกใช้งานแล้ว',
+			expired: 'ลิงก์เชิญนี้หมดอายุแล้ว',
+			alreadyMember: 'คุณเป็นสมาชิกของพื้นที่นี้อยู่แล้ว',
+		},
+		error: {
+			title: 'เกิดข้อผิดพลาด',
+			retry: 'ลองอีกครั้ง',
 		}
 	}
 };
