@@ -220,6 +220,7 @@ export const translations = {
 			createSpacePlaceholder: 'e.g. Holiday Home',
 			yourNameInSpace: 'Your name in this space',
 			createSpaceSuccess: 'Space created!',
+			passkeyDesc: 'Secure your account with a passkey (Face ID, fingerprint, or PIN).',
 		},
 		join: {
 			title: "You've been invited to join a space.",
@@ -457,6 +458,7 @@ export const translations = {
 			createSpacePlaceholder: 'เช่น บ้านพักวันหยุด',
 			yourNameInSpace: 'ชื่อของคุณในพื้นที่นี้',
 			createSpaceSuccess: 'สร้างพื้นที่สำเร็จ!',
+			passkeyDesc: 'รักษาความปลอดภัยบัญชีด้วยพาสคีย์ (Face ID, ลายนิ้วมือ หรือ PIN)',
 		},
 		join: {
 			title: 'คุณได้รับคำเชิญให้เข้าร่วมพื้นที่',

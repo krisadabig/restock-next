@@ -392,7 +392,7 @@ export default function SettingsClient({ categories, stores }: Props) {
             <div className="h-14 w-14 flex items-center justify-center rounded-2xl bg-purple-500/10 text-purple-500 shadow-inner border border-primary/5 shrink-0"><Fingerprint className="h-6 w-6" strokeWidth={2.5} /></div>
             <div className="flex-1 space-y-1 pt-1">
               <p className="text-lg font-bold text-foreground leading-tight">Passkeys</p>
-              <p className="text-sm text-muted-foreground font-medium opacity-60 leading-relaxed">Secure your account with FaceID or TouchID.</p>
+              <p className="text-sm text-muted-foreground font-medium opacity-60 leading-relaxed">{t('settings.passkeyDesc')}</p>
             </div>
           </div>
           {passkeyMsg && (
