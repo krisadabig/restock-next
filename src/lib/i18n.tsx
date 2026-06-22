@@ -212,6 +212,10 @@ export const translations = {
 			noStores: 'No stores logged yet.',
 			youLabel: 'you',
 			saving: 'Saving...',
+			createSpace: 'Create new space',
+			createSpacePlaceholder: 'e.g. Holiday Home',
+			yourNameInSpace: 'Your name in this space',
+			createSpaceSuccess: 'Space created!',
 		},
 		error: {
 			title: 'Something went wrong',
@@ -426,6 +430,10 @@ export const translations = {
 			noStores: 'ยังไม่มีร้านค้าที่บันทึก',
 			youLabel: 'คุณ',
 			saving: 'กำลังบันทึก...',
+			createSpace: 'สร้างพื้นที่ใหม่',
+			createSpacePlaceholder: 'เช่น บ้านพักวันหยุด',
+			yourNameInSpace: 'ชื่อของคุณในพื้นที่นี้',
+			createSpaceSuccess: 'สร้างพื้นที่สำเร็จ!',
 		},
 		error: {
 			title: 'เกิดข้อผิดพลาด',
