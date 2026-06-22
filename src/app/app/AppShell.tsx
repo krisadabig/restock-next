@@ -9,6 +9,8 @@ import EditItemSheet from '@/components/item/EditItemSheet';
 import DeleteItemModal from '@/components/item/DeleteItemModal';
 import { deleteItem } from '@/app/app/actions';
 import { useLogSheet, useQuickLog, useItemSheet } from '@/components/providers/UIContext';
+import { useSpace } from '@/components/providers/SpaceContext';
+import SpaceSwitcher from '@/components/space/SpaceSwitcher';
 import type { Category } from '@/lib/db/schema';
 import { ROUTES } from '@/lib/constants';
 
@@ -19,6 +21,7 @@ interface Props {
 
 export default function AppShell({ categories, children }: Props) {
   const router = useRouter();
+  const { spaceId, mySpaces } = useSpace();
   const { isOpen: isLogOpen, prefillItemId, prefillType, close: closeLog } = useLogSheet();
   const { isOpen: isQuickOpen, itemId: quickItemId, prefill: quickPrefill, close: closeQuick } = useQuickLog();
   const { isEditOpen, editTarget, editEntryCount, isDeleteOpen, deleteTarget, close: closeItem, openDelete } = useItemSheet();
@@ -33,6 +36,11 @@ export default function AppShell({ categories, children }: Props) {
   return (
     <div className="min-h-screen bg-background text-foreground transition-colors duration-200 font-sans flex justify-center">
 <div className="w-full max-w-md bg-background/80 backdrop-blur-xl min-h-screen relative shadow-2xl flex flex-col border-x border-border/50">
+        {mySpaces.length > 1 && (
+          <header className="flex items-center px-4 py-3 border-b border-border/30">
+            <SpaceSwitcher activeSpaceId={spaceId} mySpaces={mySpaces} />
+          </header>
+        )}
         <main className="flex-1 overflow-y-auto pb-24">
           {children}
         </main>
