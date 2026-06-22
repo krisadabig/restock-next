@@ -81,7 +81,7 @@ export default function SettingsClient({ categories, stores }: Props) {
       const { spaceId: newSpaceId } = await createSpace(newSpaceName.trim(), newSpaceDisplayName);
       await switchSpace(newSpaceId);
       setCreateSpaceSuccess(true);
-      setTimeout(() => { router.refresh(); }, 800);
+      setTimeout(() => { window.location.href = '/app'; }, 800);
     } finally {
       setCreateSpaceLoading(false);
     }
@@ -235,7 +235,7 @@ export default function SettingsClient({ categories, stores }: Props) {
                 data-testid={`switch-space-${s.id}`}
                 type="button"
                 disabled={s.id === spaceId}
-                onClick={async () => { await switchSpace(s.id); router.refresh(); }}
+                onClick={async () => { await switchSpace(s.id); window.location.href = '/app'; }}
                 className="w-full flex items-center justify-between p-5 hover:bg-white/5 transition-all disabled:opacity-50 text-left"
               >
                 <span className="text-sm font-semibold">{s.name}</span>
