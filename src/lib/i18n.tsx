@@ -227,6 +227,9 @@ export const translations = {
 		error: {
 			title: 'Something went wrong',
 			retry: 'Try again',
+		},
+		a11y: {
+			skipToContent: 'Skip to content',
 		}
 	},
 	th: {
@@ -452,6 +455,9 @@ export const translations = {
 		error: {
 			title: 'เกิดข้อผิดพลาด',
 			retry: 'ลองอีกครั้ง',
+		},
+		a11y: {
+			skipToContent: 'ข้ามไปยังเนื้อหา',
 		}
 	}
 };
