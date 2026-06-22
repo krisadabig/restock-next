@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import BottomSheetContainer from '@/components/ui/BottomSheetContainer';
 import { switchSpace } from '@/app/app/actions';
 
@@ -12,13 +11,13 @@ interface Props {
 
 export default function SpaceSwitcher({ activeSpaceId, mySpaces }: Props) {
   const [open, setOpen] = useState(false);
-  const router = useRouter();
   const activeSpace = mySpaces.find((s) => s.id === activeSpaceId);
 
   const handleSelect = async (spaceId: string) => {
     setOpen(false);
     await switchSpace(spaceId);
-    router.refresh();
+    // ponytail: hard nav guarantees layout.tsx re-runs with fresh cookie; router.refresh() doesn't cross the client component boundary reliably
+    window.location.href = '/app';
   };
 
   return (

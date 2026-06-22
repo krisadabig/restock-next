@@ -6,14 +6,9 @@ import SpaceSwitcher from './SpaceSwitcher';
 afterEach(cleanup);
 
 const mockSwitchSpace = vi.fn();
-const mockRefresh = vi.fn();
 
 vi.mock('@/app/app/actions', () => ({
   switchSpace: (...args: unknown[]) => mockSwitchSpace(...args),
-}));
-
-vi.mock('next/navigation', () => ({
-  useRouter: () => ({ refresh: mockRefresh }),
 }));
 
 // BottomSheetContainer uses createPortal — mock it to render inline
@@ -32,14 +27,20 @@ function wrap(ui: React.ReactNode) {
 }
 
 describe('SpaceSwitcher', () => {
-  it('calls switchSpace then router.refresh when tapping second space', async () => {
+  it('calls switchSpace then navigates to /app when tapping second space', async () => {
+    // jsdom allows assigning window.location.href — capture it
+    let assignedHref = '';
+    vi.spyOn(window, 'location', 'get').mockReturnValue({ ...window.location, set href(v: string) { assignedHref = v; } });
+
     wrap(<SpaceSwitcher activeSpaceId="sp1" mySpaces={mySpaces} />);
 
     fireEvent.click(screen.getByTestId('space-switcher-trigger'));
     fireEvent.click(screen.getByTestId('space-option-sp2'));
 
     await vi.waitFor(() => expect(mockSwitchSpace).toHaveBeenCalledWith('sp2'));
-    await vi.waitFor(() => expect(mockRefresh).toHaveBeenCalled());
+    await vi.waitFor(() => expect(assignedHref).toBe('/app'));
+
+    vi.restoreAllMocks();
   });
 
   it('marks the active space with aria-current', () => {
