@@ -32,8 +32,7 @@ export default function AppShell({ categories, children }: Props) {
 
   return (
     <div className="min-h-screen bg-background text-foreground transition-colors duration-200 font-sans flex justify-center">
-      <div className="bg-blob bg-primary/5 -top-50 -left-50" />
-      <div className="w-full max-w-md bg-background/80 backdrop-blur-xl min-h-screen relative shadow-2xl flex flex-col border-x border-border/50">
+<div className="w-full max-w-md bg-background/80 backdrop-blur-xl min-h-screen relative shadow-2xl flex flex-col border-x border-border/50">
         <main className="flex-1 overflow-y-auto pb-24">
           {children}
         </main>
