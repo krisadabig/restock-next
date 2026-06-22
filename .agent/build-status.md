@@ -24,12 +24,12 @@
 | ✅ | B1.1 | **Space switcher UI** | `src/app/app/AppShell.tsx` | 4 tests pass · build clean · 2026-06-22 |
 | ✅ | B1.2 | **Create new space flow** | `src/app/app/settings/SettingsClient.tsx` | 2 tests pass · build clean · 2026-06-22 |
 | ✅ | B1.3 | **Join space flow** | `src/app/join/[code]/page.tsx` | 6 tests pass · build clean · 2026-06-22 |
-| 🔲 | T1.3 | **Add skip-to-content link** | `src/app/layout.tsx` |
-| 🔲 | T1.5 | **Custom 404 page** | `src/app/not-found.tsx` |
-| 🔲 | T1.6 | **Tabular nums on stock quantity** | `src/components/stock/StockItemCard.tsx` |
-| 🔲 | T1.7 | **text-wrap: balance on headlines** | `src/app/globals.css` |
-| 🔲 | U1.4 | **New user onboarding hint** | `src/components/stock/StockClient.tsx` |
-| 🔲 | U1.5 | **Fix passkey detection copy** | `src/app/app/settings/SettingsClient.tsx` |
+| ✅ | T1.3 | **Add skip-to-content link** | `src/app/layout.tsx` | build clean · 273 tests pass · 2026-06-22 |
+| ✅ | T1.5 | **Custom 404 page** | `src/app/not-found.tsx` | build clean · 273 tests pass · 2026-06-22 |
+| ✅ | T1.6 | **Tabular nums on stock quantity** | `src/components/stock/StockItemCard.tsx` | build clean · 2026-06-22 |
+| ✅ | T1.7 | **text-wrap: balance on headlines** | `src/app/globals.css` | build clean · 2026-06-22 |
+| ✅ | U1.4 | **New user onboarding hint** | `src/components/stock/StockClient.tsx` | 275 tests pass · build clean · 2026-06-22 |
+| ✅ | U1.5 | **Fix passkey detection copy** | `src/app/app/settings/SettingsClient.tsx` | build clean · 275 tests pass · 2026-06-22 |
 
 ---
 
