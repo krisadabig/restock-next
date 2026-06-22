@@ -87,7 +87,8 @@ export async function login(prevState: { error?: string } | null, formData: Form
 
 	const space = await getActiveSpaceForUser(db, user[0].id);
 	await createSession(user[0].id, user[0].username, space?.spaceId, space?.memberId);
-	redirect(ROUTES.STOCK);
+	const returnUrl = formData.get('returnUrl');
+	redirect(typeof returnUrl === 'string' && returnUrl.startsWith('/') ? returnUrl : ROUTES.STOCK);
 }
 
 export async function logout() {

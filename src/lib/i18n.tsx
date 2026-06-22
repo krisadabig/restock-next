@@ -217,6 +217,13 @@ export const translations = {
 			yourNameInSpace: 'Your name in this space',
 			createSpaceSuccess: 'Space created!',
 		},
+		join: {
+			title: "You've been invited to join a space.",
+			accept: 'Accept Invitation',
+			invalid: 'This invite link is invalid or has already been used.',
+			expired: 'This invite link has expired.',
+			alreadyMember: "You're already a member of this space.",
+		},
 		error: {
 			title: 'Something went wrong',
 			retry: 'Try again',
@@ -434,6 +441,13 @@ export const translations = {
 			createSpacePlaceholder: 'เช่น บ้านพักวันหยุด',
 			yourNameInSpace: 'ชื่อของคุณในพื้นที่นี้',
 			createSpaceSuccess: 'สร้างพื้นที่สำเร็จ!',
+		},
+		join: {
+			title: 'คุณได้รับคำเชิญให้เข้าร่วมพื้นที่',
+			accept: 'ยอมรับคำเชิญ',
+			invalid: 'ลิงก์เชิญนี้ไม่ถูกต้องหรือถูกใช้งานแล้ว',
+			expired: 'ลิงก์เชิญนี้หมดอายุแล้ว',
+			alreadyMember: 'คุณเป็นสมาชิกของพื้นที่นี้อยู่แล้ว',
 		},
 		error: {
 			title: 'เกิดข้อผิดพลาด',
