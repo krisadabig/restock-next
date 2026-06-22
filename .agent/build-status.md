@@ -21,7 +21,7 @@
 | ✅ | U1.1 | **Add error boundary for /app** | `src/app/app/error.tsx` | 2 tests pass · build clean · 2026-06-22 |
 | ✅ | U1.2 | **Remove dead "Forgot?" button** | `src/app/login/page.tsx` | build clean · 2026-06-22 |
 | ✅ | U1.3 | **Fix login page copy** | `src/app/login/page.tsx` | build clean · 2026-06-22 |
-| 🔲 | B1.1 | **Space switcher UI** | `src/app/app/AppShell.tsx` |
+| ✅ | B1.1 | **Space switcher UI** | `src/app/app/AppShell.tsx` | 4 tests pass · build clean · 2026-06-22 |
 | 🔲 | B1.2 | **Create new space flow** | `src/app/app/settings/SettingsClient.tsx` |
 | 🔲 | B1.3 | **Join space flow** | `src/app/join/[code]/page.tsx` |
 | 🔲 | T1.3 | **Add skip-to-content link** | `src/app/layout.tsx` |
